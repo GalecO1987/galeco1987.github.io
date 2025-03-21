@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analiza Serwerów</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: fill 0.2s ease, stroke 0.2s ease, opacity 0.2s ease;
+        }
+
+        .node:hover {
+           stroke: white;
+           stroke-width: 2px;
+        }
+
+        .node.hidden {
+           opacity: 0;
+           pointer-events: none;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            transition: opacity 0.2s ease;
+
+        }
+
+        .link.hidden {
+            opacity: 0;
+        }
+
+        .node-label {
+            font-size: 10px;
+            pointer-events: none;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #ffffff;
+            transition: opacity 0.2s ease;
+        }
+        .node-label.hidden {
+           opacity: 0;
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 11;
+        }
+
+        #coords {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ffffff;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        #resetButton {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            z-index: 10;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #serverInfo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            background-color: rgba(34, 34, 34, 0.9);
+            border: 1px solid #444444;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10;
+            overflow-y: auto;
+            max-height: 90vh;
+            display: none;
+            color: #ffffff;
+        }
+
+        #serverInfo h2 {
+            margin-top: 0;
+            font-size: 16px;
+        }
+
+        #serverInfo ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        #serverInfo li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        #serverInfo li::before {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: inherit;
+            position: absolute;
+            left: 0;
+            top: 5px;
+        }
+
+        #dataDate {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #ffffff;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        #filterPanel {
+            position: absolute;
+            top: 80px;
+            left: 10px;
+            background-color: rgba(34, 34, 34, 0.9);
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10;
+            width: 200px;
+        }
+
+        #filterPanel label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #filterPanel input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+          #filterPanel p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+
+
+    </style>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="tooltip"></div>
+    <div id="coords">X: 0, Y: 0</div>
+    <button id="resetButton">Resetuj Widok</button>
+
+    <div id="filterPanel">
+        <label for="memberFilter">Członkowie (min):</label>
+        <input type="range" id="memberFilter" min="0" max="2000" value="0">
+        <p id="memberValue">0</p>
+
+        <label for="boostFilter">Boosty (min):</label>
+        <input type="range" id="boostFilter" min="0" max="30" value="0">
+        <p id="boostValue">0</p>
+    </div>
+
+    <div id="serverInfo"></div>
+    <div id="dataDate">Dane z dnia: 21 marca 2025 r.</div>
+
+    <script>
+        const data = {
+            nodes: [
+                { id: "Puszysta Oaza", members: 281, boosts: 29, partnerships: [] },
+                { id: "New Arctic Furries", members: 35, boosts: 0, partnerships: ["Futrzaki na Fali", "Nasze futrzaste grono"] },
+                { id: "Kolorowa Zatoczka", members: 92, boosts: 0, partnerships: ["Futrzaki na Fali", "Planeta Futrzaków", "New Foxing Town", "Futrzaste Miasto Pizzy", "Synowie ślimaka V2"] },
+                { id: "Futrzasta Piwnica Przyjaźni", members: 102, boosts: 0, partnerships: [] },
+                { id: "Polski Serwer Furry 2", members: 385, boosts: 0, partnerships: ["Futrzaki na Fali", "Futrzaste Miasto Pizzy", "New Foxing Town", "Planeta Futrzaków", "Viper's Pit", "Boykissers Heaven", "FutrzakOwO", "FurryBox", "FURRYWORLD", "Furaski", "Futrzasta Centrala"] },
+                { id: "Futrzaste Miasto Pizzy", members: 823, boosts: 9, partnerships: ["Pyrkon Furries", "Futrzasta Oceania", "Kolorowa Zatoczka", "Futrzaki na Fali", "Planeta Futrzaków", "Polski Serwer Furry 2", "Boykissers Heaven", "Futrzasta Krypta", "New Foxing Town", "Viper's Pit", "Futrzasta Serwerownia", "Strawtilla's World", "Lisi cień", "Nasze futrzaste grono"] },
+                { id: "FurHeaven", members: 584, boosts: 0, partnerships: ["Dolina Futer", "Yutan", "Futrzasta Centrala"] },
+                { id: "Parrot Cafe", members: 527, boosts: 15, partnerships: ["New Foxing Town", "Pyrkon Furries", "BFSiP", "Boykissers Heaven"] },
+                { id: "Furrasowy Hellfire", members: 399, boosts: 7, partnerships: ["Futrzaki na Fali", "Kolorowe Futra", "Night City Renascence", "Trójmiejskie Futra"] },
+                { id: "Tajne Zgromadzenie Futrzaków", members: 1674, boosts: 28, partnerships: [] },
+                { id: "Futrzasta Oceania", members: 230, boosts: 0, partnerships: ["Futrzaste Miasto Pizzy", "Strawtilla's World", "Smocza Przystań", "Liliowe futerka", "Boykissers Heaven", "Futrzaki na Fali","Lisia Norka", "Furaski"] },
+                { id: "New Foxing Town", members: 393, boosts: 14, partnerships: ["Planeta Futrzaków", "Pyrkon Furries", "Futrzaste Miasto Pizzy", "Viper's Pit", "Futrzaki na Fali", "Polski Serwer Furry 2", "Cs'owe Futerka", "Futrzasta Karczma", "Trójmiejskie Futra", "Parrot Cafe", "Boykissers Heaven", "Konfederacja Lisowska", "Kolorowa Zatoczka"] },
+                { id: "Stacja Pandka", members: 769, boosts: 16, partnerships: ["Furasowa Republika", "Pyrkon Furries"] },
+                { id: "Pyrkon Furries", members: 806, boosts: 1, partnerships: ["Gwiazdeczki Cosmiego", "Fragonia Factory", "Tayland", "Futrzaste Miasto Pizzy", "Parrot Cafe", "New Foxing Town", "Stacja Pandka","Lisia Norka", "Futrzasty zakątek", "Night City Renascence","FutrzakOwO", "FurryBox"] },
+                { id: "Konfederacja Lisowska", members: 193, boosts: 3, partnerships: ["Planeta Futrzaków", "Nasze futrzaste grono", "New Foxing Town"] },
+                { id: "Futrzasty Zakątek", members: 44, boosts: 0, partnerships: ["Futrzasta Kawiarnia","Pyrkon Furries"] },
+                { id: "Tajemnicze Futrzaki", members: 87, boosts: 1, partnerships: [] },
+                { id: "Lisia Norka", members: 319, boosts: 2, partnerships: ["FURRYWORLD", "Pyrkon Furries", "Furrasowe Arty", "Futrzastę Plemię", "Furaski", "Futrzasta Oceania", "Dolina Futer", "Futrzasty discord", "Furry obóz RP", "Futrzaki na Fali"] },
+                { id: "Lazurowe Futerka", members: 38, boosts: 0, partnerships: [] },
+                { id: "Tayland", members: 209, boosts: 3, partnerships: ["Pyrkon Furries", "Gwiazdeczki Cosmiego", "Fragonia Factory"] },
+                { id: "Futrzasta Chatka", members: 190, boosts: 0, partnerships: ["Furrasowy kącik", "FurryBox", "FutrzakOwO", "Polskie Smoki","Futrzasty obóz"] },
+                { id: "Furry Night PL", members: 115, boosts: 0, partnerships: ["Furasowy Las", "Futrzaki na Fali", "Kolorowe Futra"] },
+                { id: "Futrzasty zakątek", members: 342, boosts: 7, partnerships: ["Kemi's Furry Place", "Gwiazdeczki Cosmiego", "Pyrkon Furries"] },
+                { id: "Furrysławia", members: 149, boosts: 0, partnerships: [] },
+                { id: "Futerkowy Las", members: 51, boosts: 0, partnerships: ["Futrzasta Krypta"] },
+                { id: "Futrzaki na Fali", members: 1711, boosts: 19, partnerships: ["Lisia Norka", "Trójmiejskie Futra", "Kolorowa Zatoczka", "Furry Night PL", "Furrasowy Hellfire", "Synowie ślimaka V2", "Futrzaste Miasto Pizzy", "Rzeczpospolita Furska", "Boykissers Heaven", "Smocza Przystań", "Viper's Pit", "New Foxing Town", "Futrzasty Serwer", "BFSiP", "New Arctic Furries", "Nasze futrzaste grono", "Liliowe futerka", "Futrzasta Oceania", "Krakersy","Polski Serwer Furry 2"] },
+                { id: "Planeta Futrzaków", members: 497, boosts: 3, partnerships: ["Kolorowa Zatoczka", "Futrzaste Miasto Pizzy", "Boykissers Heaven", "Polski Serwer Furry 2", "New Foxing Town", "Viper's Pit", "Synowie ślimaka V2", "Futrzasta Serwerownia", "Konfederacja Lisowska","Nasze futrzaste grono"] },
+                { id: "Night City Renascence", members: 90, boosts: 0, partnerships: ["Pyrkon Furries", "Furrasowy Hellfire"] },
+                { id: "Boykissers Heaven", members: 834, boosts: 14, partnerships: ["Futrzaki na Fali", "Planeta Futrzaków", "Rzeczpospolita Furska", "New Foxing Town", "Futrzaste Miasto Pizzy", "Viper's Pit", "BFSiP", "Nasze futrzaste grono", "Polski Serwer Furry 2", "Parrot Cafe", "Smocza Przystań", "Liliowe futerka", "Art Futerka", "Futrzasta Oceania"] },
+                { id: "Futerkowa Przystań", members: 218, boosts: 2, partnerships: [] },
+                { id: "Kolorowe Futra", members: 147, boosts: 0, partnerships: ["Furry Night PL", "Furrasowy Hellfire", "Rzeczpospolita Furska", "Viper's Pit"] },
+                { id: "Nasze Futrzaste Grono", members: 208, boosts: 5, partnerships: ["Futrzasta Krypta", "Boykissers Heaven", "Futrzaste Miasto Pizzy", "Rzeczpospolita Furska", "Wilkowice", "Planeta Futrzaków", "Futrzana Piwnica", "New Arctic Furries", "Art Futerka", "Futrzaki na Fali", "Futrzasta Serwerownia", "Konfederacja Lisowska"] },
+                { id: "Futrzana Dolina", members: 38, boosts: 0, partnerships: [] },
+                { id: "Futrzasty Serwer", members: 89, boosts: 0, partnerships: ["Futrzaki na Fali"] },
+                { id: "Norka Futrzaków", members: 192, boosts: 2, partnerships: [] },
+                { id: "Liliowe futerka", members: 78, boosts: 0, partnerships: ["Boykissers Heaven", "Futrzaki na Fali", "Futrzasta Oceania","F U R Y"] },
+                { id: "Dragon's Party", members: 52, boosts: 2, partnerships: [] },
+                { id: "Smocza Przystań", members: 118, boosts: 7, partnerships: ["Futrzaki na Fali", "Boykissers Heaven", "Futrzasta Oceania"] },
+                { id: "CyberFutrzaki 2621", members: 90, boosts: 11, partnerships: [] },
+                { id: "Futrzasta Serwerownia", members: 142, boosts: 0, partnerships: ["Futrzaste Miasto Pizzy", "Futrzasta Krypta", "Nasze futrzaste grono", "Planeta Futrzaków"] },
+                { id: "BFSiP", members: 1840, boosts: 26, partnerships: ["FutrzakOwO", "Lisi cień", "World of Furries", "FURRYWORLD", "Dolina Futer", "Futrzaki na Fali", "Boykissers Heaven", "Parrot Cafe","FurryBox", "Futrzasta Centrala"] },
+                { id: "Futrzasta Krypta", members: 42, boosts: 0, partnerships: ["Futrzasta Serwerownia", "Futrzaste Miasto Pizzy", "Futrzana Piwnica", "Futerkowy Las", "Nasze futrzaste grono"] },
+                { id: "Paw Paradise", members: 54, boosts: 0, partnerships: [] },
+                { id: "Art Futerka", members: 179, boosts: 0, partnerships: ["Nasze futrzaste grono", "Boykissers Heaven"] },
+                { id: "Futerka NSFW", members: 374, boosts: 1, partnerships: [] },
+                { id: "Schronisko Bartisa", members: 53, boosts: 0, partnerships: [] },
+                { id: "Futrzasta Norka", members: 932, boosts: 0, partnerships: [] },
+                { id: "Futrzasta Sauna", members: 49, boosts: 1, partnerships: [] },
+                { id: "FURRY VR - WRLD", members: 262, boosts: 2, partnerships: [] },
+                { id: "Krakersy", members: 122, boosts: 4, partnerships: ["Futrzaki na Fali"] },
+                { id: "Dolina Futer", members: 416, boosts: 0, partnerships: ["BFSiP", "FurHeaven", "Lisi cień", "Lisia Norka","FurryBox","FURRYWORLD"] },
+                { id: "Yutan", members: 153, boosts: 0, partnerships: ["Futrzasty obóz", "Furasolandia", "FurHeaven", "Lisi cień"] },
+                { id: "Futrzasty obóz", members: 27, boosts: 0, partnerships: ["Futrzasta Chatka", "Yutan", "Fragonia"] },
+                { id: "Viper's Pit", members: 181, boosts: 0, partnerships: ["Futrzaki na Fali", "Planeta Futrzaków", "New Foxing Town", "Futrzaste Miasto Pizzy","Polski Serwer Furry 2","Boykissers Heaven", "Kolorowe Futra"] },
+                { id: "Furrasolandia", members: 66, boosts: 0, partnerships: ["Yutan"] },
+                { id: "STRAWTILLA'S WORLD", members: 73, boosts: 0, partnerships: ["Fox Community", "Futrzasta Oceania", "Futrzaste Miasto Pizzy"] },
+                { id: "FURREN TAG", members: 81, boosts: 0, partnerships: [] },
+                { id: "Cs'owe futerka", members: 108, boosts: 0, partnerships: ["Gwiezdne Futra", "New Foxing Town"] },
+                { id: "Gwiezdne Futra", members: 32, boosts: 0, partnerships: ["Cs'owe futerka"] },
+                { id: "Carrie's Community", members: 38, boosts: 0, partnerships: [] },
+                { id: "F U R Y", members: 25, boosts: 0, partnerships: ["Liliowe futerka"] },
+                { id: "Trójmiejskie Futra", members: 125, boosts: 1, partnerships: ["Furrasowy Hellfire", "Futrzana Wyspa", "Futrzaki na Fali", "New Foxing Town"] },
+                { id: "Furasowa Republika", members: 323, boosts: 7, partnerships: ["Stacja Pandka","Nasze futrzaste grono","Boykissers Heaven", "Rzeczpospolita Furska"] },
+                { id: "Furzasta Karczma", members: 247, boosts: 6, partnerships: ["New Foxing Town"] },
+                { id: "Gwiazdeczki Cosmiego", members: 390, boosts: 4, partnerships: ["Futrzasty zakątek", "Pyrkon Furries", "Tayland"] },
+                { id: "Fragonia Factory", members: 122, boosts: 0, partnerships: ["Pyrkon Furries", "Tayland","FURRYWORLD", "Futrzasty obóz","Lisi cień"] },
+                { id: "Futrzasta Kawiarnia", members: 46, boosts: 0, partnerships: ["Futrzasty Zakątek"] },
+                { id: "FutrzakOwO", members: 128, boosts: 0, partnerships: ["FURRYWORLD", "Futrzasta Centrala", "Futerkowa wysepka", "Lisi cień", "Polskie Smoki", "Pyrkon Furries", "Futrzasta Chatka", "BFSiP", "Polski Serwer Furry 2"] },
+                { id: "FurryBox", members: 139, boosts: 0, partnerships: ["World of Furries", "Lisi cień", "Futrzasta Centrala", "Polski Serwer Furry 2", "Futrzaste Plemię", "Furrasowy kącik", "Dolina Futer", "Polskie Smoki", "Furry Galaxy", "Pyrkon Furries", "BFSiP", "Futrzasta Chatka"] },
+                { id: "FURRYWORLD", members: 109, boosts: 0, partnerships: ["Furry Galaxy", "Futrzasta Centrala", "Lisi Lasek", "FutrzakOwO", "BFSiP", "World of Furries", "Polski Serwer Furry 2", "Lisia Norka", "Furrasowe arty", "Dolina Futer", "Fragonia Factory"] },
+                { id: "Lisi cień", members: 514, boosts: 0, partnerships: ["Futrzaste Miasto Pizzy", "Yutan", "Dolina Futer", "Fragonia Factory", "FutrzakOwO", "FurryBox", "Futrzasta Centrala","BFSiP"] },
+                { id: "Furaski", members: 70, boosts: 0, partnerships: ["Lisia Norka", "Polski Serwer Furry 2", "Futrzasta Oceania"] },
+                { id: "Futrzasta Centrala", members: 206, boosts: 0, partnerships: ["FurHeaven", "Lisi cień", "BFSiP", "Polski Serwer Furry 2", "FutrzakOwO", "FurryBox", "FURRYWORLD"] },
+                { id: "Polskie Smoki", members: 246, boosts: 0, partnerships: ["FurryBox", "Futrzasta Chatka","FutrzakOwO"] },
+                { id: "Furasowy Las", members: 23, boosts: 0, partnerships: ["Magiczne Futerka", "Furry Night PL"] },
+                { id: "Futrzana Piwnica", members: 38, boosts: 0, partnerships: ["Nasze futrzaste grono","Futrzasta Krypta"] },
+                { id: "World of Furries", members: 66, boosts: 0, partnerships: ["Lisi cień", "BFSiP", "FURRYWORLD", "FurryBox", "Futerkowa wysepka"] },
+                { id: "Fox Community", members: 46, boosts: 0, partnerships: ["STRAWTILLA'S WORLD"] },
+                { id: "Futrzasta Kafejka Internetowa", members: 50, boosts: 0, partnerships: [] },
+                { id: "Furry Galaxy", members: 186, boosts: 0, partnerships: ["FURRYWORLD", "FurryBox"] },
+                { id: "Lisi Lasek", members: 48, boosts: 0, partnerships: ["FURRYWORLD"] },
+                { id: "Synowie ślimaka V2", members: 64, boosts: 0, partnerships: ["Futrzaki na Fali", "Planeta Futrzaków","Kolorowa Zatoczka"] },
+                { id: "Puszyste Ogonki", members: 203, boosts: 0, partnerships: [] },
+                { id: "Furrasowe Arty", members: 36, boosts: 0, partnerships: ["Lisia Norka","FURRYWORLD"] },
+                { id: "Futrzastę Plemię", members: 83, boosts: 0, partnerships: ["Lisia Norka","FurryBox"] },
+                { id: "Futrzasty discord", members: 44, boosts: 0, partnerships: ["Lisia Norka"] },
+                { id: "Furry obóz RP", members: 88, boosts: 0, partnerships: ["Lisia Norka"] },
+                { id: "Rzeczpospolita Furska", members: 241, boosts: 2, partnerships: ["Nasze futrzaste grono","Boykissers Heaven","Futrzaki na Fali", "Furasowa Republika"] },
+                { id: "Furrasowy kącik", members: 165, boosts: 0, partnerships: ["Futrzasta Chatka","FurryBox"] },
+                { id: "Futerkowa wysepka", members: 272, boosts: 0, partnerships: ["FutrzakOwO","World of Furries"] },
+                { id: "Kemi's Furry Place", members: 40, boosts: 0, partnerships: ["Futrzasty zakątek"]},
+                { id: "Wilkowice", members: 83, boosts: 2, partnerships: ["Nasze futrzaste grono"]},
+                { id: "Magiczne Futerka", members: 0, boosts: 0, partnerships: ["Furasowy Las"]},
+                {id: "Futrzana Wyspa", members: 0, boosts: 0, partnerships: ["Trójmiejskie Futra"]}
+            ],
+            links: []
+        };
+
+        data.nodes.forEach(node => {
+            node.partnerships.forEach(partnerId => {
+                const partner = data.nodes.find(n => n.id === partnerId);
+                if (partner) {
+                  data.links.push({ source: node.id, target: partnerId });
+                } else {
+                  console.warn(`Partner ${partnerId} dla ${node.id} nie został znaleziony.`);
+                }
+            });
+        });
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const radiusScale = d3.scaleSqrt()
+            .domain([0, d3.max(data.nodes, d => d.members)])
+            .range([10, 50]);
+
+        const svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g");
+
+        let simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links).id(d => d.id).distance(d => {
+                return d.source.partnerships.includes(d.target.id) ? 30 : 150;
+            }))
+            .force("charge", d3.forceManyBody().strength(-1500))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(d => radiusScale(d.members) + 5));
+
+        function drawGraph(filteredNodes, filteredLinks) {
+
+            g.selectAll(".nodes").remove();
+            g.selectAll(".links").remove();
+            g.selectAll(".labels").remove();
+
+            const newLinks = filteredLinks.filter(l =>
+                filteredNodes.some(n => n.id === l.source.id) &&
+                filteredNodes.some(n => n.id === l.target.id)
+            );
+
+            simulation.nodes(filteredNodes);
+            simulation.force("link").links(newLinks);
+
+
+            const newLink = g.append("g")
+                .attr("class", "links")
+                .selectAll("line")
+                .data(newLinks, d => d.source.id + "-" + d.target.id)
+                .enter().append("line")
+                .attr("class", "link");
+
+            const newNode = g.append("g")
+                .attr("class", "nodes")
+                .selectAll("circle")
+                .data(filteredNodes, d => d.id)
+                .enter().append("circle")
+                .attr("class", "node")
+                .attr("r", d => radiusScale(d.members))
+                .attr("fill", d => getNodeColor(d))
+                .on("click", handleClick)
+                .on("mouseover", handleMouseOver)
+                .on("mouseout", handleMouseOut);
+
+            const newLabels = g.append("g")
+                .attr("class", "labels")
+                .selectAll("text")
+                .data(filteredNodes, d => d.id)
+                .enter().append("text")
+                .attr("class", "node-label")
+                .text(d => d.id);
+
+            simulation.on("tick", () => {
+                newLink
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                newNode
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+
+                newLabels
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y - radiusScale(d.members) - 5);
+            });
+
+             simulation.alpha(1).restart();
+        }
+
+
+        let initialZoom = 0.1;
+        let initialTransform = d3.zoomIdentity.translate(width/2 , height/2 ).scale(initialZoom).translate(-width/2, -height/2);
+
+
+        const zoom_handler = d3.zoom()
+          .scaleExtent([0.1, 8])
+          .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+          });
+
+
+        svg.call(zoom_handler).call(zoom_handler.transform, initialTransform);
+
+
+
+
+        svg.on("mousemove", (event) => {
+
+            let [x, y] = d3.pointer(event, g.node());
+             x = Math.round(x);
+             y = Math.round(y);
+
+             const correctedY = height - y;
+
+            d3.select("#coords").text(`X: ${x}, Y: ${correctedY}`);
+        });
+
+
+        d3.select("#resetButton")
+          .on("click", () => {
+
+              svg.transition().duration(750).call(zoom_handler.transform, initialTransform);
+          });
+
+
+
+        function getNodeColor(node) {
+            const boostScale = d3.scaleLinear()
+                .domain([0, 10, 20, 30])
+                .range(["#f0f0f0", "#ffeb3b", "#ff9800", "#ff0000"]);
+            return boostScale(node.boosts);
+        }
+
+        let currentlyHighlighted = null;
+
+        function handleClick(event, d) {
+            const serverInfo = d3.select("#serverInfo");
+
+
+            if (currentlyHighlighted === d) {
+                serverInfo.style("display", "none");
+                currentlyHighlighted = null;
+                 resetHighlight();
+                return;
+            }
+
+            currentlyHighlighted = d;
+            serverInfo.style("display", "block");
+
+            const sortedPartnerships = d.partnerships
+                .map(partnerId => data.nodes.find(n => n.id === partnerId))
+                .filter(partner => partner)
+                .sort((a, b) => b.members - a.members);
+
+            let partnershipsHtml = `<p>Liczba partnerstw: ${sortedPartnerships.length}</p><ul>`;
+            sortedPartnerships.forEach(partner => {
+                const partnerColor = getNodeColor(partner);
+                partnershipsHtml += `<li style="color: ${partnerColor};">
+                                        ${partner.id} (Członkowie: ${partner.members}, Boosty: ${partner.boosts})
+                                    </li>`;
+            });
+            partnershipsHtml += "</ul>";
+
+            const serverColor = getNodeColor(d);
+            serverInfo.html(`
+                <h2 style="color: ${serverColor};">${d.id}</h2>
+                <p>Członkowie: ${d.members}</p>
+                <p>Boosty: ${d.boosts}</p>
+                <h3>Partnerstwa:</h3>
+                ${partnershipsHtml}
+            `);
+
+            highlightNodeAndLinks(d);
+        }
+
+
+       function highlightNodeAndLinks(d) {
+            const connectedNodeIds = new Set();
+            connectedNodeIds.add(d.id);
+
+            data.links.forEach(l => {
+                if (l.source.id === d.id) {
+                    connectedNodeIds.add(l.target.id);
+                }
+                if (l.target.id === d.id) {
+                    connectedNodeIds.add(l.source.id);
+                }
+            });
+
+            g.selectAll(".node")
+                .style("fill", n => connectedNodeIds.has(n.id) ? "lightblue" : getNodeColor(n))
+                .style("stroke-width", n => connectedNodeIds.has(n.id) ? 2 : 0);
+
+            g.selectAll(".link")
+                .classed("hidden", l => !(connectedNodeIds.has(l.source.id) && connectedNodeIds.has(l.target.id)));
+
+            g.selectAll(".node-label")
+                .classed("hidden", label => !connectedNodeIds.has(label.id));
+        }
+
+
+        function resetHighlight() {
+            g.selectAll(".node")
+              .classed("hidden", false)
+              .style("fill", n => getNodeColor(n))
+              .style("stroke", "none")
+              .style("stroke-width", 0);
+
+            g.selectAll(".link").classed("hidden", false);
+            g.selectAll(".node-label").classed("hidden", false);
+
+        }
+
+
+         svg.on("click", (event) => {
+
+            if (!g.node().contains(event.target)) {
+                 d3.select("#serverInfo").style("display", "none");
+                currentlyHighlighted = null;
+                resetHighlight();
+            }
+
+         });
+
+        function handleMouseOver(event, d) {
+            d3.select(".tooltip")
+              .style("display", "block")
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 25) + "px")
+              .text("Kliknij mnie!");
+        }
+
+        function handleMouseOut(event, d) {
+            d3.select(".tooltip").style("display", "none");
+        }
+
+        const memberFilter = d3.select("#memberFilter");
+        const boostFilter = d3.select("#boostFilter");
+        const memberValue = d3.select("#memberValue");
+        const boostValue = d3.select("#boostValue");
+
+        memberFilter.attr("max", d3.max(data.nodes, d => d.members));
+        boostFilter.attr("max", d3.max(data.nodes, d => d.boosts));
+
+        memberFilter.on("input", updateFilters);
+        boostFilter.on("input", updateFilters);
+
+        function updateFilters() {
+            const minMembers = +memberFilter.property("value");
+            const minBoosts = +boostFilter.property("value");
+
+             memberValue.text(minMembers);
+             boostValue.text(minBoosts);
+
+            const filteredNodes = data.nodes.filter(d => d.members >= minMembers && d.boosts >= minBoosts);
+            const filteredNodeIds = new Set(filteredNodes.map(d => d.id));
+
+            const filteredLinks = data.links.filter(l =>
+                filteredNodeIds.has(l.source.id) && filteredNodeIds.has(l.target.id)
+            );
+
+            drawGraph(filteredNodes, filteredLinks);
+
+             if(currentlyHighlighted) {
+                resetHighlight();
+                currentlyHighlighted = null;
+                d3.select("#serverInfo").style("display", "none");
+             }
+        }
+
+         drawGraph(data.nodes, data.links);
+
+    </script>
+</body>
+</html>
