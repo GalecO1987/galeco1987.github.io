@@ -285,6 +285,9 @@ svg.on("click", (event) => {
     }
 });
 
+// ... (początek pliku script.js) ...
+
+
 function handleNodeMouseOver(event, d) {
     const tooltip = d3.select(".tooltip");
     tooltip.style("display", "block")
@@ -299,6 +302,13 @@ function handleNodeMouseOver(event, d) {
 
     const serverInfo = d3.select("#serverInfo");
     serverInfo.selectAll("li").style("font-weight", "normal");
+
+    // ZMIEŃ: Pogrubiamy TYLKO jeśli najechany serwer jest tym samym, co wyświetlany w panelu
+    if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
+        serverInfo.selectAll("h2, p").style("font-weight", "bold");
+    }
+
+
     const listItem = serverInfo.selectAll("li")
     .filter(function() {
         return this.textContent.trim().startsWith(d.id);
@@ -335,7 +345,8 @@ function handleNodeMouseOut(event, d) {
 
     const serverInfo = d3.select("#serverInfo");
     serverInfo.selectAll("li").style("font-weight", "normal");
-    serverInfo.selectAll("h2").style("font-weight", "normal");
+    // ZMIEŃ: Usuwamy pogrubienie z całego wiersza
+    serverInfo.selectAll("h2, p").style("font-weight", "normal"); // Dodano selektor 'p'
 
     g.selectAll(".link").style("stroke", "#999").style("stroke-width", 1);
     g.selectAll(".node").style("stroke", "none").style("stroke-width", 0);
@@ -398,6 +409,8 @@ searchInput.on("input", () => {
 
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
+        // Przywróć #bottomInfo na miejsce, gdy nie ma podpowiedzi
+        d3.select("#bottomInfo").style("transform", "none"); // Usuń transformację
     } else {
         searchResults.style("display", "block");
         searchResults.html("");
@@ -409,8 +422,15 @@ searchInput.on("input", () => {
                 searchServer(result.id);
             });
         });
+
+        // Przesuń #bottomInfo w dół, gdy są podpowiedzi
+        // Oblicz wysokość #searchResults
+        const searchResultsHeight = searchResults.node().offsetHeight;
+        // Przesuń #bottomInfo o tę wysokość + jakiś margines (np. 10px)
+        d3.select("#bottomInfo").style("transform", `translateY(${searchResultsHeight + 10}px)`);
     }
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('overlay');
