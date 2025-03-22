@@ -146,31 +146,31 @@ background-color: #367c39;
 /* --- Style dla #leftPanel i jego zawartości (MOBILE-FIRST) --- */
 
 #leftPanel {
-position: fixed; /* Zmienione na fixed */
-top: 10px;
+position: fixed;
+top: 50px; /* Zwiększamy top, aby zrobić miejsce na przycisk */
 left: 10px;
-/* Domyślnie ukryty na małych ekranach */
 display: none;
 flex-direction: column;
 gap: 10px;
 z-index: 10;
-width: 90%; /* Szerokość na małych ekranach */
-max-width: 300px; /* Maksymalna szerokość */
-background-color: rgba(0, 0, 0, 0.7); /* Dodano tło */
+width: 90%;
+max-width: 300px;
+background-color: rgba(0, 0, 0, 0.7);
 padding: 10px;
 border-radius: 5px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Dodano cień */
-box-sizing: border-box; /* Padding i border wliczone w szerokość */
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+box-sizing: border-box;
 overflow-y: auto;
-max-height: 80vh;
+max-height: calc(100vh - 60px); /* Odejmujemy wysokość przycisku i trochę marginesu */
 }
+/* ... (reszta stylów w #leftPanel bez zmian) */
 
 /* Przycisk do pokazywania/ukrywania panelu */
 #leftPanelToggle {
 position: fixed;
 top: 10px;
 left: 10px;
-z-index: 11; /* Wyższy z-index niż #leftPanel */
+z-index: 11;
 padding: 5px 10px;
 background-color: #4CAF50;
 color: white;
@@ -180,19 +180,44 @@ border-radius: 5px;
 font-size: 1em;
 }
 
-
 #leftPanel.open {
 display: flex; /* Pokazujemy panel, gdy ma klasę 'open' */
 }
 
 #pageTitle {
-font-size: 1.2em; /* Zmniejszony rozmiar */
+font-size: 1.2em;
 font-weight: bold;
-/* Usunięto tło, bo jest już tło panelu */
+/* Dodajemy margines górny, aby oddzielić od przycisku */
+margin-top: 0px;
 padding: 2px 5px;
 border-radius: 3px;
 margin-bottom: 5px;
 }
+/* ... (reszta stylów) ... */
+
+/* --- Media Queries dla większych ekranów --- */
+@media (min-width: 769px) {
+
+    #leftPanel {
+    position: absolute;
+    display: flex;
+    width: 220px;
+    max-width: none;
+    top: 10px; /* Przywracamy top */
+    left: 10px;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    max-height: none;
+    overflow-y: visible;
+    }
+    #leftPanelToggle{
+    display: none;
+    }
+
+    #pageTitle{
+    margin-top: 0; /*Resetujemy margines*/
+    }
 
 #coords {
 color: #fff;
