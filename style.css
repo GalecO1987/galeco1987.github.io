@@ -351,9 +351,10 @@ bottom: 10px;
 left: 10px;
 right: 10px;
 display: flex;
-justify-content: space-between;
+justify-content: space-between; /* Rozmieszcza elementy na końcach */
+align-items: flex-end; /* Wyrównuje do dołu */
 z-index: 10;
-background-color: rgba(0, 0, 0, 0.7); /* Półprzezroczyste tło */
+background-color: rgba(0, 0, 0, 0.7);
 }
 /* Style dla #dataDate */
 #dataDate {
@@ -403,10 +404,11 @@ margin-bottom: 5px;
     }
     /* Ukrywamy elementy na mobile */
     .mobile-hidden {
-        display: none;
-    }
-    .desktop-hidden{
         display: block;
+    }
+
+    .desktop-hidden {
+        display: none;
     }
 
     #leftPanel > * {
@@ -483,4 +485,8 @@ margin-bottom: 5px;
     #leftPanel > * {
     width: 100%;
     }
+}
+
+.hidden {
+    display: none !important;
 }
