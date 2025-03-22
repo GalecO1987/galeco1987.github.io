@@ -96,13 +96,14 @@ const data = {
         { id: "Furtownia", members: 340, boosts: 14, partnerships: ["FURRYWORLD", "Futrzasta Centrala"]},
         { id: "FUTERKOWO", members: 31, boosts: 0, partnerships: ["Furry Galaxy", "Futrzasta Centrala"]},
         { id: "FuterkOwO", members: 38, boosts: 0, partnerships: ["Futrzasta Centrala"]},
-        { id: "Futrzasta Karczma", members: 247, boosts: 6, partnerships: ["New Foxing Town", "Electron's Hub"]}
+        { id: "Futrzasta Karczma", members: 247, boosts: 6, partnerships: ["New Foxing Town", "Electron's Hub"]},
+        { id: "Electron's Hub", members: 304, boosts: 7, partnerships: ["Futrzasta Karczma", "Gwiazdeczki Cosmiego"]}
 
     ],
     links: []
 };
 
-// (Pomijam 'data' - wklej tutaj swoją zmienną 'data' z listą serwerów)
+// ... (początek pliku script.js, wklej tutaj swoją zmienną 'data') ...
 
 data.nodes.forEach(node => {
     node.partnerships.forEach(partnerId => {
@@ -229,15 +230,17 @@ let currentlyHighlighted = null;
 let blinkingNode = null;
 
 
-// Funkcja do przełączania widoczności #leftPanel i #serverInfo
+// ZMODYFIKOWANA funkcja do przełączania widoczności - teraz tylko steruje #serverInfo
 function toggleLeftPanelAndServerInfo(showServerInfo) {
     const serverInfo = d3.select("#serverInfo");
-    const leftPanel = d3.select("#leftPanel");
+    // const leftPanel = d3.select("#leftPanel"); // Już niepotrzebne
 
     if (showServerInfo) {
         serverInfo.classed("visible", true); // Dodaj klasę visible
+        //  leftPanel.style("display", "none"); // BEZPOŚREDNIE ukrywanie #leftPanel
     } else {
         serverInfo.classed("visible", false); // Usuń klasę visible
+        //  leftPanel.style("display", "flex"); // BEZPOŚREDNIE pokazywanie #leftPanel
     }
 }
 
@@ -249,6 +252,10 @@ function handleNodeClick(event, d) {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+        // Jeśli zamykamy panel, pokaż #leftPanel (tylko na mobile)
+        if (window.innerWidth <= 768) {
+            d3.select("#leftPanel").style("display", "flex");
+        }
         return;
     }
 
@@ -258,6 +265,10 @@ function handleNodeClick(event, d) {
 
     // Dodaj/usuń klasę 'visible' w zależności od tego, czy panel jest widoczny
     toggleLeftPanelAndServerInfo(true);
+    // Jeśli otwieramy panel, ukryj #leftPanel (tylko na mobile)
+    if (window.innerWidth <= 768) {
+        d3.select("#leftPanel").style("display", "none");
+    }
 
     const sortedPartnerships = d.partnerships
     .map(partnerId => data.nodes.find(n => n.id === partnerId))
@@ -385,7 +396,11 @@ svg.on("click", (event) => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
-        toggleLeftPanelAndServerInfo(false); // Dodano
+        toggleLeftPanelAndServerInfo(false);
+        // Jeśli zamykamy panel, pokaż #leftPanel (tylko na mobile)
+        if (window.innerWidth <= 768) {
+            d3.select("#leftPanel").style("display", "flex");
+        }
     }
 });
 
