@@ -1,5 +1,3 @@
-/* style.css - Pełna optymalizacja mobilna */
-
 body {
     font-family: sans-serif;
     background-color: #000;
@@ -8,21 +6,6 @@ body {
     overflow: hidden;
 }
 
-/* Style dla tooltipa (bez zmian) */
-.tooltip {
-    position: absolute;
-    background-color: #222;
-    color: #fff;
-    border: 1px solid #444;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    pointer-events: none;
-    display: none;
-    z-index: 11;
-}
-
-/* Style dla grafu (w większości bez zmian, ale przeniesione przed #leftPanel) */
 .node {
     cursor: pointer;
     transition: fill 0.2s ease, stroke 0.2s ease, opacity 0.2s ease;
@@ -60,8 +43,18 @@ body {
     opacity: 0;
 }
 
-
-/* --- Style dla #overlay i #disclaimer (bez dużych zmian, ale uporządkowane) --- */
+.tooltip {
+    position: absolute;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    display: none;
+    z-index: 11;
+}
 
 #overlay {
 position: fixed;
@@ -70,7 +63,7 @@ left: 0;
 width: 100%;
 height: 100%;
 background-color: rgba(0, 0, 0, 0.8);
-display: block; /* Zmienione z flex na block */
+display: block;
 z-index: 1000;
 transition: opacity 0.5s ease;
 overflow-y: auto;
@@ -86,31 +79,31 @@ opacity: 1;
 background-color: #222;
 color: #fff;
 border: 1px solid #444;
-padding: 10px; /* Ujednolicone paddingi */
+padding: 20px;
 border-radius: 10px;
-max-width: 95%;
+max-width: 80%;
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 position: relative;
 box-sizing: border-box;
-margin: 10px auto; /* Ujednolicone marginesy */
-font-size: 0.9em; /* Ujednolicony rozmiar czcionki */
+margin: 20px auto;
 }
 
 #disclaimer h2 {
-font-size: 1.2em;
 margin: 0 0 10px;
+font-size: 20px;
 font-weight: bold;
 }
 
 #disclaimer p,
 #disclaimer ul {
 text-align: left;
+font-size: 14px;
 line-height: 1.5;
 margin-bottom: 15px;
 }
 
-#disclaimer p:nth-of-type(4) {
+#disclaimer p:nth-of-type(4){
 margin-bottom: 15px;
 }
 
@@ -127,105 +120,48 @@ text-align: left;
 }
 
 #disclaimer button {
-padding: 8px 16px; /* Ujednolicone paddingi */
+padding: 10px 20px;
 background-color: #4CAF50;
 color: white;
 border: none;
 cursor: pointer;
 border-radius: 5px;
-font-size: 0.9em;  /* Ujednolicony rozmiar czcionki*/
-transition: background-color 0.3s ease;
+font-size: 16px;
+transition: background-color: 0.3s ease;
 }
 
 #disclaimer button:hover {
 background-color: #367c39;
 }
 
-
-
-/* --- Style dla #leftPanel i jego zawartości (MOBILE-FIRST) --- */
-
 #leftPanel {
-position: fixed;
-top: 50px; /* Zwiększamy top, aby zrobić miejsce na przycisk */
+position: absolute;
+top: 10px;
 left: 10px;
-display: none;
+display: flex;
 flex-direction: column;
 gap: 10px;
 z-index: 10;
-width: 90%;
-max-width: 300px;
-background-color: rgba(0, 0, 0, 0.7);
-padding: 10px;
-border-radius: 5px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-box-sizing: border-box;
-overflow-y: auto;
-max-height: calc(100vh - 60px); /* Odejmujemy wysokość przycisku i trochę marginesu */
-}
-/* ... (reszta stylów w #leftPanel bez zmian) */
-
-/* Przycisk do pokazywania/ukrywania panelu */
-#leftPanelToggle {
-position: fixed;
-top: 10px;
-left: 10px;
-z-index: 11;
-padding: 5px 10px;
-background-color: #4CAF50;
-color: white;
-border: none;
-cursor: pointer;
-border-radius: 5px;
-font-size: 1em;
+width: 220px; /* Domyślna szerokość na desktopie */
 }
 
-#leftPanel.open {
-display: flex; /* Pokazujemy panel, gdy ma klasę 'open' */
+#leftPanel h3 {
+margin-bottom: 0;
 }
 
 #pageTitle {
-font-size: 1.2em;
+font-size: 24px;
 font-weight: bold;
-/* Dodajemy margines górny, aby oddzielić od przycisku */
-margin-top: 0px;
+background-color: rgba(0, 0, 0, 0.7);
 padding: 2px 5px;
 border-radius: 3px;
-margin-bottom: 5px;
 }
-/* ... (reszta stylów) ... */
-
-/* --- Media Queries dla większych ekranów --- */
-@media (min-width: 769px) {
-
-    #leftPanel {
-    position: absolute;
-    display: flex;
-    width: 220px;
-    max-width: none;
-    top: 10px; /* Przywracamy top */
-    left: 10px;
-    background-color: transparent;
-    box-shadow: none;
-    padding: 0;
-    max-height: none;
-    overflow-y: visible;
-    }
-    #leftPanelToggle{
-    display: none;
-    }
-
-    #pageTitle{
-    margin-top: 0; /*Resetujemy margines*/
-    }
 
 #coords {
 color: #fff;
-/* Usunięto tło */
+background-color: rgba(0, 0, 0, 0.7);
 padding: 2px 5px;
 border-radius: 3px;
-font-size: 0.8em; /* Zmniejszony rozmiar */
-margin-bottom: 5px;
 }
 
 #resetButton {
@@ -235,28 +171,20 @@ color: white;
 border: none;
 cursor: pointer;
 border-radius: 5px;
-font-size: 0.9em; /* Zmniejszony rozmiar */
 }
-
-#leftPanel h3 {
-margin-bottom: 5px;
-font-size: 1em;
-}
-
 
 #filterPanel {
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 padding: 10px;
 border-radius: 5px;
-width: 100%; /* Pełna szerokość */
+width: 100%;
 box-sizing: border-box;
 }
 
 #filterPanel label {
 display: block;
 margin-bottom: 5px;
-font-size: 0.9em; /* Zmniejszony rozmiar */
 }
 
 #filterPanel input[type="range"] {
@@ -266,13 +194,13 @@ margin-bottom: 10px;
 
 #filterPanel p {
 margin: 2px 0;
-font-size: 0.7em; /* Zmniejszony rozmiar */
+font-size: 12px;
 }
 
 #searchContainer {
 width: 100%;
 box-sizing: border-box;
-margin-top: 10px; /* Dodano odstęp */
+position: relative;
 }
 
 #searchInput {
@@ -284,65 +212,53 @@ color: white;
 width: 100%;
 box-sizing: border-box;
 display: block;
-font-size: 0.9em; /* Zmniejszony rozmiar */
 }
 
-
 #searchResults {
-position: absolute;
-left: 0;
+position: absolute; /* Zmieniamy na absolute */
+left: 0; /* Dodajemy left: 0 */
+top: 100%; /* Dodajemy i ustawiamy na 100% */
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 border-radius: 5px;
 max-height: 200px;
 overflow-y: auto;
-display: none; /* Domyślnie ukryte */
+display: none;
 width: 100%;
 box-sizing: border-box;
-z-index: 12;
+z-index: 12; /* Wyższy z-index niż #serverInfo */
 }
 
 #searchResults div {
 padding: 5px;
 cursor: pointer;
 color: white;
-font-size: 0.8em;
 }
 
 #searchResults div:hover {
 background-color: rgba(68, 68, 68, 0.9);
 }
 
-#searchContainer label,
-#leftPanel h3 label {
-display: block;
-margin-bottom: 5px;
-}
-
-/* --- Style dla #serverInfo (MOBILE-FIRST) --- */
 
 #serverInfo {
-position: fixed; /* Zmienione na fixed */
-top: 50%; /* Wyśrodkowanie */
-left: 50%; /* Wyśrodkowanie */
-transform: translate(-50%, -50%); /* Wyśrodkowanie */
-width: 90%; /* Szerokość na małych ekranach */
-max-width: 350px;  /* Maksymalna szerokość */
+position: absolute;
+top: 10px;
+right: 10px;
+width: 300px; /* Domyślna szerokość na desktopie */
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 padding: 10px;
 border-radius: 5px;
 z-index: 10;
 overflow-y: auto;
-max-height: 80vh; /* Ograniczenie wysokości */
+max-height: 90vh;
 display: none;
 color: #fff;
-box-sizing: border-box; /* Padding wliczony w szerokość */
 }
 
 #serverInfo h2 {
 margin: 0 0 5px 0;
-font-size: 1.1em; /* Zmniejszony rozmiar */
+font-size: 16px;
 font-weight: normal;
 }
 
@@ -356,19 +272,16 @@ margin-bottom: 5px;
 padding-left: 20px;
 position: relative;
 font-weight: normal;
-font-size: 0.8em; /* Zmniejszony rozmiar */
 }
 
 #serverInfo > p {
 margin-top: 0;
 margin-bottom: 2px;
-font-size: 0.9em;
 }
 
 #serverInfo h3 {
 margin-bottom: 10px;
 margin-top: 10px;
-font-size: 1em;
 }
 
 #serverInfo li::before {
@@ -383,137 +296,131 @@ left: 0;
 top: 5px;
 }
 
-
-/* --- Style dla #dataDate i #dataAuthor (MOBILE-FIRST) --- */
-
-#dataDate, #dataAuthor {
+/* Kontener dla #dataDate i #dataAuthor */
+#bottomInfo {
 position: fixed; /* Zmieniamy na fixed */
 bottom: 10px;
+left: 10px;
+right: 10px; /* Dodajemy right: 10px */
+display: flex;
+justify-content: space-between;
+z-index: 10;
+}
+
+#dataDate {
 color: #fff;
 background-color: rgba(0, 0, 0, 0.7);
 padding: 2px 5px;
 border-radius: 3px;
-font-size: 0.7em; /* Zmniejszony rozmiar */
-z-index: 10;
-/* Dodajemy cień dla lepszej widoczności */
-text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
-
-}
-
-#dataDate {
-left: 10px;
-white-space: normal;
-}
-#dataAuthor{
-right: 10px;
+font-size: 12px;
 }
 
 #serverCount {
 margin-right: 5px;
 }
 
+#dataAuthor {
+color: #fff;
+background-color: rgba(0, 0, 0, 0.7);
+padding: 2px 5px;
+border-radius: 3px;
+font-size: 12px;
+}
 
-/* --- Media Queries dla większych ekranów --- */
 
-@media (min-width: 769px) { /* Tablet i desktop */
+#searchContainer label,
+#leftPanel h3 label {
+display: block;
+margin-bottom: 5px;
+}
 
+/* Media queries dla responsywności */
+@media (max-width: 768px) {
     #leftPanel {
-    position: absolute; /* Zmieniamy z powrotem na absolute */
-    display: flex; /* Panel zawsze widoczny */
-    width: 220px; /* Stała szerokość */
-    max-width: none; /* Usuwamy maksymalną szerokość */
-    top: 10px;
-    left: 10px;
-    background-color: transparent; /* Usuwamy tło */
-    box-shadow: none; /* Usuwamy cień */
-    padding: 0;
-    max-height: none;
-    overflow-y: visible;
-
+    width: 100%; /* Pełna szerokość na mniejszych ekranach */
+    top: auto; /* Resetujemy top */
+    bottom: 50px;  /* Umieszczamy nad #bottomInfo */
+    left: 0; /* Wyśrodkowanie */
+    background-color: rgba(0, 0, 0, 0.7); /* Dodajemy tło */
+    padding: 10px;
+    box-sizing: border-box; /* Uwzględnij padding w szerokości */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: flex-start;
     }
 
-    #leftPanelToggle {
-    display: none;
+    #leftPanel > * {
+    width: 48%;
     }
 
-    #pageTitle {
-    font-size: 24px;
-    background-color: rgba(0, 0, 0, 0.7); /* Przywracamy tło */
-    margin-bottom: 0;
-
+    #pageTitle, #coords, #resetButton {
+    display: none; /* Ukryj na mobile */
     }
 
-    #coords {
-    font-size: inherit;
-    background-color: rgba(0, 0, 0, 0.7);
-    margin-bottom: 0;
-    }
-
-    #resetButton {
-    font-size: inherit;
-    }
-
-    #filterPanel label {
-    font-size: inherit;
-    }
-    #filterPanel p {
-    font-size: 12px;
-    }
-    #searchInput {
-    font-size: inherit;
-    }
-    #searchResults div {
-    font-size: inherit;
+    #searchContainer {
+    position: relative; /* Zmieniamy na relative dla #searchResults */
     }
 
     #serverInfo {
-    position: absolute; /* Zmieniamy z powrotem na absolute */
-    top: 10px;
-    left: auto; /* Resetujemy left */
-    right: 10px; /* Ustawiamy right */
-    transform: none; /* Usuwamy transform */
-    width: 300px; /* Stała szerokość */
-    max-width: none; /* Usuwamy max-width */
-    max-height: 90vh; /* Przywracamy max-height */
-
+    width: 95%; /* Szerszy panel na mobile */
+    top: 5px;
+    right: 5px;
+    max-height: 80vh; /* Zmniejszamy wysokość */
     }
 
-    #serverInfo h2 {
-    font-size: 16px;
+    #serverInfo h2{
+    font-size: 1em;
     }
 
-    #serverInfo li {
-    font-size: inherit;
-    }
-
-    #serverInfo > p {
-    font-size: inherit;
-    }
     #serverInfo h3{
-    font-size: inherit;
+    font-size: 0.9em;
     }
 
-    #dataDate, #dataAuthor {
-    position: absolute; /* Zmieniamy z powrotem na absolute */
-    font-size: 12px; /* Przywracamy rozmiar */
-    text-shadow: none; /* Usuwamy cień*/
-    white-space: nowrap;
+    #serverInfo li{
+    font-size: 0.8em;
     }
 
-    #overlay {
-    padding: 0; /* Mniejsze paddingi */
+    #serverInfo > p{
+    font-size: 0.7em;
     }
 
     #disclaimer {
-    max-width: 80%;
-    padding: 20px;
-    font-size: inherit;
+    max-width: 95%; /* Zwiększamy szerokość na mniejszych ekranach */
+    padding: 10px; /* Zmniejszamy padding na mniejszych ekranach */
+    font-size: 0.9em; /* Zmniejszamy nieco rozmiar czcionki */
+    margin: 10px auto; /* Zmniejsz margines */
 
     }
     #disclaimer h2 {
-    font-size: 20px;
+    font-size: 1.2em;
     }
-    #disclaimer button{
+}
+
+@media (max-width: 480px) {
+    #serverInfo{
+    max-height: 70vh;
+    }
+
+    #disclaimer {
+    padding: 5px; /* Jeszcze mniejszy padding */
+    font-size: 0.8em;
+    max-width: 100%;
+    margin: 5px auto;
+    }
+    #disclaimer h2 {
     font-size: 1em;
+    }
+
+    #disclaimer button {
+    font-size: 0.9em;
+    padding: 8px 16px;
+    }
+    #leftPanel{
+    flex-direction: column;
+    }
+    #leftPanel > * {
+    width: 100%;
     }
 }
