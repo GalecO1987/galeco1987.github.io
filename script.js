@@ -228,26 +228,36 @@ function getNodeColor(node) {
 
 let currentlyHighlighted = null;
 let blinkingNode = null;
+let bottomInfoContent = null; // Zmienna do przechowywania zawartości #bottomInfo
 
-
-// ZMODYFIKOWANA funkcja do przełączania widoczności - teraz tylko steruje #serverInfo
 function toggleLeftPanelAndServerInfo(showServerInfo) {
     const serverInfo = d3.select("#serverInfo");
     const leftPanel = d3.select("#leftPanel");
     const bottomInfo = d3.select("#bottomInfo");
 
-
     if (showServerInfo) {
         serverInfo.classed("visible", true);
         if (window.innerWidth <= 768) {
             leftPanel.classed("left-panel-hidden", true);
-            bottomInfo.classed("hidden-bottom", true);
+            // bottomInfo.classed("hidden-bottom", true); //Usunięte
+
+            // Zapisz zawartość #bottomInfo i usuń go z DOM
+            bottomInfoContent = bottomInfo.node().innerHTML;
+            bottomInfo.remove();
         }
     } else {
         serverInfo.classed("visible", false);
         if (window.innerWidth <= 768) {
             leftPanel.classed("left-panel-hidden", false);
-            bottomInfo.classed("hidden-bottom", false);
+            // bottomInfo.classed("hidden-bottom", false); //Usunięte
+
+            // Przywróć #bottomInfo do DOM
+            if (bottomInfoContent) {
+                d3.select("body").append("div")
+                .attr("id", "bottomInfo")
+                .html(bottomInfoContent);
+                bottomInfoContent = null; // Wyczyść zmienną
+            }
         }
     }
 }
@@ -397,6 +407,7 @@ svg.on("click", (event) => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+
     }
 });
 
@@ -530,11 +541,12 @@ document.addEventListener('DOMContentLoaded', () => {
     drawGraph(data.nodes, data.links);
 
     // Dodajemy event listener dla przycisku zamykania #serverInfo
-        d3.select("#closeServerInfo").on("click", () => {
+    d3.select("#closeServerInfo").on("click", () => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+
     });
 });
 
