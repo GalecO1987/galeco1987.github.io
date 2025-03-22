@@ -1,4 +1,4 @@
-// script.js - Poprawiony błąd w DOMContentLoaded
+// script.js - Modyfikacja DOMContentLoaded i dodanie obsługi przycisku
 const data = {
     nodes: [
         { id: "Puszysta Oaza", members: 281, boosts: 29, partnerships: [] },
@@ -460,6 +460,22 @@ function updateFilters() {
 const searchInput = d3.select("#searchInput");
 const searchResults = d3.select("#searchResults");
 
+// Pokaż wyniki wyszukiwania, gdy input ma focus
+searchInput.on("focus", () => {
+    if (searchInput.property("value") !== "") {
+        searchResults.style("display", "block");
+    }
+});
+
+// Ukryj wyniki, gdy input traci focus
+searchInput.on("blur", () => {
+    // Opóźnienie, aby dać czas na kliknięcie w wynik
+    setTimeout(() => {
+        searchResults.style("display", "none");
+    }, 200);
+});
+
+
 searchInput.on("input", () => {
     const searchTerm = searchInput.property("value").toLowerCase();
     const results = data.nodes.filter(node => node.id.toLowerCase().includes(searchTerm));
@@ -480,9 +496,13 @@ searchInput.on("input", () => {
     }
 });
 
+// Dodajemy obsługę przycisku
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('overlay');
     const understandButton = document.getElementById('understandButton');
+    const leftPanelToggle = document.getElementById('leftPanelToggle'); // Pobieramy przycisk
+    const leftPanel = document.getElementById('leftPanel');
+
 
     overlay.classList.add('visible');
 
@@ -493,9 +513,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
 
+    // Dodajemy obsługę kliknięcia przycisku
+    leftPanelToggle.addEventListener('click', () => {
+        leftPanel.classList.toggle('open'); // Dodajemy/usuwamy klasę 'open'
+    });
+
     const serverCount = data.nodes.length;
     document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
 
-
     drawGraph(data.nodes, data.links);
+    // Chowamy klawiaturę po kliknięciu na mapę
+    svg.on("click", () => {
+        document.activeElement.blur();
+        searchResults.style("display", "none");
+
+    });
+
 });
