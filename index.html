@@ -48,11 +48,9 @@
   </div>
 
   <div id="leftPanel">
-    <!-- Dodajemy tytuł z powrotem, ale z klasą do ukrywania na mobile -->
-    <div id="pageTitle" class="mobile-hidden">Mapa polskich serwerów furry</div>
-    <div id="coords" class="mobile-hidden">X: 0, Y: 0</div>
-    <button id="resetButton" class="mobile-hidden">Resetuj Widok</button>
-     <!-- Dodajemy tytuł z powrotem, ale z klasą, żeby go pokazywać tylko na telefonie -->
+  <div id="pageTitle" class="mobile-hidden">Mapa polskich serwerów furry</div>
+  <div id="coords" class="mobile-hidden">X: 0, Y: 0</div>
+  <button id="resetButton" class="mobile-hidden">Resetuj Widok</button>
     <div id="mobile-title" class="desktop-hidden">Mapa polskich serwerów furry</div>
     <h3>Filtrowanie:</h3>
     <div id="filterPanel">
@@ -76,13 +74,14 @@
       <button id="closeServerInfo">X</button>
     </div>
 
-  <div id="bottomInfo">
-      <div id="dataDate">
+<div id="bottomInfo">
+    <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
         <div>Dane z dnia: 21 marca 2025 r.</div>
     </div>
+    <!-- Zmień na div i przenieś do jednego wiersza z #dataDate -->
     <div id="dataAuthor">Dane zebrane przez AnTo.</div>
-  </div>
+</div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="script.js"></script>
