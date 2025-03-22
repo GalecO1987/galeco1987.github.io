@@ -248,7 +248,7 @@ function handleNodeClick(event, d) {
         serverInfo.style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
-        toggleLeftPanelAndServerInfo(false); // Dodano
+        toggleLeftPanelAndServerInfo(false);
         return;
     }
 
@@ -257,7 +257,7 @@ function handleNodeClick(event, d) {
     serverInfo.style("display", "block");
 
     // Dodaj/usuń klasę 'visible' w zależności od tego, czy panel jest widoczny
-    toggleLeftPanelAndServerInfo(true); // Dodano
+    toggleLeftPanelAndServerInfo(true);
 
     const sortedPartnerships = d.partnerships
     .map(partnerId => data.nodes.find(n => n.id === partnerId))
