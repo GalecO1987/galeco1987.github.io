@@ -47,8 +47,6 @@
     </div>
   </div>
 
-   <button id="leftPanelToggle">Menu</button> <!-- Dodany przycisk -->
-
   <div id="leftPanel">
     <div id="pageTitle">Mapa polskich serwerów furry</div>
     <div id="coords">X: 0, Y: 0</div>
@@ -71,11 +69,14 @@
   </div>
 
   <div id="serverInfo"></div>
-    <div id="dataDate">
+  <!-- Przeniesione #dataDate i #dataAuthor do osobnego kontenera -->
+  <div id="bottomInfo">
+      <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
         <div>Dane z dnia: 21 marca 2025 r.</div>
     </div>
-  <div id="dataAuthor">Dane zebrane przez AnTo.</div>
+    <div id="dataAuthor">Dane zebrane przez AnTo.</div>
+  </div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="script.js"></script>
