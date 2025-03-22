@@ -48,7 +48,12 @@
   </div>
 
   <div id="leftPanel">
-    <!-- Usunięte: pageTitle, coords, resetButton - zostawiamy tylko w media query -->
+    <!-- Dodajemy tytuł z powrotem, ale z klasą do ukrywania na mobile -->
+    <div id="pageTitle" class="mobile-hidden">Mapa polskich serwerów furry</div>
+    <div id="coords" class="mobile-hidden">X: 0, Y: 0</div>
+    <button id="resetButton" class="mobile-hidden">Resetuj Widok</button>
+     <!-- Dodajemy tytuł z powrotem, ale z klasą, żeby go pokazywać tylko na telefonie -->
+    <div id="mobile-title" class="desktop-hidden">Mapa polskich serwerów furry</div>
     <h3>Filtrowanie:</h3>
     <div id="filterPanel">
       <label for="memberFilter">Członkowie (min):</label>
@@ -66,7 +71,11 @@
     </div>
   </div>
 
-  <div id="serverInfo"></div>
+  <!-- Dodajemy przycisk zamykania do #serverInfo -->
+    <div id="serverInfo">
+      <button id="closeServerInfo">X</button>
+    </div>
+
   <div id="bottomInfo">
       <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
