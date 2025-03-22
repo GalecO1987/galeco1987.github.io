@@ -361,7 +361,8 @@ function stopBlinking() {
 }
 
 svg.on("click", (event) => {
-    if (!g.node().contains(event.target)) {
+    // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
+    if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
@@ -496,4 +497,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
 
     drawGraph(data.nodes, data.links);
+
+    // Dodajemy event listener dla przycisku zamykania #serverInfo
+    d3.select("#closeServerInfo").on("click", () => {
+        d3.select("#serverInfo").style("display", "none");
+        currentlyHighlighted = null;
+        resetHighlight();
+    });
 });
