@@ -57,18 +57,18 @@ body {
 }
 
 #overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.8);
-display: block;
-z-index: 1000;
-transition: opacity 0.5s ease;
-overflow-y: auto;
-padding: 20px;
-box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: block;
+  z-index: 1000;
+  transition: opacity 0.5s ease;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 #overlay.visible {
@@ -76,17 +76,17 @@ opacity: 1;
 }
 
 #disclaimer {
-background-color: #222;
-color: #fff;
-border: 1px solid #444;
-padding: 20px;
-border-radius: 10px;
-max-width: 80%;
-text-align: center;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-position: relative;
-box-sizing: border-box;
-margin: 20px auto;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+  box-sizing: border-box;
+  margin: 20px auto;
 }
 
 #disclaimer h2 {
@@ -135,18 +135,18 @@ background-color: #367c39;
 }
 
 #leftPanel {
-position: absolute;
-top: 10px;
-left: 10px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-z-index: 10;
-width: 220px; /* Domyślna szerokość na desktopie */
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  width: 220px; /* Domyślna szerokość na desktopie */
 }
 
 #leftPanel h3 {
-margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 /* Klasy do ukrywania/pokazywania elementów na różnych urządzeniach */
@@ -159,231 +159,231 @@ margin-bottom: 0;
 }
 
 #pageTitle {
-font-size: 24px;
-font-weight: bold;
-background-color: rgba(0, 0, 0, 0.7);
-padding: 2px 5px;
-border-radius: 3px;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 2px 5px;
+  border-radius: 3px;
 }
 
 #coords {
-color: #fff;
-background-color: rgba(0, 0, 0, 0.7);
-padding: 2px 5px;
-border-radius: 3px;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 2px 5px;
+  border-radius: 3px;
 }
 
 #resetButton {
-padding: 5px 10px;
-background-color: #4CAF50;
-color: white;
-border: none;
-cursor: pointer;
-border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
 /* Przezroczyste tło dla filtrowania i wyszukiwarki */
 #filterPanel,
 #searchContainer {
-background-color: transparent; /* Całkowicie przezroczyste tło */
-border: none; /* Usuwamy obramowanie, jeśli nie jest potrzebne */
-padding: 0; /* Usuwamy padding, jeśli nie jest potrzebny*/
+    background-color: transparent; /* Całkowicie przezroczyste tło */
+    border: none; /* Usuwamy obramowanie, jeśli nie jest potrzebne */
+    padding: 0; /* Usuwamy padding, jeśli nie jest potrzebny*/
 }
 
 
 #filterPanel label {
-display: block;
-margin-bottom: 5px;
+  display: block;
+  margin-bottom: 5px;
 }
 
 #filterPanel input[type="range"] {
-width: 100%;
-margin-bottom: 10px;
-/* Usuń przezroczystość z input[type="range"] */
--webkit-appearance: none; /* Usuń domyślny wygląd dla WebKit (Chrome, Safari) */
-appearance: none; /* Usuń domyślny wygląd dla innych przeglądarek */
-background-color: #ddd;  /* Ustaw kolor tła suwaka */
-height: 10px;
-border-radius: 5px;
-outline: none; /* Usuń outline */
+  width: 100%;
+  margin-bottom: 10px;
+   /* Usuń przezroczystość z input[type="range"] */
+  -webkit-appearance: none; /* Usuń domyślny wygląd dla WebKit (Chrome, Safari) */
+  appearance: none; /* Usuń domyślny wygląd dla innych przeglądarek */
+  background-color: #ddd;  /* Ustaw kolor tła suwaka */
+  height: 10px;
+  border-radius: 5px;
+  outline: none; /* Usuń outline */
 }
 /* Styl dla "kciuka" suwaka */
 #filterPanel input[type="range"]::-webkit-slider-thumb {
--webkit-appearance: none;
-appearance: none;
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background-color: #4CAF50;
-cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  cursor: pointer;
 }
 
 #filterPanel input[type="range"]::-moz-range-thumb {
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background-color: #4CAF50;
-cursor: pointer;
-border: none; /* Usuń obramowanie dla Firefox */
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    cursor: pointer;
+    border: none; /* Usuń obramowanie dla Firefox */
 }
 
 #filterPanel p {
-margin: 2px 0;
-font-size: 12px;
+  margin: 2px 0;
+  font-size: 12px;
 }
 
 #searchContainer {
-width: 100%;
-box-sizing: border-box;
-position: relative;
+  width: 100%;
+  box-sizing: border-box;
+    position: relative;
 }
 
 #searchInput {
-padding: 5px;
-border-radius: 5px;
-border: 1px solid #444;
-background-color: rgba(34, 34, 34, 0.9);
-color: white;
-width: 100%;
-box-sizing: border-box;
-display: block;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: rgba(34, 34, 34, 0.9);
+  color: white;
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
 }
 
 #searchResults {
-position: absolute;
-left: 0;
-top: 100%;
-background-color: rgba(34, 34, 34, 0.9);
-border: 1px solid #444;
-border-radius: 5px;
-max-height: 200px;
-overflow-y: auto;
-display: none;
-width: 100%;
-box-sizing: border-box;
-z-index: 12;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  background-color: rgba(34, 34, 34, 0.9);
+  border: 1px solid #444;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 13; /* Zwiększamy z-index, aby podpowiedzi były *nad* #bottomInfo */
 }
 
 #searchResults div {
-padding: 5px;
-cursor: pointer;
-color: white;
+  padding: 5px;
+  cursor: pointer;
+  color: white;
 }
 
 #searchResults div:hover {
-background-color: rgba(68, 68, 68, 0.9);
+  background-color: rgba(68, 68, 68, 0.9);
 }
 
 
 #serverInfo {
-position: absolute;
-top: 10px;
-right: 10px;
-width: 300px; /* Domyślna szerokość na desktopie */
-background-color: rgba(34, 34, 34, 0.9);
-border: 1px solid #444;
-padding: 10px;
-border-radius: 5px;
-z-index: 10;
-overflow-y: auto;
-max-height: 90vh;
-display: none;
-color: #fff;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 300px; /* Domyślna szerokość na desktopie */
+  background-color: rgba(34, 34, 34, 0.9);
+  border: 1px solid #444;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 10;
+  overflow-y: auto;
+  max-height: 90vh;
+  display: none;
+  color: #fff;
 }
 
 /* Przycisk zamykania dla #serverInfo */
 #closeServerInfo {
-position: absolute;
-top: 5px;
-right: 5px;
-background: none;
-border: none;
-color: #fff;
-font-size: 20px;
-cursor: pointer;
-z-index: 11; /* Upewnij się, że jest nad zawartością */
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 11; /* Upewnij się, że jest nad zawartością */
 }
 
 #serverInfo h2 {
-margin: 0 0 5px 0;
-font-size: 16px;
-font-weight: normal;
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: normal;
 }
 
 #serverInfo ul {
-list-style: none;
-padding-left: 0;
+  list-style: none;
+  padding-left: 0;
 }
 
 #serverInfo li {
-margin-bottom: 5px;
-padding-left: 20px;
-position: relative;
-font-weight: normal;
+  margin-bottom: 5px;
+  padding-left: 20px;
+  position: relative;
+  font-weight: normal;
 }
 
 #serverInfo > p {
-margin-top: 0;
-margin-bottom: 2px;
+  margin-top: 0;
+  margin-bottom: 2px;
 }
 
 #serverInfo h3 {
-margin-bottom: 10px;
-margin-top: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 #serverInfo li::before {
-content: '';
-display: block;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-background-color: inherit;
-position: absolute;
-left: 0;
-top: 5px;
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: inherit;
+  position: absolute;
+  left: 0;
+  top: 5px;
 }
 
 /* Kontener dla #dataDate i #dataAuthor */
 #bottomInfo {
-position: fixed;
-bottom: 10px;
-left: 10px;
-right: 10px;
-display: flex;
-justify-content: space-between; /* Rozmieszcza elementy na końcach */
-align-items: flex-end;
-z-index: 10;
-background-color: rgba(0, 0, 0, 0.7); /* Półprzezroczyste tło */
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between; /* Rozmieszcza elementy na końcach */
+    align-items: flex-end;
+  z-index: 10;
+   background-color: rgba(0, 0, 0, 0.7); /* Półprzezroczyste tło */
 }
 /* Style dla #dataDate */
 #dataDate {
-color: #fff;
-padding: 2px 5px;
-border-radius: 3px;
-font-size: 12px;
-display: flex; /* Używamy flexbox */
-flex-direction: column; /* Ustawiamy kierunek na kolumnę */
-align-items: flex-start;
+    color: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    display: flex; /* Używamy flexbox */
+    flex-direction: column; /* Ustawiamy kierunek na kolumnę */
+    align-items: flex-start;
 }
 
 #serverCount {
-margin-right: 5px;
+  margin-right: 5px;
 }
 
 #dataAuthor {
-color: #fff;
-padding: 2px 5px;
-border-radius: 3px;
-font-size: 12px;
-background-color: transparent; /* Usuwamy tło */
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+    background-color: transparent; /* Usuwamy tło */
 }
 
 
 #searchContainer label,
 #leftPanel h3 label {
-display: block;
-margin-bottom: 5px;
+  display: block;
+  margin-bottom: 5px;
 }
 
 .hidden {
@@ -392,7 +392,7 @@ margin-bottom: 5px;
 
 /* Media queries dla responsywności */
 @media (max-width: 768px) {
-    #leftPanel {
+  #leftPanel {
     width: 100%; /* Pełna szerokość na mniejszych ekranach */
     top: auto; /* Resetujemy top */
     bottom: 50px;  /* Umieszczamy nad #bottomInfo */
@@ -400,70 +400,71 @@ margin-bottom: 5px;
     background-color: rgba(0, 0, 0, 0.7); /* Dodajemy tło */
     padding: 10px;
     box-sizing: border-box; /* Uwzględnij padding w szerokości */
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: flex-start;
-    }
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: flex-start;
+  }
 
     #leftPanel > * {
-    width: 48%;
+       width: 48%;
     }
-    /*  bardziej precyzyjny selektor */
-    #serverInfo.visible + #bottomInfo + #leftPanel{
-    display: none;
+    /* Poprawiony selektor - ukrywa #leftPanel, gdy #serverInfo ma klasę visible */
+    #serverInfo.visible  ~  #leftPanel {
+      display: none;
     }
 
+
     #searchContainer {
-    position: relative; /* Zmieniamy na relative dla #searchResults */
+        position: relative; /* Zmieniamy na relative dla #searchResults */
     }
 
 
     #serverInfo {
-    width: 100%; /* Pełna szerokość */
-    max-height: none; /* Usuwamy ograniczenie wysokości */
-    top: auto;  /* Resetujemy top */
-    bottom: 0; /* Przyklejamy do dołu */
-    left: 0; /* Resetujemy right */
-    right: 0;
-    border-radius: 0; /* Usuwamy zaokrąglenia */
-    background-color: rgba(34, 34, 34, 0.9); /* Przywróć tło */
+        width: 100%; /* Pełna szerokość */
+        max-height: none; /* Usuwamy ograniczenie wysokości */
+        top: auto;  /* Resetujemy top */
+        bottom: 0; /* Przyklejamy do dołu */
+        left: 0; /* Resetujemy right */
+        right: 0;
+        border-radius: 0; /* Usuwamy zaokrąglenia */
+        background-color: rgba(34, 34, 34, 0.9); /* Przywróć tło */
 
-    }
+  }
 
-    #serverInfo h2{
+   #serverInfo h2{
     font-size: 1em;
-    }
+   }
 
-    #serverInfo h3{
+     #serverInfo h3{
     font-size: 0.9em;
-    }
+   }
 
     #serverInfo li{
-    font-size: 0.8em;
+        font-size: 0.8em;
     }
 
     #serverInfo > p{
-    font-size: 0.7em;
+        font-size: 0.7em;
     }
 
-    #disclaimer {
+     #disclaimer {
     max-width: 95%; /* Zwiększamy szerokość na mniejszych ekranach */
     padding: 10px; /* Zmniejszamy padding na mniejszych ekranach */
     font-size: 0.9em; /* Zmniejszamy nieco rozmiar czcionki */
     margin: 10px auto; /* Zmniejsz margines */
 
-    }
+  }
     #disclaimer h2 {
-    font-size: 1.2em;
+       font-size: 1.2em;
     }
 
-    #bottomInfo{
-    background-color: transparent;
+      #bottomInfo{
+        background-color: transparent;
     }
 
-    /* Ukrywamy elementy na mobile */
+      /* Ukrywamy elementy na mobile */
     .mobile-hidden {
         display: none;
     }
@@ -473,30 +474,30 @@ margin-bottom: 5px;
 }
 
 @media (max-width: 480px) {
-    /* ... (poprzednie style) ... */
+      /* ... (poprzednie style) ... */
     #serverInfo{
-    /*max-height: 70vh;  Usunięto, bo już niepotrzebne */
-    /* Zostawiamy width, top, bottom, left, right jak w 768px */
+        /*max-height: 70vh;  Usunięto, bo już niepotrzebne */
+        /* Zostawiamy width, top, bottom, left, right jak w 768px */
     }
-    #disclaimer {
-    padding: 5px; /* Jeszcze mniejszy padding */
-    font-size: 0.8em;
-    max-width: 100%;
-    margin: 5px auto;
+        #disclaimer {
+        padding: 5px; /* Jeszcze mniejszy padding */
+        font-size: 0.8em;
+        max-width: 100%;
+        margin: 5px auto;
     }
-    #disclaimer h2 {
-    font-size: 1em;
-    }
+      #disclaimer h2 {
+        font-size: 1em;
+      }
 
-    #disclaimer button {
-    font-size: 0.9em;
-    padding: 8px 16px;
+     #disclaimer button {
+       font-size: 0.9em;
+       padding: 8px 16px;
     }
 
     #leftPanel{
-    flex-direction: column;
+      flex-direction: column;
     }
-    #leftPanel > * {
-    width: 100%;
+     #leftPanel > * {
+       width: 100%;
     }
 }
