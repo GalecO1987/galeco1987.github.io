@@ -1,3 +1,4 @@
+// script.js - Poprawiony błąd w DOMContentLoaded
 const data = {
     nodes: [
         { id: "Puszysta Oaza", members: 281, boosts: 29, partnerships: [] },
@@ -493,7 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const serverCount = data.nodes.length;
-    d3.select("#dataDate").text(`Liczba serwerów: ${serverCount} | Dane z dnia: 21 marca 2025 r.`);
+    document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
+
 
     drawGraph(data.nodes, data.links);
 });
