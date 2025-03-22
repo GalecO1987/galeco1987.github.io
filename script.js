@@ -102,6 +102,8 @@ const data = {
     links: []
 };
 
+// (Pomijam 'data' - wklej tutaj swoją zmienną 'data' z listą serwerów)
+
 data.nodes.forEach(node => {
     node.partnerships.forEach(partnerId => {
         const partner = data.nodes.find(n => n.id === partnerId);
@@ -226,6 +228,19 @@ function getNodeColor(node) {
 let currentlyHighlighted = null;
 let blinkingNode = null;
 
+
+// Funkcja do przełączania widoczności #leftPanel i #serverInfo
+function toggleLeftPanelAndServerInfo(showServerInfo) {
+    const serverInfo = d3.select("#serverInfo");
+    const leftPanel = d3.select("#leftPanel");
+
+    if (showServerInfo) {
+        serverInfo.classed("visible", true); // Dodaj klasę visible
+    } else {
+        serverInfo.classed("visible", false); // Usuń klasę visible
+    }
+}
+
 function handleNodeClick(event, d) {
     const serverInfo = d3.select("#serverInfo");
 
@@ -233,12 +248,16 @@ function handleNodeClick(event, d) {
         serverInfo.style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
+        toggleLeftPanelAndServerInfo(false); // Dodano
         return;
     }
 
     resetHighlight();
     currentlyHighlighted = d;
     serverInfo.style("display", "block");
+
+    // Dodaj/usuń klasę 'visible' w zależności od tego, czy panel jest widoczny
+    toggleLeftPanelAndServerInfo(true); // Dodano
 
     const sortedPartnerships = d.partnerships
     .map(partnerId => data.nodes.find(n => n.id === partnerId))
@@ -366,6 +385,7 @@ svg.on("click", (event) => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
+        toggleLeftPanelAndServerInfo(false); // Dodano
     }
 });
 
@@ -503,5 +523,25 @@ document.addEventListener('DOMContentLoaded', () => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
+        toggleLeftPanelAndServerInfo(false);
     });
 });
+
+// Funkcja do obsługi zmiany orientacji/rozmiaru okna
+function handleResize() {
+    // Pobierz nowe wymiary okna
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+
+    // Zaktualizuj atrybuty SVG
+    svg.attr("width", newWidth).attr("height", newHeight);
+
+    // Zaktualizuj środek sił
+    simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
+
+    // Uruchom ponownie symulację
+    simulation.alpha(1).restart();
+}
+
+// Nasłuchuj zdarzenia resize i wywołuj handleResize
+window.addEventListener("resize", handleResize);
