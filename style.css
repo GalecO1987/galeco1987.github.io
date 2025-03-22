@@ -63,18 +63,12 @@ left: 0;
 width: 100%;
 height: 100%;
 background-color: rgba(0, 0, 0, 0.8);
-display: flex;
-justify-content: center;
-align-items: center;
+display: block;
 z-index: 1000;
 transition: opacity 0.5s ease;
-overflow-y: auto; /* Dodajemy scrollowanie w pionie, jeśli treść się nie mieści */
-padding: 20px; /* Dodajemy padding, aby treść nie była przycięta na krawędziach */
-box-sizing: border-box; /* Padding ma być wliczony w szerokość i wysokość */
-}
-
-#overlay.visible {
-opacity: 1;
+overflow-y: auto;
+padding: 20px;
+box-sizing: border-box;
 }
 
 #disclaimer {
@@ -83,11 +77,12 @@ color: #fff;
 border: 1px solid #444;
 padding: 20px;
 border-radius: 10px;
-max-width: 80%; /* Ograniczamy szerokość na większych ekranach */
+max-width: 80%;
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-position: relative; /* Ważne, aby button był pozycjonowany względem #disclaimer */
-box-sizing: border-box; /* Padding ma być wliczony w szerokość */
+position: relative;
+box-sizing: border-box;
+margin: 20px auto;
 }
 
 #disclaimer h2 {
@@ -330,6 +325,8 @@ margin-bottom: 5px;
     max-width: 95%;
     padding: 10px;
     font-size: 0.9em;
+    margin: 10px auto;
+
     }
     #disclaimer h2 {
     font-size: 1.2em;
@@ -341,6 +338,7 @@ margin-bottom: 5px;
     padding: 5px;
     font-size: 0.8em;
     max-width: 100%;
+    margin: 5px auto;
     }
     #disclaimer h2 {
     font-size: 1em;
