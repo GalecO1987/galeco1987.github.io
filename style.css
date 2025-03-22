@@ -373,10 +373,10 @@ margin-right: 5px;
 
 #dataAuthor {
 color: #fff;
-background-color: rgba(0, 0, 0, 0.7);
 padding: 2px 5px;
 border-radius: 3px;
 font-size: 12px;
+background-color: transparent; /* Usuwamy tło */
 }
 
 
@@ -410,8 +410,8 @@ margin-bottom: 5px;
     #leftPanel > * {
     width: 48%;
     }
-    /* Ukryj #leftPanel, gdy #serverInfo jest widoczne */
-    #serverInfo.visible ~ #leftPanel {
+    /*  bardziej precyzyjny selektor */
+    #serverInfo.visible + #bottomInfo + #leftPanel{
     display: none;
     }
 
