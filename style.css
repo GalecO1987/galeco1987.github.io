@@ -151,7 +151,7 @@ margin-bottom: 0;
 
 /* Klasy do ukrywania/pokazywania elementów na różnych urządzeniach */
 .mobile-hidden {
-    display: block; /* Domyślnie widoczne */
+    display: block;
 }
 
 .desktop-hidden {
@@ -352,9 +352,9 @@ left: 10px;
 right: 10px;
 display: flex;
 justify-content: space-between; /* Rozmieszcza elementy na końcach */
-align-items: flex-end; /* Wyrównuje do dołu */
+align-items: flex-end;
 z-index: 10;
-background-color: rgba(0, 0, 0, 0.7);
+background-color: rgba(0, 0, 0, 0.7); /* Półprzezroczyste tło */
 }
 /* Style dla #dataDate */
 #dataDate {
@@ -386,6 +386,10 @@ display: block;
 margin-bottom: 5px;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* Media queries dla responsywności */
 @media (max-width: 768px) {
     #leftPanel {
@@ -402,28 +406,28 @@ margin-bottom: 5px;
     justify-content: space-around;
     align-items: flex-start;
     }
-    /* Ukrywamy elementy na mobile */
-    .mobile-hidden {
-        display: block;
-    }
-
-    .desktop-hidden {
-        display: none;
-    }
 
     #leftPanel > * {
     width: 48%;
+    }
+    /* Ukryj #leftPanel, gdy #serverInfo jest widoczne */
+    #serverInfo.visible ~ #leftPanel {
+    display: none;
     }
 
     #searchContainer {
     position: relative; /* Zmieniamy na relative dla #searchResults */
     }
 
+
     #serverInfo {
-    width: 95%; /* Szerszy panel na mobile */
-    top: 5px;
-    right: 5px;
-    max-height: 80vh; /* Zmniejszamy wysokość */
+    width: 100%; /* Pełna szerokość */
+    max-height: none; /* Usuwamy ograniczenie wysokości */
+    top: auto;  /* Resetujemy top */
+    bottom: 0; /* Przyklejamy do dołu */
+    left: 0; /* Resetujemy right */
+    right: 0;
+    border-radius: 0; /* Usuwamy zaokrąglenia */
     background-color: rgba(34, 34, 34, 0.9); /* Przywróć tło */
 
     }
@@ -458,13 +462,22 @@ margin-bottom: 5px;
     #bottomInfo{
     background-color: transparent;
     }
+
+    /* Ukrywamy elementy na mobile */
+    .mobile-hidden {
+        display: none;
+    }
+    .desktop-hidden{
+        display: block;
+    }
 }
 
 @media (max-width: 480px) {
+    /* ... (poprzednie style) ... */
     #serverInfo{
-    max-height: 70vh;
+    /*max-height: 70vh;  Usunięto, bo już niepotrzebne */
+    /* Zostawiamy width, top, bottom, left, right jak w 768px */
     }
-
     #disclaimer {
     padding: 5px; /* Jeszcze mniejszy padding */
     font-size: 0.8em;
@@ -479,14 +492,11 @@ margin-bottom: 5px;
     font-size: 0.9em;
     padding: 8px 16px;
     }
+
     #leftPanel{
     flex-direction: column;
     }
     #leftPanel > * {
     width: 100%;
     }
-}
-
-.hidden {
-    display: none !important;
 }
