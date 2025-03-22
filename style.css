@@ -161,16 +161,19 @@ margin-bottom: 0;
 #pageTitle {
 font-size: 24px;
 font-weight: bold;
-background-color: rgba(0, 0, 0, 0.7);
+/* Usuń background-color: */
+/* background-color: rgba(0, 0, 0, 0.7); <-- USUŃ TĘ LINIJKĘ */
 padding: 2px 5px;
 border-radius: 3px;
+background-color: transparent; /*Dodaj to*/
 }
 
 #coords {
-color: #fff;
-background-color: rgba(0, 0, 0, 0.7);
+/* Usuń background-color: */
+/* background-color: rgba(0, 0, 0, 0.7); <-- USUŃ TĘ LINIJKĘ */
 padding: 2px 5px;
 border-radius: 3px;
+background-color: transparent;  /*Dodaj to*/
 }
 
 #resetButton {
@@ -186,10 +189,20 @@ border-radius: 5px;
 #filterPanel,
 #searchContainer {
 background-color: transparent; /* Całkowicie przezroczyste tło */
-border: none; /* Usuwamy obramowanie, jeśli nie jest potrzebne */
-padding: 0; /* Usuwamy padding, jeśli nie jest potrzebny*/
+border: none;  /* Usuń obramowanie */
+padding: 0;  /* Usuń wewnętrzny odstęp (padding) */
 }
 
+/*Dodatkowo, usuń background z #filterPanel*/
+
+#filterPanel {
+/* Usuń border, padding, i background-color (już powinny być usunięte, ale dla pewności): */
+border: none;
+padding: 0;
+background-color: transparent; /* Już powinno być, ale dla pewności */
+width: 100%;
+box-sizing: border-box;
+}
 
 #filterPanel label {
 display: block;
@@ -393,20 +406,16 @@ margin-bottom: 5px;
 
 /* Media queries dla responsywności */
 @media (max-width: 768px) {
-    /* Dodajemy styl dla #leftPanel, aby był ukryty domyślnie na mobile */
     #leftPanel {
     width: 100%;
     top: auto;
     bottom: 50px;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.7);
+    /* background-color: rgba(0, 0, 0, 0.7);  <-- USUŃ TĘ LINIJKĘ, JEŚLI JEST */
     padding: 10px;
     box-sizing: border-box;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: flex-start;
+    flex-direction: column; /* Upewnij się, że to jest column */
     }
 
     #leftPanel > * {
@@ -488,7 +497,7 @@ margin-bottom: 5px;
     }
 
     #leftPanel{
-    flex-direction: column;
+    flex-direction: column; /*Dodane*/
     }
     #leftPanel > * {
     width: 100%;
