@@ -497,12 +497,12 @@ searchInput.on("input", () => {
 });
 
 // Dodajemy obsługę przycisku
+
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('overlay');
     const understandButton = document.getElementById('understandButton');
-    const leftPanelToggle = document.getElementById('leftPanelToggle'); // Pobieramy przycisk
+    const leftPanelToggle = document.getElementById('leftPanelToggle');
     const leftPanel = document.getElementById('leftPanel');
-
 
     overlay.classList.add('visible');
 
@@ -513,20 +513,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
 
-    // Dodajemy obsługę kliknięcia przycisku
+    // Poprawiona obsługa przycisku (używamy funkcji, a nie toggle)
     leftPanelToggle.addEventListener('click', () => {
-        leftPanel.classList.toggle('open'); // Dodajemy/usuwamy klasę 'open'
+        if (leftPanel.classList.contains('open')) {
+            leftPanel.classList.remove('open');
+            leftPanel.style.display = 'none'; // Ukrywamy panel
+        } else {
+            leftPanel.classList.add('open');
+            leftPanel.style.display = 'flex'; // Pokazujemy panel
+        }
     });
 
     const serverCount = data.nodes.length;
     document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
 
     drawGraph(data.nodes, data.links);
-    // Chowamy klawiaturę po kliknięciu na mapę
+
     svg.on("click", () => {
         document.activeElement.blur();
         searchResults.style("display", "none");
-
     });
-
 });
