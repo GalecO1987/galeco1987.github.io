@@ -228,36 +228,22 @@ function getNodeColor(node) {
 
 let currentlyHighlighted = null;
 let blinkingNode = null;
-let bottomInfoContent = null; // Zmienna do przechowywania zawartości #bottomInfo
 
+
+// ZMODYFIKOWANA funkcja do przełączania widoczności
 function toggleLeftPanelAndServerInfo(showServerInfo) {
     const serverInfo = d3.select("#serverInfo");
     const leftPanel = d3.select("#leftPanel");
-    const bottomInfo = d3.select("#bottomInfo");
 
     if (showServerInfo) {
         serverInfo.classed("visible", true);
         if (window.innerWidth <= 768) {
-            leftPanel.classed("left-panel-hidden", true);
-            // bottomInfo.classed("hidden-bottom", true); //Usunięte
-
-            // Zapisz zawartość #bottomInfo i usuń go z DOM
-            bottomInfoContent = bottomInfo.node().innerHTML;
-            bottomInfo.remove();
+            leftPanel.classed("left-panel-hidden", true); // Dodaj klasę ukrywającą
         }
     } else {
         serverInfo.classed("visible", false);
         if (window.innerWidth <= 768) {
-            leftPanel.classed("left-panel-hidden", false);
-            // bottomInfo.classed("hidden-bottom", false); //Usunięte
-
-            // Przywróć #bottomInfo do DOM
-            if (bottomInfoContent) {
-                d3.select("body").append("div")
-                .attr("id", "bottomInfo")
-                .html(bottomInfoContent);
-                bottomInfoContent = null; // Wyczyść zmienną
-            }
+            leftPanel.classed("left-panel-hidden", false); // Usuń klasę ukrywającą
         }
     }
 }
@@ -277,12 +263,12 @@ function handleNodeClick(event, d) {
     currentlyHighlighted = d;
     serverInfo.style("display", "block");
 
-    // Dodaj/usuń klasę 'visible' w zależności od tego, czy panel jest widoczny
+    // Dodaj/usuń klasę 'visible'
     toggleLeftPanelAndServerInfo(true);
 
     const sortedPartnerships = d.partnerships
     .map(partnerId => data.nodes.find(n => n.id === partnerId))
-    .filter(partner => partner) // Filtruj na wypadek, gdyby partner nie istniał
+    .filter(partner => partner)
     .sort((a, b) => b.members - a.members);
 
     let partnershipsHtml = `<p>Liczba partnerstw: ${sortedPartnerships.length}</p><ul>`;
@@ -407,7 +393,6 @@ svg.on("click", (event) => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
-
     }
 });
 
@@ -546,7 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
-
     });
 });
 
