@@ -68,6 +68,9 @@ justify-content: center;
 align-items: center;
 z-index: 1000;
 transition: opacity 0.5s ease;
+overflow-y: auto; /* Dodajemy scrollowanie w pionie, jeśli treść się nie mieści */
+padding: 20px; /* Dodajemy padding, aby treść nie była przycięta na krawędziach */
+box-sizing: border-box; /* Padding ma być wliczony w szerokość i wysokość */
 }
 
 #overlay.visible {
@@ -80,9 +83,11 @@ color: #fff;
 border: 1px solid #444;
 padding: 20px;
 border-radius: 10px;
-max-width: 80%;
+max-width: 80%; /* Ograniczamy szerokość na większych ekranach */
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+position: relative; /* Ważne, aby button był pozycjonowany względem #disclaimer */
+box-sizing: border-box; /* Padding ma być wliczony w szerokość */
 }
 
 #disclaimer h2 {
@@ -123,7 +128,7 @@ border: none;
 cursor: pointer;
 border-radius: 5px;
 font-size: 16px;
-transition: background-color 0.3s ease;
+transition: background-color: 0.3s ease;
 }
 
 #disclaimer button:hover {
@@ -249,7 +254,7 @@ color: #fff;
 }
 
 #serverInfo h2 {
-margin: 0 0 5px 0;  /* Dodaj dolny margines */
+margin: 0 0 5px 0;
 font-size: 16px;
 font-weight: normal;
 }
@@ -268,7 +273,7 @@ font-weight: normal;
 
 #serverInfo > p {
 margin-top: 0;
-margin-bottom: 2px; /* Delikatnie zwiększ dolny margines */
+margin-bottom: 2px;
 }
 
 #serverInfo h3 {
@@ -299,10 +304,14 @@ border-radius: 3px;
 font-size: 12px;
 }
 
+#serverCount {
+margin-right: 5px;
+}
+
 #dataAuthor {
 position: absolute;
 bottom: 10px;
-right: 10px; /* Prawy dolny róg */
+right: 10px;
 color: #fff;
 background-color: rgba(0, 0, 0, 0.7);
 padding: 2px 5px;
@@ -314,4 +323,31 @@ font-size: 12px;
 #leftPanel h3 label {
 display: block;
 margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    #disclaimer {
+    max-width: 95%;
+    padding: 10px;
+    font-size: 0.9em;
+    }
+    #disclaimer h2 {
+    font-size: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    #disclaimer {
+    padding: 5px;
+    font-size: 0.8em;
+    max-width: 100%;
+    }
+    #disclaimer h2 {
+    font-size: 1em;
+    }
+
+    #disclaimer button {
+    font-size: 0.9em;
+    padding: 8px 16px;
+    }
 }
