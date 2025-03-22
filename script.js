@@ -230,17 +230,23 @@ let currentlyHighlighted = null;
 let blinkingNode = null;
 
 
-// ZMODYFIKOWANA funkcja do przełączania widoczności - teraz tylko steruje #serverInfo
+// ZMODYFIKOWANA funkcja do przełączania widoczności - teraz steruje też #bottomInfo
 function toggleLeftPanelAndServerInfo(showServerInfo) {
     const serverInfo = d3.select("#serverInfo");
-    // const leftPanel = d3.select("#leftPanel"); // Już niepotrzebne
+    const bottomInfo = d3.select("#bottomInfo"); // Dodajemy odwołanie do #bottomInfo
 
     if (showServerInfo) {
-        serverInfo.classed("visible", true); // Dodaj klasę visible
-        //  leftPanel.style("display", "none"); // BEZPOŚREDNIE ukrywanie #leftPanel
+        serverInfo.classed("visible", true);
+        // Ukryj #bottomInfo tylko na urządzeniach mobilnych
+        if (window.innerWidth <= 768) {
+            bottomInfo.style("display", "none");
+        }
     } else {
-        serverInfo.classed("visible", false); // Usuń klasę visible
-        //  leftPanel.style("display", "flex"); // BEZPOŚREDNIE pokazywanie #leftPanel
+        serverInfo.classed("visible", false);
+        // Pokaż #bottomInfo tylko na urządzeniach mobilnych
+        if (window.innerWidth <= 768) {
+            bottomInfo.style("display", "flex"); // Przywróć domyślny styl (flex)
+        }
     }
 }
 
@@ -391,15 +397,16 @@ function stopBlinking() {
 }
 
 svg.on("click", (event) => {
-    // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
+    // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo
     if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
-        // Jeśli zamykamy panel, pokaż #leftPanel (tylko na mobile)
+        // Jeśli zamykamy panel, pokaż #leftPanel i bottomInfo(tylko na mobile)
         if (window.innerWidth <= 768) {
             d3.select("#leftPanel").style("display", "flex");
+            d3.select("#bottomInfo").style("display", "flex"); // Dodano
         }
     }
 });
@@ -539,6 +546,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+        if (window.innerWidth <= 768) {
+            d3.select("#leftPanel").style("display", "flex");
+            d3.select("#bottomInfo").style("display", "flex");
+        }
     });
 });
 
