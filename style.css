@@ -261,7 +261,7 @@ background-color: #367c39;
   display: none;
   width: 100%;
   box-sizing: border-box;
-  z-index: 13; /* Zwiększamy z-index, aby podpowiedzi były *nad* #bottomInfo */
+  z-index: 13;
 }
 
 #searchResults div {
@@ -355,7 +355,13 @@ background-color: #367c39;
     align-items: flex-end;
   z-index: 10;
    background-color: rgba(0, 0, 0, 0.7); /* Półprzezroczyste tło */
+  transition: transform 0.3s ease; /* Dodajemy płynne przejście */
 }
+/* Dodajemy klasę .hidden-bottom do przesuwania poza ekran */
+#bottomInfo.hidden-bottom {
+    transform: translateY(100%); /* Przesuń poza dolną krawędź */
+}
+
 /* Style dla #dataDate */
 #dataDate {
     color: #fff;
@@ -410,11 +416,10 @@ background-color: #367c39;
     #leftPanel > * {
        width: 48%;
     }
-    /* Poprawiony selektor - ukrywa #leftPanel, gdy #serverInfo ma klasę visible */
-    #serverInfo.visible  ~  #leftPanel {
-      display: none;
-    }
-
+    /*  bardziej precyzyjny selektor */
+    /*#serverInfo.visible + #bottomInfo + #leftPanel{
+        display: none;
+    }*Usunięty selektor*/
 
     #searchContainer {
         position: relative; /* Zmieniamy na relative dla #searchResults */
@@ -500,4 +505,9 @@ background-color: #367c39;
      #leftPanel > * {
        width: 100%;
     }
+}
+
+/*Dodajemy nową klasę, która ukrywa leftPanel na mobile*/
+.left-panel-hidden {
+    display: none !important;
 }
