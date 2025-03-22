@@ -1,3 +1,5 @@
+/* style.css - Pełna optymalizacja mobilna */
+
 body {
     font-family: sans-serif;
     background-color: #000;
@@ -6,6 +8,21 @@ body {
     overflow: hidden;
 }
 
+/* Style dla tooltipa (bez zmian) */
+.tooltip {
+    position: absolute;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    display: none;
+    z-index: 11;
+}
+
+/* Style dla grafu (w większości bez zmian, ale przeniesione przed #leftPanel) */
 .node {
     cursor: pointer;
     transition: fill 0.2s ease, stroke 0.2s ease, opacity 0.2s ease;
@@ -43,18 +60,8 @@ body {
     opacity: 0;
 }
 
-.tooltip {
-    position: absolute;
-    background-color: #222;
-    color: #fff;
-    border: 1px solid #444;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    pointer-events: none;
-    display: none;
-    z-index: 11;
-}
+
+/* --- Style dla #overlay i #disclaimer (bez dużych zmian, ale uporządkowane) --- */
 
 #overlay {
 position: fixed;
@@ -63,7 +70,7 @@ left: 0;
 width: 100%;
 height: 100%;
 background-color: rgba(0, 0, 0, 0.8);
-display: block;
+display: block; /* Zmienione z flex na block */
 z-index: 1000;
 transition: opacity 0.5s ease;
 overflow-y: auto;
@@ -71,35 +78,39 @@ padding: 20px;
 box-sizing: border-box;
 }
 
+#overlay.visible {
+opacity: 1;
+}
+
 #disclaimer {
 background-color: #222;
 color: #fff;
 border: 1px solid #444;
-padding: 20px;
+padding: 10px; /* Ujednolicone paddingi */
 border-radius: 10px;
-max-width: 80%;
+max-width: 95%;
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 position: relative;
 box-sizing: border-box;
-margin: 20px auto;
+margin: 10px auto; /* Ujednolicone marginesy */
+font-size: 0.9em; /* Ujednolicony rozmiar czcionki */
 }
 
 #disclaimer h2 {
+font-size: 1.2em;
 margin: 0 0 10px;
-font-size: 20px;
 font-weight: bold;
 }
 
 #disclaimer p,
 #disclaimer ul {
 text-align: left;
-font-size: 14px;
 line-height: 1.5;
 margin-bottom: 15px;
 }
 
-#disclaimer p:nth-of-type(4){
+#disclaimer p:nth-of-type(4) {
 margin-bottom: 15px;
 }
 
@@ -116,48 +127,80 @@ text-align: left;
 }
 
 #disclaimer button {
-padding: 10px 20px;
+padding: 8px 16px; /* Ujednolicone paddingi */
 background-color: #4CAF50;
 color: white;
 border: none;
 cursor: pointer;
 border-radius: 5px;
-font-size: 16px;
-transition: background-color: 0.3s ease;
+font-size: 0.9em;  /* Ujednolicony rozmiar czcionki*/
+transition: background-color 0.3s ease;
 }
 
 #disclaimer button:hover {
 background-color: #367c39;
 }
 
+
+
+/* --- Style dla #leftPanel i jego zawartości (MOBILE-FIRST) --- */
+
 #leftPanel {
-position: absolute;
+position: fixed; /* Zmienione na fixed */
 top: 10px;
 left: 10px;
-display: flex;
+/* Domyślnie ukryty na małych ekranach */
+display: none;
 flex-direction: column;
 gap: 10px;
 z-index: 10;
-width: 220px;
+width: 90%; /* Szerokość na małych ekranach */
+max-width: 300px; /* Maksymalna szerokość */
+background-color: rgba(0, 0, 0, 0.7); /* Dodano tło */
+padding: 10px;
+border-radius: 5px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Dodano cień */
+box-sizing: border-box; /* Padding i border wliczone w szerokość */
+overflow-y: auto;
+max-height: 80vh;
 }
 
-#leftPanel h3 {
-margin-bottom: 0;
+/* Przycisk do pokazywania/ukrywania panelu */
+#leftPanelToggle {
+position: fixed;
+top: 10px;
+left: 10px;
+z-index: 11; /* Wyższy z-index niż #leftPanel */
+padding: 5px 10px;
+background-color: #4CAF50;
+color: white;
+border: none;
+cursor: pointer;
+border-radius: 5px;
+font-size: 1em;
+}
+
+
+#leftPanel.open {
+display: flex; /* Pokazujemy panel, gdy ma klasę 'open' */
 }
 
 #pageTitle {
-font-size: 24px;
+font-size: 1.2em; /* Zmniejszony rozmiar */
 font-weight: bold;
-background-color: rgba(0, 0, 0, 0.7);
+/* Usunięto tło, bo jest już tło panelu */
 padding: 2px 5px;
 border-radius: 3px;
+margin-bottom: 5px;
 }
 
 #coords {
 color: #fff;
-background-color: rgba(0, 0, 0, 0.7);
+/* Usunięto tło */
 padding: 2px 5px;
 border-radius: 3px;
+font-size: 0.8em; /* Zmniejszony rozmiar */
+margin-bottom: 5px;
 }
 
 #resetButton {
@@ -167,20 +210,28 @@ color: white;
 border: none;
 cursor: pointer;
 border-radius: 5px;
+font-size: 0.9em; /* Zmniejszony rozmiar */
 }
+
+#leftPanel h3 {
+margin-bottom: 5px;
+font-size: 1em;
+}
+
 
 #filterPanel {
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 padding: 10px;
 border-radius: 5px;
-width: 100%;
+width: 100%; /* Pełna szerokość */
 box-sizing: border-box;
 }
 
 #filterPanel label {
 display: block;
 margin-bottom: 5px;
+font-size: 0.9em; /* Zmniejszony rozmiar */
 }
 
 #filterPanel input[type="range"] {
@@ -190,12 +241,13 @@ margin-bottom: 10px;
 
 #filterPanel p {
 margin: 2px 0;
-font-size: 12px;
+font-size: 0.7em; /* Zmniejszony rozmiar */
 }
 
 #searchContainer {
 width: 100%;
 box-sizing: border-box;
+margin-top: 10px; /* Dodano odstęp */
 }
 
 #searchInput {
@@ -207,7 +259,9 @@ color: white;
 width: 100%;
 box-sizing: border-box;
 display: block;
+font-size: 0.9em; /* Zmniejszony rozmiar */
 }
+
 
 #searchResults {
 position: absolute;
@@ -217,40 +271,53 @@ border: 1px solid #444;
 border-radius: 5px;
 max-height: 200px;
 overflow-y: auto;
-display: none;
+display: none; /* Domyślnie ukryte */
 width: 100%;
 box-sizing: border-box;
+z-index: 12;
 }
 
 #searchResults div {
 padding: 5px;
 cursor: pointer;
 color: white;
+font-size: 0.8em;
 }
 
 #searchResults div:hover {
 background-color: rgba(68, 68, 68, 0.9);
 }
 
+#searchContainer label,
+#leftPanel h3 label {
+display: block;
+margin-bottom: 5px;
+}
+
+/* --- Style dla #serverInfo (MOBILE-FIRST) --- */
+
 #serverInfo {
-position: absolute;
-top: 10px;
-right: 10px;
-width: 300px;
+position: fixed; /* Zmienione na fixed */
+top: 50%; /* Wyśrodkowanie */
+left: 50%; /* Wyśrodkowanie */
+transform: translate(-50%, -50%); /* Wyśrodkowanie */
+width: 90%; /* Szerokość na małych ekranach */
+max-width: 350px;  /* Maksymalna szerokość */
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 padding: 10px;
 border-radius: 5px;
 z-index: 10;
 overflow-y: auto;
-max-height: 90vh;
+max-height: 80vh; /* Ograniczenie wysokości */
 display: none;
 color: #fff;
+box-sizing: border-box; /* Padding wliczony w szerokość */
 }
 
 #serverInfo h2 {
 margin: 0 0 5px 0;
-font-size: 16px;
+font-size: 1.1em; /* Zmniejszony rozmiar */
 font-weight: normal;
 }
 
@@ -264,16 +331,19 @@ margin-bottom: 5px;
 padding-left: 20px;
 position: relative;
 font-weight: normal;
+font-size: 0.8em; /* Zmniejszony rozmiar */
 }
 
 #serverInfo > p {
 margin-top: 0;
 margin-bottom: 2px;
+font-size: 0.9em;
 }
 
 #serverInfo h3 {
 margin-bottom: 10px;
 margin-top: 10px;
+font-size: 1em;
 }
 
 #serverInfo li::before {
@@ -288,64 +358,137 @@ left: 0;
 top: 5px;
 }
 
-#dataDate {
-position: absolute;
+
+/* --- Style dla #dataDate i #dataAuthor (MOBILE-FIRST) --- */
+
+#dataDate, #dataAuthor {
+position: fixed; /* Zmieniamy na fixed */
 bottom: 10px;
-left: 10px;
 color: #fff;
 background-color: rgba(0, 0, 0, 0.7);
 padding: 2px 5px;
 border-radius: 3px;
-font-size: 12px;
+font-size: 0.7em; /* Zmniejszony rozmiar */
+z-index: 10;
+/* Dodajemy cień dla lepszej widoczności */
+text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+
+}
+
+#dataDate {
+left: 10px;
+white-space: normal;
+}
+#dataAuthor{
+right: 10px;
 }
 
 #serverCount {
 margin-right: 5px;
 }
 
-#dataAuthor {
-position: absolute;
-bottom: 10px;
-right: 10px;
-color: #fff;
-background-color: rgba(0, 0, 0, 0.7);
-padding: 2px 5px;
-border-radius: 3px;
-font-size: 12px;
-}
 
-#searchContainer label,
-#leftPanel h3 label {
-display: block;
-margin-bottom: 5px;
-}
+/* --- Media Queries dla większych ekranów --- */
 
-@media (max-width: 768px) {
+@media (min-width: 769px) { /* Tablet i desktop */
+
+    #leftPanel {
+    position: absolute; /* Zmieniamy z powrotem na absolute */
+    display: flex; /* Panel zawsze widoczny */
+    width: 220px; /* Stała szerokość */
+    max-width: none; /* Usuwamy maksymalną szerokość */
+    top: 10px;
+    left: 10px;
+    background-color: transparent; /* Usuwamy tło */
+    box-shadow: none; /* Usuwamy cień */
+    padding: 0;
+    max-height: none;
+    overflow-y: visible;
+
+    }
+
+    #leftPanelToggle {
+    display: none;
+    }
+
+    #pageTitle {
+    font-size: 24px;
+    background-color: rgba(0, 0, 0, 0.7); /* Przywracamy tło */
+    margin-bottom: 0;
+
+    }
+
+    #coords {
+    font-size: inherit;
+    background-color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 0;
+    }
+
+    #resetButton {
+    font-size: inherit;
+    }
+
+    #filterPanel label {
+    font-size: inherit;
+    }
+    #filterPanel p {
+    font-size: 12px;
+    }
+    #searchInput {
+    font-size: inherit;
+    }
+    #searchResults div {
+    font-size: inherit;
+    }
+
+    #serverInfo {
+    position: absolute; /* Zmieniamy z powrotem na absolute */
+    top: 10px;
+    left: auto; /* Resetujemy left */
+    right: 10px; /* Ustawiamy right */
+    transform: none; /* Usuwamy transform */
+    width: 300px; /* Stała szerokość */
+    max-width: none; /* Usuwamy max-width */
+    max-height: 90vh; /* Przywracamy max-height */
+
+    }
+
+    #serverInfo h2 {
+    font-size: 16px;
+    }
+
+    #serverInfo li {
+    font-size: inherit;
+    }
+
+    #serverInfo > p {
+    font-size: inherit;
+    }
+    #serverInfo h3{
+    font-size: inherit;
+    }
+
+    #dataDate, #dataAuthor {
+    position: absolute; /* Zmieniamy z powrotem na absolute */
+    font-size: 12px; /* Przywracamy rozmiar */
+    text-shadow: none; /* Usuwamy cień*/
+    white-space: nowrap;
+    }
+
+    #overlay {
+    padding: 0; /* Mniejsze paddingi */
+    }
+
     #disclaimer {
-    max-width: 95%;
-    padding: 10px;
-    font-size: 0.9em;
-    margin: 10px auto;
+    max-width: 80%;
+    padding: 20px;
+    font-size: inherit;
 
     }
     #disclaimer h2 {
-    font-size: 1.2em;
+    font-size: 20px;
     }
-}
-
-@media (max-width: 480px) {
-    #disclaimer {
-    padding: 5px;
-    font-size: 0.8em;
-    max-width: 100%;
-    margin: 5px auto;
-    }
-    #disclaimer h2 {
+    #disclaimer button{
     font-size: 1em;
-    }
-
-    #disclaimer button {
-    font-size: 0.9em;
-    padding: 8px 16px;
     }
 }
