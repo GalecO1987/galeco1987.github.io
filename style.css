@@ -185,6 +185,10 @@ cursor: pointer;
 border-radius: 5px;
 }
 
+#resetButton:hover {
+background-color: #367c39; /* Ciemniejszy kolor przy najechaniu */
+}
+
 /* Przezroczyste tło dla filtrowania i wyszukiwarki */
 #filterPanel,
 #searchContainer {
@@ -361,37 +365,31 @@ top: 5px;
 #bottomInfo {
 position: fixed;
 bottom: 10px;
-left: 10px;
 right: 10px;
 display: flex;
-justify-content: space-between; /* Rozmieszcza elementy na końcach */
+justify-content: flex-end;
 align-items: flex-end;
 z-index: 10;
-background-color: rgba(0, 0, 0, 0.7); /* Półprzezroczyste tło */
+background-color: transparent; /* Zmieniono na transparent */
+padding: 5px;
 }
 
 /* Style dla #dataDate */
 #dataDate {
 color: #fff;
-padding: 2px 5px;
 border-radius: 3px;
 font-size: 12px;
-display: flex; /* Używamy flexbox */
-flex-direction: column; /* Ustawiamy kierunek na kolumnę */
-align-items: flex-start;
+display: flex;
+flex-direction: column;
+align-items: flex-end; /* Wyrównanie tekstu do prawej */
+text-align: right; /* Dodatkowo, aby upewnić się, że tekst wewnątrz jest wyrównany do prawej */
 }
 
 #serverCount {
 margin-right: 5px;
 }
 
-#dataAuthor {
-color: #fff;
-padding: 2px 5px;
-border-radius: 3px;
-font-size: 12px;
-background-color: transparent; /* Usuwamy tło */
-}
+/* Usunięto #dataAuthor */
 
 
 #searchContainer label,
