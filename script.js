@@ -1,4 +1,4 @@
-// script.js (NOWY KOD)
+// script.js
 data.nodes.forEach(node => {
     node.partnerships.forEach(partnerId => {
         const partner = data.nodes.find(n => n.id === partnerId);
@@ -31,6 +31,8 @@ let simulation = d3.forceSimulation(data.nodes)
 .force("center", d3.forceCenter(width / 2, height / 2))
 .force("collision", d3.forceCollide().radius(d => radiusScale(d.members) + 5));
 
+let freezeTimer; // Dodajemy zmienną do przechowywania timera
+
 function drawGraph(filteredNodes, filteredLinks) {
     g.selectAll(".nodes").remove();
     g.selectAll(".links").remove();
@@ -41,10 +43,11 @@ function drawGraph(filteredNodes, filteredLinks) {
     filteredNodes.some(n => n.id === l.target.id)
     );
 
+    // Kluczowe: Ustawiamy nodes i links PRZED restartem symulacji
     simulation.nodes(filteredNodes);
     simulation.force("link").links(newLinks);
 
-
+    // Tworzymy elementy, ale nie dodajemy ich jeszcze do DOM
     const newLink = g.append("g")
     .attr("class", "links")
     .selectAll("line")
@@ -72,6 +75,7 @@ function drawGraph(filteredNodes, filteredLinks) {
     .attr("class", "node-label")
     .text(d => d.id);
 
+    // Funkcja tick - aktualizuje pozycje
     simulation.on("tick", () => {
         newLink
         .attr("x1", d => d.source.x)
@@ -88,14 +92,18 @@ function drawGraph(filteredNodes, filteredLinks) {
         .attr("y", d => d.y - radiusScale(d.members) - 5);
     });
 
-    //WAŻNE! Zatrzymanie symulacji po 1 sekundzie (1000 ms)
-    setTimeout(() => {
+
+    simulation.alpha(1).restart(); //Teraz restartujemy symulację
+
+    // Wyczyść poprzedni timer, jeśli istnieje
+    clearTimeout(freezeTimer);
+
+    // Ustaw nowy timer, który zatrzyma symulację po 1 sekundzie
+    freezeTimer = setTimeout(() => {
         simulation.stop();
-        simulation.alpha(0);
-        console.log("Simulation stopped"); // Dodaj dla pewności
+        // simulation.alpha(0); //  Nie musimy już ustawiać alpha na 0. stop() wystarczy
     }, 1000);
 
-    simulation.alpha(1); //Bez restartu!
 }
 
 
@@ -286,7 +294,7 @@ function stopBlinking() {
 }
 
 svg.on("click", (event) => {
-    //Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
+    // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
     if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
@@ -294,6 +302,7 @@ svg.on("click", (event) => {
         toggleLeftPanelAndServerInfo(false);
     }
 });
+
 
 
 function handleNodeMouseOver(event, d) {
@@ -479,8 +488,16 @@ function handleResize() {
     // Zaktualizuj środek sił
     simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
 
-    //Usunięto restartowanie symulacji!
-    // simulation.alpha(1).restart();
+    // Wyczyść timer, aby zapobiec zatrzymaniu symulacji podczas resize
+    clearTimeout(freezeTimer);
+
+    // Uruchom ponownie symulację (bez .restart(), bo nodes i links są aktualne)
+    simulation.alpha(1);
+
+    // Ustaw timer, aby zatrzymać symulację po zmianie rozmiaru okna
+    freezeTimer = setTimeout(() => {
+        simulation.stop();
+    }, 1000);
 }
 
 // Nasłuchuj zdarzenia resize i wywołuj handleResize
