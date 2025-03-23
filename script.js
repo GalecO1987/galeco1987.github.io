@@ -1,3 +1,4 @@
+// script.js (NOWY KOD)
 data.nodes.forEach(node => {
     node.partnerships.forEach(partnerId => {
         const partner = data.nodes.find(n => n.id === partnerId);
@@ -43,6 +44,7 @@ function drawGraph(filteredNodes, filteredLinks) {
     simulation.nodes(filteredNodes);
     simulation.force("link").links(newLinks);
 
+
     const newLink = g.append("g")
     .attr("class", "links")
     .selectAll("line")
@@ -86,10 +88,18 @@ function drawGraph(filteredNodes, filteredLinks) {
         .attr("y", d => d.y - radiusScale(d.members) - 5);
     });
 
-    simulation.alpha(1).restart();
+    //WAŻNE! Zatrzymanie symulacji po 1 sekundzie (1000 ms)
+    setTimeout(() => {
+        simulation.stop();
+        simulation.alpha(0);
+        console.log("Simulation stopped"); // Dodaj dla pewności
+    }, 1000);
+
+    simulation.alpha(1); //Bez restartu!
 }
 
-let initialZoom = 0.1;
+
+let initialZoom = 0.09;
 let initialTransform = d3.zoomIdentity.translate(width / 2, height / 2).scale(initialZoom).translate(-width / 2, -height / 2);
 
 const zoom_handler = d3.zoom()
@@ -276,7 +286,7 @@ function stopBlinking() {
 }
 
 svg.on("click", (event) => {
-    // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
+    //Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
     if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
@@ -284,8 +294,6 @@ svg.on("click", (event) => {
         toggleLeftPanelAndServerInfo(false);
     }
 });
-
-// ... (początek pliku script.js) ...
 
 
 function handleNodeMouseOver(event, d) {
@@ -345,7 +353,7 @@ function handleNodeMouseOut(event, d) {
 
     const serverInfo = d3.select("#serverInfo");
     serverInfo.selectAll("li").style("font-weight", "normal");
-    // ZMIEŃ: Usuwamy pogrubienie z całego wiersza
+    //ZMIEŃ: Usuwamy pogrubienie z całego wiersza
     serverInfo.selectAll("h2, p").style("font-weight", "normal"); // Dodano selektor 'p'
 
     g.selectAll(".link").style("stroke", "#999").style("stroke-width", 1);
@@ -375,7 +383,7 @@ partnershipFilter.on("input", updateFilters);
 function updateFilters() {
     const minMembers = +memberFilter.property("value");
     const minBoosts = +boostFilter.property("value");
-    const minPartnerships = +partnershipFilter.property("value"); // Pobierz wartość filtra partnerstw
+    const minPartnerships = +partnershipFilter.property("value");  //Pobierz wartość filtra partnerstw
 
     memberValue.text(minMembers);
     boostValue.text(minBoosts);
@@ -409,7 +417,7 @@ searchInput.on("input", () => {
 
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
-        // Przywróć #bottomInfo na miejsce, gdy nie ma podpowiedzi
+        //Przywróć #bottomInfo na miejsce, gdy nie ma podpowiedzi
         d3.select("#bottomInfo").style("transform", "none"); // Usuń transformację
     } else {
         searchResults.style("display", "block");
@@ -450,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     drawGraph(data.nodes, data.links);
 
-    // Dodajemy event listener dla przycisku zamykania #serverInfo
+    //Dodajemy event listener dla przycisku zamykania #serverInfo
     d3.select("#closeServerInfo").on("click", () => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
@@ -471,8 +479,8 @@ function handleResize() {
     // Zaktualizuj środek sił
     simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
 
-    // Uruchom ponownie symulację
-    simulation.alpha(1).restart();
+    //Usunięto restartowanie symulacji!
+    // simulation.alpha(1).restart();
 }
 
 // Nasłuchuj zdarzenia resize i wywołuj handleResize
