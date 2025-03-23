@@ -4,6 +4,10 @@ body {
     color: #fff;
     margin: 0;
     overflow: hidden;
+    /* Dodane poniższe linie, aby ZAWSZE zajmować całą wysokość i szerokość */
+    width: 100vw;
+    height: 100vh;
+    position: relative; /* Potrzebne do absolutnego pozycjonowania */
 }
 
 .node {
@@ -143,6 +147,7 @@ flex-direction: column;
 gap: 10px;
 z-index: 10;
 width: 220px; /* Domyślna szerokość na desktopie */
+max-width: calc(100% - 20px);  /* Dodano max-width */
 }
 
 #leftPanel h3 {
@@ -161,19 +166,15 @@ margin-bottom: 0;
 #pageTitle {
 font-size: 24px;
 font-weight: bold;
-/* Usuń background-color: */
-/* background-color: rgba(0, 0, 0, 0.7); <-- USUŃ TĘ LINIJKĘ */
 padding: 2px 5px;
 border-radius: 3px;
-background-color: transparent; /*Dodaj to*/
+background-color: transparent;
 }
 
 #coords {
-/* Usuń background-color: */
-/* background-color: rgba(0, 0, 0, 0.7); <-- USUŃ TĘ LINIJKĘ */
 padding: 2px 5px;
 border-radius: 3px;
-background-color: transparent;  /*Dodaj to*/
+background-color: transparent;
 }
 
 #resetButton {
@@ -198,13 +199,11 @@ border: none;  /* Usuń obramowanie */
 padding: 0;  /* Usuń wewnętrzny odstęp (padding) */
 }
 
-/*Dodatkowo, usuń background z #filterPanel*/
 
 #filterPanel {
-/* Usuń border, padding, i background-color (już powinny być usunięte, ale dla pewności): */
 border: none;
 padding: 0;
-background-color: transparent; /* Już powinno być, ale dla pewności */
+background-color: transparent;
 width: 100%;
 box-sizing: border-box;
 }
@@ -217,13 +216,12 @@ margin-bottom: 5px;
 #filterPanel input[type="range"] {
 width: 100%;
 margin-bottom: 10px;
-/* Usuń przezroczystość z input[type="range"] */
--webkit-appearance: none; /* Usuń domyślny wygląd dla WebKit (Chrome, Safari) */
-appearance: none; /* Usuń domyślny wygląd dla innych przeglądarek */
-background-color: #ddd;  /* Ustaw kolor tła suwaka */
+-webkit-appearance: none;
+appearance: none;
+background-color: #ddd;
 height: 10px;
 border-radius: 5px;
-outline: none; /* Usuń outline */
+outline: none;
 }
 /* Styl dla "kciuka" suwaka */
 #filterPanel input[type="range"]::-webkit-slider-thumb {
@@ -366,13 +364,13 @@ top: 5px;
 #bottomInfo {
 position: fixed;
 bottom: 10px;
-right: 10px;
+right: 10px; /* Zmieniono z left i right na right */
 display: flex;
-justify-content: flex-end;
+justify-content: flex-end; /* Przeniesiono zawartość do prawej */
 align-items: flex-end;
 z-index: 10;
 background-color: transparent;
-padding: 5px;
+padding: 5px; /* Dodano padding, aby tekst nie przylegał do krawędzi */
 }
 
 /* Style dla #dataDate */
@@ -382,8 +380,8 @@ border-radius: 3px;
 font-size: 12px;
 display: flex;
 flex-direction: column;
-align-items: flex-end;
-text-align: right;
+align-items: flex-end; /* Wyrównanie tekstu do prawej */
+text-align: right; /* Dodatkowo, aby upewnić się, że tekst wewnątrz jest wyrównany do prawej */
 }
 
 #serverCount {
@@ -408,34 +406,50 @@ margin-bottom: 5px;
     #leftPanel {
     width: 100%;
     top: auto;
-    bottom: 50px;
+    bottom: 50px;  /* Zmieniono bottom */
     left: 0;
-    /* background-color: rgba(0, 0, 0, 0.7);  <-- USUŃ TĘ LINIJKĘ, JEŚLI JEST */
     padding: 10px;
     box-sizing: border-box;
     display: flex;
-    flex-direction: column; /* Upewnij się, że to jest column */
+    flex-direction: column;
     }
 
     #leftPanel > * {
-    width: 48%;
+    width: 100%; /* Zmieniono z 48% na 100% */
+    max-width: none; /*Dodano, żeby szerokość była 100%*/
+    margin-bottom: 10px; /* Dodano odstęp między elementami */
+    }
+    #leftPanel > *:last-child {
+    margin-bottom: 0; /* Usunięcie marginesu z ostatniego elementu */
     }
 
     #searchContainer {
-    position: relative; /* Zmieniamy na relative dla #searchResults */
+    position: relative;
+    }
+
+    /*Dodane style by uniknąc wychodzenia divów poza viewport*/
+    #filterPanel,
+    #searchContainer{
+    width: 100%;
+    box-sizing: border-box;
+    }
+    #filterPanel input[type="range"],
+    #searchInput{
+    width: 100%;
+    box-sizing: border-box;
     }
 
 
     #serverInfo {
     width: 100%;
-    max-height: 33vh;  /* Ograniczamy wysokość do 1/3 ekranu */
-    overflow-y: auto;  /* Dodajemy scrollowanie wewnątrz panelu */
+    max-height: 33vh;
+    overflow-y: auto;
     top: auto;
     bottom: 0;
     left: 0;
     right: 0;
     border-radius: 0;
-    background-color: #222; /* Zmieniono na nieprzezroczysty kolor */
+    background-color: rgba(34, 34, 34, 0.9);
 
     }
 
@@ -468,7 +482,6 @@ margin-bottom: 5px;
 
     #bottomInfo{
     background-color: transparent;
-    display: none;
     }
 
     /* Ukrywamy elementy na mobile */
@@ -478,9 +491,14 @@ margin-bottom: 5px;
     .desktop-hidden{
         display: block;
     }
+    /* Dodane media query dla ukrycia #bottomInfo na mobile */
+    #bottomInfo {
+    display: none;
+    }
 }
 
 @media (max-width: 480px) {
+    /*Bez zmian*/
     #disclaimer {
     padding: 5px; /* Jeszcze mniejszy padding */
     font-size: 0.8em;
@@ -497,7 +515,7 @@ margin-bottom: 5px;
     }
 
     #leftPanel{
-    flex-direction: column; /*Dodane*/
+    flex-direction: column;
     }
     #leftPanel > * {
     width: 100%;
