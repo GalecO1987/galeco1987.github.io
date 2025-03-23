@@ -185,9 +185,10 @@ function handleNodeClick(event, d) {
     // ZMODYFIKOWANY fragment - wstawiamy dane do odpowiednich elementów
     const serverColor = getNodeColor(d);
     d3.select("#serverInfo-name").style("color", serverColor).text(d.id);
-    d3.select("#serverInfo-members").style("color", serverColor).text(`Członkowie: ${d.members}`);
-    d3.select("#serverInfo-boosts").style("color", serverColor).text(`Boosty: ${d.boosts}`);
-    d3.select("#serverInfo-partnerships-count").style("color", serverColor).text(`Liczba partnerstw: ${sortedPartnerships.length}`);
+    d3.select("#serverInfo-members").style("color", serverColor).text(`Członkowie: ${d.members} (miejsce #${d.memberRank})`);
+    d3.select("#serverInfo-boosts").style("color", serverColor).text(`Boosty: ${d.boosts} (miejsce #${d.boostRank})`);
+    d3.select("#serverInfo-partnerships-count").style("color", serverColor).text(`Liczba partnerstw: ${sortedPartnerships.length} (miejsce #${d.partnershipRank})`);
+
 
     let partnershipsHtml = ""; // Zaczynamy od pustego stringa
     sortedPartnerships.forEach(partner => {
@@ -309,17 +310,19 @@ svg.on("click", (event) => {
 
 
 function handleNodeMouseOver(event, d) {
-    const tooltip = d3.select(".tooltip");
-    tooltip.style("display", "block")
-    .html(`
-    <strong>${d.id}</strong><br>
-    Członkowie: ${d.members}<br>
-    Boosty: ${d.boosts}<br>
-    Partnerstwa: ${d.partnerships.length}
-    `)
-    .style("left", (event.pageX + 10) + "px")
-    .style("top", (event.pageY - 28) + "px");
-
+    // Warunek, żeby dymek wyświetlał się tylko przy najechaniu na *kółka*
+    if (event.target.tagName === 'circle') {
+        const tooltip = d3.select(".tooltip");
+        tooltip.style("display", "block")
+        .html(`
+        <strong>${d.id}</strong><br>
+        Członkowie: ${d.members} (miejsce #${d.memberRank})<br>
+        Boosty: ${d.boosts} (miejsce #${d.boostRank})<br>
+        Partnerstwa: ${d.partnerships.length} (miejsce #${d.partnershipRank})
+        `)
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    }
     const serverInfo = d3.select("#serverInfo");
     serverInfo.selectAll("li").style("font-weight", "normal");
 
@@ -330,7 +333,7 @@ function handleNodeMouseOver(event, d) {
 
 
     const listItem = serverInfo.selectAll("li")
-    .filter(function() {
+    .filter(function () {
         return this.textContent.trim().startsWith(d.id);
     });
 
@@ -406,12 +409,18 @@ function updateFilters() {
     d.boosts >= minBoosts &&
     d.partnerships.length >= minPartnerships // Dodaj warunek filtrowania partnerstw
     );
+
+
     const filteredNodeIds = new Set(filteredNodes.map(d => d.id));
     const filteredLinks = data.links.filter(l =>
     filteredNodeIds.has(l.source.id) && filteredNodeIds.has(l.target.id)
     );
 
+    // WAŻNE: Przelicz rankingi *po* filtrowaniu
+    calculateRanks(filteredNodes);
+
     drawGraph(filteredNodes, filteredLinks);
+
 
     if (currentlyHighlighted) {
         resetHighlight();
@@ -451,6 +460,26 @@ searchInput.on("input", () => {
     }
 });
 
+// Nowa funkcja do obliczania rankingów
+function calculateRanks(nodes) {
+    // Ranking członków
+    const membersRank = [...nodes].sort((a, b) => b.members - a.members);
+    membersRank.forEach((node, index) => {
+        node.memberRank = index + 1;
+    });
+
+    // Ranking boostów
+    const boostsRank = [...nodes].sort((a, b) => b.boosts - a.boosts);
+    boostsRank.forEach((node, index) => {
+        node.boostRank = index + 1;
+    });
+
+    // Ranking partnerstw (używamy .length, bo partnerships to tablica)
+    const partnershipsRank = [...nodes].sort((a, b) => b.partnerships.length - a.partnerships.length);
+    partnershipsRank.forEach((node, index) => {
+        node.partnershipRank = index + 1;
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('overlay');
@@ -468,6 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const serverCount = data.nodes.length;
     document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
 
+    // Najpierw oblicz rankingi, *potem* rysuj graf
+    calculateRanks(data.nodes);
     drawGraph(data.nodes, data.links);
 
     //Dodajemy event listener dla przycisku zamykania #serverInfo i przywracanie bottomInfo
@@ -480,6 +511,87 @@ document.addEventListener('DOMContentLoaded', () => {
         d3.select("#bottomInfo").style("transform", "none");
 
     });
+
+    // ****************************************
+    // **  DODANY FRAGMENT - OBSŁUGA HOVERA  **
+    // ****************************************
+    d3.select("#serverInfo-partnerships-list").on("mouseover", (event) => {
+        const target = event.target;
+
+        // Sprawdzamy, czy najechano na element 'li'
+        if (target.tagName === 'LI') {
+            const serverName = target.textContent.split(" (")[0].trim();
+            const hoveredNode = data.nodes.find(node => node.id === serverName);
+
+            if (hoveredNode) {
+                // Symulacja najechania myszką na okrąg
+                handleNodeMouseOver(event, hoveredNode);
+                // Dodatkowo, jeśli mamy zaznaczony serwer, to pogrubiamy tekst w liście tak samo jak po kliknięciu
+                if (currentlyHighlighted) {
+                    highlightNodeAndLinks(currentlyHighlighted);
+                }
+
+
+            }
+        }
+    });
+
+    d3.select("#serverInfo-partnerships-list").on("mouseout", (event) => {
+        const target = event.target;
+        if (target.tagName === 'LI') {
+            const serverName = target.textContent.split(" (")[0].trim();
+            const hoveredNode = data.nodes.find(node => node.id === serverName);
+
+            if (hoveredNode) {
+                // Symulacja zjechania myszką z okręgu
+                handleNodeMouseOut(event, hoveredNode);
+
+                // Przywróć stan zaznaczenia, jeśli jakiś serwer był kliknięty.
+                if (currentlyHighlighted) {
+                    highlightNodeAndLinks(currentlyHighlighted);
+                }
+            }
+        }
+    });
+
+    // Dodatkowo, obsługa hovera na głównych informacjach o serwerze (poza listą partnerstw)
+    d3.select("#serverInfo").on("mouseover", (event) => {
+
+        // Sprawdz, czy najechano na element, który zawiera informacje *główne* o serwerze
+        // a nie na listę partnerstw.
+        if (event.target.closest("#serverInfo-partnerships-list") === null && currentlyHighlighted) {
+            // Symulujemy najechanie na *kliknięty* node
+            handleNodeMouseOver(event, currentlyHighlighted);
+            highlightNodeAndLinks(currentlyHighlighted); // Upewnij się, że podświetlenie jest włączone
+        }
+
+    });
+
+    d3.select("#serverInfo").on("mouseout", (event) => {
+        if (event.target.closest("#serverInfo-partnerships-list") === null && currentlyHighlighted) {
+            handleNodeMouseOut(event, currentlyHighlighted);
+            highlightNodeAndLinks(currentlyHighlighted); // Przywracamy podświetlenie po zjechaniu
+        }
+    });
+
+    // *************************************
+    // **  DODANY FRAGMENT - OBSŁUGA CLICKA **
+    // *************************************
+
+    d3.select("#serverInfo-partnerships-list").on("click", (event) => {
+        const target = event.target;
+
+        if(target.tagName === "LI"){
+            const serverName = target.textContent.split(" (")[0].trim();
+            const clickedNode = data.nodes.find(node => node.id === serverName);
+
+            if(clickedNode){
+                handleNodeClick(event, clickedNode); // Wywołujemy taką samą funkcję jak przy kliknięciu na okrąg
+            }
+        }
+    });
+
+
 });
 
 // Funkcja do obsługi zmiany orientacji/rozmiaru okna
