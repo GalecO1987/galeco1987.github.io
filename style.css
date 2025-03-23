@@ -468,6 +468,7 @@ margin-bottom: 5px;
 
     #bottomInfo{
     background-color: transparent;
+    display: none;
     }
 
     /* Ukrywamy elementy na mobile */
