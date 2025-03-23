@@ -230,7 +230,7 @@ function searchServer(serverId) {
     handleNodeClick(null, serverNode);
 
     //Przywracanie #bottomInfo po wyszukaniu
-    d3.select("#bottomInfo").style("transform", "none");
+    // d3.select("#bottomInfo").style("transform", "none"); //Usunięto
 }
 
 function highlightNodeAndLinks(d) {
@@ -439,7 +439,8 @@ searchInput.on("input", () => {
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
         //Przywróć #bottomInfo na miejsce, gdy nie ma podpowiedzi
-        d3.select("#bottomInfo").style("transform", "none"); // Usuń transformację
+        // d3.select("#bottomInfo").style("transform", "none"); // Usunięte
+
     } else {
         searchResults.style("display", "block");
         searchResults.html("");
@@ -452,11 +453,12 @@ searchInput.on("input", () => {
             });
         });
 
-        // Przesuń #bottomInfo w dół, gdy są podpowiedzi
+        // Przesuń #bottomInfo w dół, gdy są podpowiedzi //Usunięte
         // Oblicz wysokość #searchResults
-        const searchResultsHeight = searchResults.node().offsetHeight;
+        // const searchResultsHeight = searchResults.node().offsetHeight; //Usunięto
         // Przesuń #bottomInfo o tę wysokość + jakiś margines (np. 10px)
-        d3.select("#bottomInfo").style("transform", `translateY(${searchResultsHeight + 10}px)`);
+        // d3.select("#bottomInfo").style("transform", `translateY(${searchResultsHeight + 10}px)`); //Usunięto
+
     }
 });
 
@@ -508,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
         //Przywracanie bottomInfo
-        d3.select("#bottomInfo").style("transform", "none");
+        // d3.select("#bottomInfo").style("transform", "none"); //Usunięto
 
     });
 
