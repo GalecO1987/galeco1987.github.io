@@ -430,17 +430,30 @@ function updateFilters() {
 const searchInput = d3.select("#searchInput");
 const searchResults = d3.select("#searchResults");
 
+// Funkcja pomocnicza do przesuwania #leftPanel
+function moveLeftPanel(up) {
+    const leftPanel = d3.select("#leftPanel");
+    if (window.innerWidth <= 768) { // Tylko na mobile
+        if (up) {
+            const searchResultsHeight = searchResults.node().offsetHeight;
+            leftPanel.style("transform", `translateY(-${searchResultsHeight + 20}px)`); // 20px to dodatkowy margines
+        } else {
+            leftPanel.style("transform", "none"); // Przywróć domyślną pozycję
+        }
+    }
+}
+
+// ZMODYFIKOWANA funkcja obsługi inputu
 searchInput.on("input", () => {
     const searchTerm = searchInput.property("value").toLowerCase();
     const results = data.nodes.filter(node => node.id.toLowerCase().includes(searchTerm));
 
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
-        //Przywróć #bottomInfo na miejsce, gdy nie ma podpowiedzi
-        d3.select("#bottomInfo").style("transform", "none"); // Usuń transformację
+        moveLeftPanel(false); // Schowaj podpowiedzi i przesuń panel w dół
     } else {
         searchResults.style("display", "block");
-        searchResults.html("");
+        searchResults.html(""); // Wyczyść poprzednie wyniki
 
         results.forEach(result => {
             const resultDiv = searchResults.append("div");
@@ -449,14 +462,11 @@ searchInput.on("input", () => {
                 searchServer(result.id);
             });
         });
-
-        // Przesuń #bottomInfo w dół, gdy są podpowiedzi
-        // Oblicz wysokość #searchResults
-        const searchResultsHeight = searchResults.node().offsetHeight;
-        // Przesuń #bottomInfo o tę wysokość + jakiś margines (np. 10px)
-        d3.select("#bottomInfo").style("transform", `translateY(${searchResultsHeight + 10}px)`);
+        moveLeftPanel(true); // Pokaż podpowiedzi i przesuń panel do góry
     }
 });
+
+
 
 // Nowa funkcja do obliczania rankingów
 function calculateRanks(nodes) {
@@ -505,9 +515,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
-        //Przywracanie bottomInfo
-        d3.select("#bottomInfo").style("transform", "none");
-
     });
 
     // ****************************************
@@ -588,8 +595,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
-
+    // Dodajemy event listener na kliknięcie *poza* #searchResults,
+    // aby schować podpowiedzi, gdy klikniemy gdzie indziej.
+    document.addEventListener('click', (event) => {
+        if (!searchInput.node().contains(event.target) && !searchResults.node().contains(event.target)) {
+            searchResults.style('display', 'none');
+            moveLeftPanel(false); //Dodano
+        }
+    });
 });
 
 // Funkcja do obsługi zmiany orientacji/rozmiaru okna
