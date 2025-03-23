@@ -229,8 +229,7 @@ function searchServer(serverId) {
     svg.transition().duration(750).call(zoom_handler.transform, transform);
     handleNodeClick(null, serverNode);
 
-    //Przywracanie #bottomInfo po wyszukaniu
-    // d3.select("#bottomInfo").style("transform", "none"); //Usunięto
+    //Usunięto przywracanie #bottomInfo
 }
 
 function highlightNodeAndLinks(d) {
@@ -438,9 +437,7 @@ searchInput.on("input", () => {
 
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
-        //Przywróć #bottomInfo na miejsce, gdy nie ma podpowiedzi
-        // d3.select("#bottomInfo").style("transform", "none"); // Usunięte
-
+        //Usunięto przywracanie #bottomInfo
     } else {
         searchResults.style("display", "block");
         searchResults.html("");
@@ -453,12 +450,7 @@ searchInput.on("input", () => {
             });
         });
 
-        // Przesuń #bottomInfo w dół, gdy są podpowiedzi //Usunięte
-        // Oblicz wysokość #searchResults
-        // const searchResultsHeight = searchResults.node().offsetHeight; //Usunięto
-        // Przesuń #bottomInfo o tę wysokość + jakiś margines (np. 10px)
-        // d3.select("#bottomInfo").style("transform", `translateY(${searchResultsHeight + 10}px)`); //Usunięto
-
+        // Usunięto przesuwanie #bottomInfo
     }
 });
 
@@ -509,13 +501,12 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
-        //Przywracanie bottomInfo
-        // d3.select("#bottomInfo").style("transform", "none"); //Usunięto
+        //Usunięto przywracanie #bottomInfo
 
     });
 
     // ****************************************
-    // **  DODANY FRAGMENT - OBSŁUGA HOVERA  **
+    // **  OBSŁUGA HOVERA  **
     // ****************************************
     d3.select("#serverInfo-partnerships-list").on("mouseover", (event) => {
         const target = event.target;
@@ -577,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // *************************************
-    // **  DODANY FRAGMENT - OBSŁUGA CLICKA **
+    // **  OBSŁUGA CLICKA **
     // *************************************
 
     d3.select("#serverInfo-partnerships-list").on("click", (event) => {
