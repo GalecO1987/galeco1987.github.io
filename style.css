@@ -183,6 +183,7 @@ color: white;
 border: none;
 cursor: pointer;
 border-radius: 5px;
+transition: background-color 0.3s ease; /* Dodajemy płynne przejście */
 }
 
 #resetButton:hover {
@@ -297,7 +298,7 @@ position: absolute;
 top: 10px;
 right: 10px;
 width: 300px; /* Domyślna szerokość na desktopie */
-background-color: rgba(34, 34, 34, 0.9);
+background-color: #222; /* Zmieniono na nieprzezroczysty kolor */
 border: 1px solid #444;
 padding: 10px;
 border-radius: 5px;
@@ -370,7 +371,7 @@ display: flex;
 justify-content: flex-end;
 align-items: flex-end;
 z-index: 10;
-background-color: transparent; /* Zmieniono na transparent */
+background-color: transparent;
 padding: 5px;
 }
 
@@ -381,8 +382,8 @@ border-radius: 3px;
 font-size: 12px;
 display: flex;
 flex-direction: column;
-align-items: flex-end; /* Wyrównanie tekstu do prawej */
-text-align: right; /* Dodatkowo, aby upewnić się, że tekst wewnątrz jest wyrównany do prawej */
+align-items: flex-end;
+text-align: right;
 }
 
 #serverCount {
@@ -434,7 +435,7 @@ margin-bottom: 5px;
     left: 0;
     right: 0;
     border-radius: 0;
-    background-color: rgba(34, 34, 34, 0.9);
+    background-color: #222; /* Zmieniono na nieprzezroczysty kolor */
 
     }
 
