@@ -227,6 +227,9 @@ function searchServer(serverId) {
 
     svg.transition().duration(750).call(zoom_handler.transform, transform);
     handleNodeClick(null, serverNode);
+
+    //Przywracanie #bottomInfo po wyszukaniu
+    d3.select("#bottomInfo").style("transform", "none");
 }
 
 function highlightNodeAndLinks(d) {
@@ -456,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.add('visible');
 
     understandButton.addEventListener('click', () => {
-        overlay.style.opacity = '0';
+        overlay.style.opacity = '0'; // Poprawiono tutaj
         setTimeout(() => {
             overlay.remove();
         }, 500);
@@ -467,12 +470,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     drawGraph(data.nodes, data.links);
 
-    //Dodajemy event listener dla przycisku zamykania #serverInfo
+    //Dodajemy event listener dla przycisku zamykania #serverInfo i przywracanie bottomInfo
     d3.select("#closeServerInfo").on("click", () => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+        //Przywracanie bottomInfo
+        d3.select("#bottomInfo").style("transform", "none");
+
     });
 });
 
