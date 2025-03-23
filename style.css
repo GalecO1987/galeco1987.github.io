@@ -268,7 +268,7 @@ display: block;
 #searchResults {
 position: absolute;
 left: 0;
-top: 100%;
+top: 100%; /* Wracamy do top: 100%; */
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 border-radius: 5px;
@@ -425,6 +425,8 @@ margin-bottom: 5px;
 
     #searchContainer {
     position: relative;
+    /* Zostawiamy margin-top, ale zmniejszamy */
+    margin-top: 10px;
     }
 
     /*Dodane style by uniknąc wychodzenia divów poza viewport*/
