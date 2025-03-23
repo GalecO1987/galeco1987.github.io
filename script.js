@@ -128,6 +128,7 @@ svg.on("mousemove", (event) => {
 
 d3.select("#resetButton").on("click", () => {
     svg.transition().duration(750).call(zoom_handler.transform, initialTransform);
+    resetBottomInfoPosition(); // Resetuj pozycję przy resetowaniu widoku
 });
 
 function getNodeColor(node) {
@@ -167,6 +168,7 @@ function handleNodeClick(event, d) {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+        resetBottomInfoPosition(); // Resetuj pozycję, gdy zamykamy panel kliknięciem na już otwarty serwer
         return;
     }
 
@@ -229,7 +231,6 @@ function searchServer(serverId) {
     svg.transition().duration(750).call(zoom_handler.transform, transform);
     handleNodeClick(null, serverNode);
 
-    //Usunięto przywracanie #bottomInfo
 }
 
 function highlightNodeAndLinks(d) {
@@ -296,6 +297,11 @@ function stopBlinking() {
     }
 }
 
+// Dodana funkcja resetująca pozycję #bottomInfo
+function resetBottomInfoPosition() {
+    d3.select("#bottomInfo").style("transform", "none");
+}
+
 svg.on("click", (event) => {
     // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
     if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
@@ -303,6 +309,7 @@ svg.on("click", (event) => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
+        resetBottomInfoPosition(); // Resetuj pozycję, gdy zamykamy panel ogólnym kliknięciem
     }
 });
 
@@ -437,7 +444,7 @@ searchInput.on("input", () => {
 
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
-        //Usunięto przywracanie #bottomInfo
+        //Usunięto przywracanie #bottomInfo w funkcji searchInput
     } else {
         searchResults.style("display", "block");
         searchResults.html("");
@@ -449,8 +456,6 @@ searchInput.on("input", () => {
                 searchServer(result.id);
             });
         });
-
-        // Usunięto przesuwanie #bottomInfo
     }
 });
 
@@ -501,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyHighlighted = null;
         resetHighlight();
         toggleLeftPanelAndServerInfo(false);
-        //Usunięto przywracanie #bottomInfo
+        resetBottomInfoPosition(); // Resetuj pozycję przy zamykaniu panelu
 
     });
 
