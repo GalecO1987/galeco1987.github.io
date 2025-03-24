@@ -1,5 +1,17 @@
 // script.js
+
+//Przerabiamy daty z data.js do formatu DD-MM-YYYY
+function convertDateFormat(dateString) {
+    const [day, monthName, year] = dateString.split(" ");
+    const month = [
+        "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+        "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
+    ].indexOf(monthName) + 1;
+    return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`; // Zwracamy DD-MM-YYYY
+}
+
 data.nodes.forEach(node => {
+    node.creationDate = convertDateFormat(node.creationDate); // Konwertuj format daty
     node.partnerships.forEach(partnerId => {
         const partner = data.nodes.find(n => n.id === partnerId);
         if (partner) {
@@ -9,6 +21,12 @@ data.nodes.forEach(node => {
         }
     });
 });
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// **  TUTAJ JEST ZMIANA - aktualizacja minDateObj i maxDateObj **
+minDateObj = new Date(d3.min(data.nodes, d => d.creationDate.split("-").reverse().join("-")));  // Konwertuj DD-MM-YYYY na YYYY-MM-DD do obiektu Date
+maxDateObj = new Date(d3.max(data.nodes, d => d.creationDate.split("-").reverse().join("-"))); // Konwertuj DD-MM-YYYY na YYYY-MM-DD do obiektu Date
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -31,7 +49,7 @@ let simulation = d3.forceSimulation(data.nodes)
 .force("center", d3.forceCenter(width / 2, height / 2))
 .force("collision", d3.forceCollide().radius(d => radiusScale(d.members) + 5));
 
-let freezeTimer; // Dodajemy zmienną do przechowywania timera
+let freezeTimer;
 
 function drawGraph(filteredNodes, filteredLinks) {
     g.selectAll(".nodes").remove();
@@ -101,7 +119,6 @@ function drawGraph(filteredNodes, filteredLinks) {
     // Ustaw nowy timer, który zatrzyma symulację po 1 sekundzie
     freezeTimer = setTimeout(() => {
         simulation.stop();
-        // simulation.alpha(0); //  Nie musimy już ustawiać alpha na 0. stop() wystarczy
     }, 1000);
 
 }
@@ -174,7 +191,6 @@ function handleNodeClick(event, d) {
     currentlyHighlighted = d;
     serverInfo.style("display", "block");
 
-    // Dodaj/usuń klasę 'visible'
     toggleLeftPanelAndServerInfo(true);
 
     const sortedPartnerships = d.partnerships
@@ -182,22 +198,27 @@ function handleNodeClick(event, d) {
     .filter(partner => partner)
     .sort((a, b) => b.members - a.members);
 
-    // ZMODYFIKOWANY fragment - wstawiamy dane do odpowiednich elementów
+    //  Wyświetlania informacji:
     const serverColor = getNodeColor(d);
     d3.select("#serverInfo-name").style("color", serverColor).text(d.id);
-    d3.select("#serverInfo-members").style("color", serverColor).text(`Członkowie: ${d.members} (miejsce #${d.memberRank})`);
-    d3.select("#serverInfo-boosts").style("color", serverColor).text(`Boosty: ${d.boosts} (miejsce #${d.boostRank})`);
-    d3.select("#serverInfo-partnerships-count").style("color", serverColor).text(`Liczba partnerstw: ${sortedPartnerships.length} (miejsce #${d.partnershipRank})`);
+
+    const serverInfoMembers = d3.select("#serverInfo-members");
+    serverInfoMembers.selectAll("*").remove();
+    serverInfoMembers.append("div").text(`Data założenia: ${d.creationDate}`);  //Już w poprawnym formacie
+    serverInfoMembers.append("div").text(`Członkowie: ${d.members} (miejsce #${d.memberRank})`);
+
+    d3.select("#serverInfo-boosts").text(`Boosty: ${d.boosts} (miejsce #${d.boostRank})`);
+    d3.select("#serverInfo-partnerships-count").text(`Liczba partnerstw: ${sortedPartnerships.length} (miejsce #${d.partnershipRank})`);
 
 
-    let partnershipsHtml = ""; // Zaczynamy od pustego stringa
+    let partnershipsHtml = "";
     sortedPartnerships.forEach(partner => {
         const partnerColor = getNodeColor(partner);
         partnershipsHtml += `<li style="color: ${partnerColor};">
         ${partner.id} (Członkowie: ${partner.members}, Boosty: ${partner.boosts})
         </li>`;
     });
-    d3.select("#serverInfo-partnerships-list").html(partnershipsHtml); // Wstawiamy listę
+    d3.select("#serverInfo-partnerships-list").html(partnershipsHtml);
 
     highlightNodeAndLinks(d);
 
@@ -296,7 +317,6 @@ function stopBlinking() {
 
 
 svg.on("click", (event) => {
-    // Zmodyfikowane zdarzenie click, aby zamykało #serverInfo, gdy kliknięcie jest poza nim *i* poza #leftPanel
     if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
@@ -308,36 +328,30 @@ svg.on("click", (event) => {
 
 
 function handleNodeMouseOver(event, d) {
-    // Warunek, żeby dymek wyświetlał się tylko przy najechaniu na *kółka*
     if (event.target.tagName === 'circle') {
         const tooltip = d3.select(".tooltip");
         tooltip.style("display", "block")
         .html(`
         <strong>${d.id}</strong><br>
+        Data założenia: ${d.creationDate}<br>
         Członkowie: ${d.members} (miejsce #${d.memberRank})<br>
         Boosty: ${d.boosts} (miejsce #${d.boostRank})<br>
         Partnerstwa: ${d.partnerships.length} (miejsce #${d.partnershipRank})
-        `)
+        `)  //  Już w formacie DD-MM-YYYY
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 28) + "px");
     }
-    const serverInfo = d3.select("#serverInfo");
-    serverInfo.selectAll("li").style("font-weight", "normal");
 
-    // ZMIEŃ: Pogrubiamy TYLKO jeśli najechany serwer jest tym samym, co wyświetlany w panelu
+    // * * * * * * * * * * * * * * * * * * * *
+    // ** KLUCZOWA ZMIANA - pogrubianie TYLKO, jeśli to jest aktualnie kliknięty serwer: **
     if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
-        serverInfo.selectAll("h2, p").style("font-weight", "bold");
+        const serverInfo = d3.select("#serverInfo");
+        serverInfo.select("h2").style("font-weight", "bold"); // Pogrub nazwę
+        serverInfo.select("#serverInfo-members").style("font-weight", "bold"); // Pogrub datę i członków
+        serverInfo.select("#serverInfo-boosts").style("font-weight", "bold"); //Pogrub boosty
+        serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "bold"); //Pogrub liczbę partnerstw.
     }
-
-
-    const listItem = serverInfo.selectAll("li")
-    .filter(function () {
-        return this.textContent.trim().startsWith(d.id);
-    });
-
-    if (!listItem.empty()) {
-        listItem.style("font-weight", "bold");
-    }
+    // * * * * * * * * * * * * * * * * * * * *
 
     const connectedNodeIds = new Set();
     connectedNodeIds.add(d.id);
@@ -364,61 +378,104 @@ function handleNodeMouseOver(event, d) {
 function handleNodeMouseOut(event, d) {
     d3.select(".tooltip").style("display", "none");
 
-    const serverInfo = d3.select("#serverInfo");
-    serverInfo.selectAll("li").style("font-weight", "normal");
-    //ZMIEŃ: Usuwamy pogrubienie z całego wiersza
-    serverInfo.selectAll("h2, p").style("font-weight", "normal"); // Dodano selektor 'p'
+    // * * * * * * * * * * * * * * * * * * * *
+    // ** KLUCZOWA ZMIANA - usuwanie pogrubienia, jeśli to był aktualnie kliknięty serwer **
+    if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
+        const serverInfo = d3.select("#serverInfo");
+        serverInfo.select("h2").style("font-weight", "normal");  // Normalna nazwa
+        serverInfo.select("#serverInfo-members").style("font-weight", "normal");  // Normalna data i członkowie
+        serverInfo.select("#serverInfo-boosts").style("font-weight", "normal"); //Normalne boosty
+        serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "normal"); //Normalna liczba partnerstw.
+
+    }
+    // * * * * * * * * * * * * * * * * * * * *
 
     g.selectAll(".link").style("stroke", "#999").style("stroke-width", 1);
     g.selectAll(".node").style("stroke", "none").style("stroke-width", 0);
 }
 
+//Dodajemy obsługę filtra dat
+const dateFilter = d3.select("#dateFilter");
+const dateValue = d3.select("#dateValue");
+
 const memberFilter = d3.select("#memberFilter");
 const boostFilter = d3.select("#boostFilter");
 const memberValue = d3.select("#memberValue");
 const boostValue = d3.select("#boostValue");
-
-// Dodajemy nowe zmienne dla filtra partnerstw
 const partnershipFilter = d3.select("#partnershipFilter");
 const partnershipValue = d3.select("#partnershipValue");
 
+const dateRange = (maxDateObj - minDateObj) / (1000 * 60 * 60 * 24) + 1;
+
+dateFilter.attr("min", 0);
+dateFilter.attr("max", dateRange - 1);
+dateFilter.attr("value", 0);
+
+//Funkcja formatująca datę z obiektu Date do formatu DD-MM-YYYY
+function formatDate(dateObj) {
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Miesiące są liczone od 0
+    const year = dateObj.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
+//Początkowa wartość pola z datą
+dateValue.text(formatDate(minDateObj));
+
+// Event listener dla suwaka daty
+dateFilter.on("input", () => {
+    const daysSinceMinDate = +dateFilter.property("value"); // Pobieramy wartość suwaka (liczba dni od minDate)
+const selectedDateObj = new Date(minDateObj);  // Klonujemy minimalną datę, żeby na niej operować
+selectedDateObj.setDate(minDateObj.getDate() + daysSinceMinDate); // Dodajemy liczbę dni z suwaka do sklonowanej daty
+selectedDateObj.setHours(0, 0, 0, 0); //Zerowanie czasu
+dateValue.text(formatDate(selectedDateObj)); //Wyświetlamy sformatowaną datę
+
+updateFilters(); //Wywołujemy funkcję filtrowania
+});
+
 memberFilter.attr("max", d3.max(data.nodes, d => d.members));
 boostFilter.attr("max", d3.max(data.nodes, d => d.boosts));
-
-// Ustawiamy max dla filtra partnerstw
 partnershipFilter.attr("max", d3.max(data.nodes, d => d.partnerships.length));
 
 memberFilter.on("input", updateFilters);
 boostFilter.on("input", updateFilters);
-// Dodajemy event listener dla filtra partnerstw
 partnershipFilter.on("input", updateFilters);
 
 function updateFilters() {
+    const daysSinceMinDate = +dateFilter.property("value");
+    const selectedDateObj = new Date(minDateObj);
+    selectedDateObj.setDate(minDateObj.getDate() + daysSinceMinDate);
+    selectedDateObj.setHours(0,0,0,0); //Zerowanie czasu
+    const selectedDateStr = formatDate(selectedDateObj); // DD-MM-YYYY
+
     const minMembers = +memberFilter.property("value");
     const minBoosts = +boostFilter.property("value");
-    const minPartnerships = +partnershipFilter.property("value");  //Pobierz wartość filtra partnerstw
+    const minPartnerships = +partnershipFilter.property("value");
 
     memberValue.text(minMembers);
     boostValue.text(minBoosts);
-    partnershipValue.text(minPartnerships); // Wyświetl wartość filtra partnerstw
+    partnershipValue.text(minPartnerships);
 
-    const filteredNodes = data.nodes.filter(d =>
+    const filteredNodes = data.nodes.filter(d => {
+        const nodeDateObj = new Date(d.creationDate.split("-").reverse().join("-")); // Konwertuj DD-MM-YYYY na YYYY-MM-DD (do obiektu Date)
+    nodeDateObj.setHours(0,0,0,0); //Zerowanie czasu
+
+    return (
+        nodeDateObj >= selectedDateObj &&  // Porównanie obiektów Date (po wyzerowaniu czasu)
     d.members >= minMembers &&
     d.boosts >= minBoosts &&
-    d.partnerships.length >= minPartnerships // Dodaj warunek filtrowania partnerstw
+    d.partnerships.length >= minPartnerships
     );
-
+    });
 
     const filteredNodeIds = new Set(filteredNodes.map(d => d.id));
     const filteredLinks = data.links.filter(l =>
     filteredNodeIds.has(l.source.id) && filteredNodeIds.has(l.target.id)
     );
 
-    // WAŻNE: Przelicz rankingi *po* filtrowaniu
     calculateRanks(filteredNodes);
 
     drawGraph(filteredNodes, filteredLinks);
-
 
     if (currentlyHighlighted) {
         resetHighlight();
@@ -436,24 +493,23 @@ function moveLeftPanel(up) {
     if (window.innerWidth <= 768) { // Tylko na mobile
         if (up) {
             const searchResultsHeight = searchResults.node().offsetHeight;
-            leftPanel.style("transform", `translateY(-${searchResultsHeight + 20}px)`); // 20px to dodatkowy margines
+            leftPanel.style("transform", `translateY(-${searchResultsHeight}px)`); // Dostosuj przesunięcie
         } else {
-            leftPanel.style("transform", "none"); // Przywróć domyślną pozycję
+            leftPanel.style("transform", "none");
         }
     }
 }
 
-// ZMODYFIKOWANA funkcja obsługi inputu
 searchInput.on("input", () => {
     const searchTerm = searchInput.property("value").toLowerCase();
     const results = data.nodes.filter(node => node.id.toLowerCase().includes(searchTerm));
 
     if (searchTerm === "" || results.length === 0) {
         searchResults.style("display", "none");
-        moveLeftPanel(false); // Schowaj podpowiedzi i przesuń panel w dół
+        moveLeftPanel(false);
     } else {
         searchResults.style("display", "block");
-        searchResults.html(""); // Wyczyść poprzednie wyniki
+        searchResults.html("");
 
         results.forEach(result => {
             const resultDiv = searchResults.append("div");
@@ -462,13 +518,10 @@ searchInput.on("input", () => {
                 searchServer(result.id);
             });
         });
-        moveLeftPanel(true); // Pokaż podpowiedzi i przesuń panel do góry
+        moveLeftPanel(true);
     }
 });
 
-
-
-// Nowa funkcja do obliczania rankingów
 function calculateRanks(nodes) {
     // Ranking członków
     const membersRank = [...nodes].sort((a, b) => b.members - a.members);
@@ -482,11 +535,18 @@ function calculateRanks(nodes) {
         node.boostRank = index + 1;
     });
 
-    // Ranking partnerstw (używamy .length, bo partnerships to tablica)
     const partnershipsRank = [...nodes].sort((a, b) => b.partnerships.length - a.partnerships.length);
     partnershipsRank.forEach((node, index) => {
         node.partnershipRank = index + 1;
     });
+
+    const creationDateRank = [...nodes].sort((a, b) => {
+        return new Date(a.creationDate.split("-").reverse().join("-")) - new Date(b.creationDate.split("-").reverse().join("-")); //DD-MM-YYYY -> YYYY-MM-DD
+    });
+
+    creationDateRank.forEach((node, index) => {
+        node.creationDateRank = index + 1;
+    })
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -496,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.add('visible');
 
     understandButton.addEventListener('click', () => {
-        overlay.style.opacity = '0'; // Poprawiono tutaj
+        overlay.style.opacity = '0'; //Poprawione
         setTimeout(() => {
             overlay.remove();
         }, 500);
@@ -505,11 +565,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const serverCount = data.nodes.length;
     document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
 
-    // Najpierw oblicz rankingi, *potem* rysuj graf
     calculateRanks(data.nodes);
     drawGraph(data.nodes, data.links);
 
-    //Dodajemy event listener dla przycisku zamykania #serverInfo i przywracanie bottomInfo
     d3.select("#closeServerInfo").on("click", () => {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
@@ -517,26 +575,18 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleLeftPanelAndServerInfo(false);
     });
 
-    // ****************************************
-    // **  OBSŁUGA HOVERA  **
-    // ****************************************
     d3.select("#serverInfo-partnerships-list").on("mouseover", (event) => {
         const target = event.target;
 
-        // Sprawdzamy, czy najechano na element 'li'
         if (target.tagName === 'LI') {
             const serverName = target.textContent.split(" (")[0].trim();
             const hoveredNode = data.nodes.find(node => node.id === serverName);
 
             if (hoveredNode) {
-                // Symulacja najechania myszką na okrąg
                 handleNodeMouseOver(event, hoveredNode);
-                // Dodatkowo, jeśli mamy zaznaczony serwer, to pogrubiamy tekst w liście tak samo jak po kliknięciu
                 if (currentlyHighlighted) {
                     highlightNodeAndLinks(currentlyHighlighted);
                 }
-
-
             }
         }
     });
@@ -548,10 +598,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const hoveredNode = data.nodes.find(node => node.id === serverName);
 
             if (hoveredNode) {
-                // Symulacja zjechania myszką z okręgu
                 handleNodeMouseOut(event, hoveredNode);
 
-                // Przywróć stan zaznaczenia, jeśli jakiś serwer był kliknięty.
                 if (currentlyHighlighted) {
                     highlightNodeAndLinks(currentlyHighlighted);
                 }
@@ -559,15 +607,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Dodatkowo, obsługa hovera na głównych informacjach o serwerze (poza listą partnerstw)
     d3.select("#serverInfo").on("mouseover", (event) => {
 
-        // Sprawdz, czy najechano na element, który zawiera informacje *główne* o serwerze
-        // a nie na listę partnerstw.
         if (event.target.closest("#serverInfo-partnerships-list") === null && currentlyHighlighted) {
-            // Symulujemy najechanie na *kliknięty* node
             handleNodeMouseOver(event, currentlyHighlighted);
-            highlightNodeAndLinks(currentlyHighlighted); // Upewnij się, że podświetlenie jest włączone
+            highlightNodeAndLinks(currentlyHighlighted);
         }
 
     });
@@ -575,13 +619,9 @@ document.addEventListener('DOMContentLoaded', () => {
     d3.select("#serverInfo").on("mouseout", (event) => {
         if (event.target.closest("#serverInfo-partnerships-list") === null && currentlyHighlighted) {
             handleNodeMouseOut(event, currentlyHighlighted);
-            highlightNodeAndLinks(currentlyHighlighted); // Przywracamy podświetlenie po zjechaniu
+            highlightNodeAndLinks(currentlyHighlighted);
         }
     });
-
-    // *************************************
-    // **  OBSŁUGA CLICKA **
-    // *************************************
 
     d3.select("#serverInfo-partnerships-list").on("click", (event) => {
         const target = event.target;
@@ -591,43 +631,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const clickedNode = data.nodes.find(node => node.id === serverName);
 
             if(clickedNode){
-                handleNodeClick(event, clickedNode); // Wywołujemy taką samą funkcję jak przy kliknięciu na okrąg
+                handleNodeClick(event, clickedNode);
             }
         }
     });
-    // Dodajemy event listener na kliknięcie *poza* #searchResults,
-    // aby schować podpowiedzi, gdy klikniemy gdzie indziej.
     document.addEventListener('click', (event) => {
         if (!searchInput.node().contains(event.target) && !searchResults.node().contains(event.target)) {
             searchResults.style('display', 'none');
-            moveLeftPanel(false); //Dodano
+            moveLeftPanel(false);
         }
     });
 });
 
-// Funkcja do obsługi zmiany orientacji/rozmiaru okna
 function handleResize() {
-    // Pobierz nowe wymiary okna
     const newWidth = window.innerWidth;
     const newHeight = window.innerHeight;
 
-    // Zaktualizuj atrybuty SVG
     svg.attr("width", newWidth).attr("height", newHeight);
-
-    // Zaktualizuj środek sił
     simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
-
-    // Wyczyść timer, aby zapobiec zatrzymaniu symulacji podczas resize
     clearTimeout(freezeTimer);
-
-    // Uruchom ponownie symulację (bez .restart(), bo nodes i links są aktualne)
     simulation.alpha(1);
 
-    // Ustaw timer, aby zatrzymać symulację po zmianie rozmiaru okna
     freezeTimer = setTimeout(() => {
         simulation.stop();
     }, 1000);
 }
 
-// Nasłuchuj zdarzenia resize i wywołuj handleResize
 window.addEventListener("resize", handleResize);
