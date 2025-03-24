@@ -146,8 +146,8 @@ display: flex;
 flex-direction: column;
 gap: 10px;
 z-index: 10;
-width: 220px; /* Domyślna szerokość na desktopie */
-max-width: calc(100% - 20px);  /* Dodano max-width */
+width: 220px;
+max-width: calc(100% - 20px);
 }
 
 #leftPanel h3 {
@@ -252,6 +252,7 @@ font-size: 12px;
 width: 100%;
 box-sizing: border-box;
 position: relative;
+margin-top: 20px; /* Dodane by odsunąć wyszukiwarkę */
 }
 
 #searchInput {
@@ -406,7 +407,7 @@ margin-bottom: 5px;
     #leftPanel {
     width: 100%;
     top: auto;
-    bottom: 50px;  /* Zmieniono bottom */
+    bottom: 50px;
     left: 0;
     padding: 10px;
     box-sizing: border-box;
@@ -415,18 +416,16 @@ margin-bottom: 5px;
     }
 
     #leftPanel > * {
-    width: 100%; /* Zmieniono z 48% na 100% */
-    max-width: none; /*Dodano, żeby szerokość była 100%*/
-    margin-bottom: 10px; /* Dodano odstęp między elementami */
+    width: 100%;
+    max-width: none;
+    margin-bottom: 10px;
     }
     #leftPanel > *:last-child {
     margin-bottom: 0; /* Usunięcie marginesu z ostatniego elementu */
     }
 
     #searchContainer {
-    position: relative;
-    /* Zostawiamy margin-top, ale zmniejszamy */
-    margin-top: 10px;
+    margin-top: 20px; /* Zmniejszony margines */
     }
 
     /*Dodane style by uniknąc wychodzenia divów poza viewport*/
