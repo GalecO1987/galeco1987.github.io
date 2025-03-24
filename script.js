@@ -23,7 +23,7 @@ data.nodes.forEach(node => {
 });
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// **  TUTAJ JEST ZMIANA - aktualizacja minDateObj i maxDateObj **
+//  Aktualizacja minDateObj i maxDateObj
 minDateObj = new Date(d3.min(data.nodes, d => d.creationDate.split("-").reverse().join("-")));  // Konwertuj DD-MM-YYYY na YYYY-MM-DD do obiektu Date
 maxDateObj = new Date(d3.max(data.nodes, d => d.creationDate.split("-").reverse().join("-"))); // Konwertuj DD-MM-YYYY na YYYY-MM-DD do obiektu Date
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -204,7 +204,7 @@ function handleNodeClick(event, d) {
 
     const serverInfoMembers = d3.select("#serverInfo-members");
     serverInfoMembers.selectAll("*").remove();
-    serverInfoMembers.append("div").text(`Data założenia: ${d.creationDate}`);  //Już w poprawnym formacie
+    serverInfoMembers.append("div").text(`Data założenia: ${d.creationDate}`);
     serverInfoMembers.append("div").text(`Członkowie: ${d.members} (miejsce #${d.memberRank})`);
 
     d3.select("#serverInfo-boosts").text(`Boosty: ${d.boosts} (miejsce #${d.boostRank})`);
@@ -337,13 +337,13 @@ function handleNodeMouseOver(event, d) {
         Członkowie: ${d.members} (miejsce #${d.memberRank})<br>
         Boosty: ${d.boosts} (miejsce #${d.boostRank})<br>
         Partnerstwa: ${d.partnerships.length} (miejsce #${d.partnershipRank})
-        `)  //  Już w formacie DD-MM-YYYY
+        `)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 28) + "px");
     }
 
     // * * * * * * * * * * * * * * * * * * * *
-    // ** KLUCZOWA ZMIANA - pogrubianie TYLKO, jeśli to jest aktualnie kliknięty serwer: **
+    //  Pogrubianie TYLKO, jeśli to jest aktualnie kliknięty serwer:
     if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
         const serverInfo = d3.select("#serverInfo");
         serverInfo.select("h2").style("font-weight", "bold"); // Pogrub nazwę
@@ -379,7 +379,7 @@ function handleNodeMouseOut(event, d) {
     d3.select(".tooltip").style("display", "none");
 
     // * * * * * * * * * * * * * * * * * * * *
-    // ** KLUCZOWA ZMIANA - usuwanie pogrubienia, jeśli to był aktualnie kliknięty serwer **
+    //  Usuwanie pogrubienia, jeśli to był aktualnie kliknięty serwer
     if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
         const serverInfo = d3.select("#serverInfo");
         serverInfo.select("h2").style("font-weight", "normal");  // Normalna nazwa
@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.add('visible');
 
     understandButton.addEventListener('click', () => {
-        overlay.style.opacity = '0'; //Poprawione
+        overlay.style.opacity = '0';
         setTimeout(() => {
             overlay.remove();
         }, 500);
@@ -575,6 +575,9 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleLeftPanelAndServerInfo(false);
     });
 
+    // ****************************************
+    // **  OBSŁUGA HOVERA (MODYFIKACJA) **
+    // ****************************************
     d3.select("#serverInfo-partnerships-list").on("mouseover", (event) => {
         const target = event.target;
 
@@ -584,6 +587,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hoveredNode) {
                 handleNodeMouseOver(event, hoveredNode);
+                // Dodano pogrubianie nazwy serwera na liście:
+                d3.select(target).style("font-weight", "bold"); // KLUCZOWA ZMIANA
+
                 if (currentlyHighlighted) {
                     highlightNodeAndLinks(currentlyHighlighted);
                 }
@@ -599,6 +605,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hoveredNode) {
                 handleNodeMouseOut(event, hoveredNode);
+                // Dodano usuwanie pogrubiania nazwy serwera na liście:
+                d3.select(target).style("font-weight", "normal"); // KLUCZOWA ZMIANA
 
                 if (currentlyHighlighted) {
                     highlightNodeAndLinks(currentlyHighlighted);
@@ -606,6 +614,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    // ****************************************
+    // (reszta bez zmian)
 
     d3.select("#serverInfo").on("mouseover", (event) => {
 
