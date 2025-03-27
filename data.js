@@ -105,7 +105,8 @@ const data = {
         { id: "Pizzeria", creationDate: "7 lutego 2021", members: 49, boosts: 0, partnerships: []},
         { id: "WolfPack", creationDate: "4 sierpnia 2019", members: 62, boosts: 0, partnerships: []},
         { id: "Furland", creationDate: "14 grudnia 2022", members: 52, boosts: 0, partnerships: []},
-        { id: "Futrzanka", creationDate: "12 marca 2023", members: 46, boosts: 0, partnerships: []}
+        { id: "Futrzanka", creationDate: "12 marca 2023", members: 46, boosts: 0, partnerships: []},
+        { id: "Furry Cafe :3", creationDate: "23 marca 2025", members: 38, boosts: 8, partnerships: []}
     ],
     links: []
 };
