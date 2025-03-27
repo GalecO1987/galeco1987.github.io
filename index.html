@@ -53,21 +53,61 @@
     <button id="resetButton" class="mobile-hidden">Resetuj Widok</button>
     <h3>Filtrowanie:</h3>
     <div id="filterPanel">
-      <label for="dateFilter">Data założenia (min):</label>
-      <input type="range" id="dateFilter" min="0" max="100" value="0">
-      <p id="dateValue">01-01-2017</p>
+      <div class="filter-item">
+        <label for="dateFilterMin">Data założenia:</label>
+        <div class="range-slider-container">
+          <div class="range-track"></div>
+          <div class="range-fill"></div>
+          <input type="range" id="dateFilterMin" class="range-min" min="0" max="1" value="0">
+          <input type="range" id="dateFilterMax" class="range-max" min="0" max="1" value="1">
+        </div>
+        <p id="dateValue" class="filter-value-display">
+          <span class="min-value">min: -</span>
+          <span class="max-value">max: -</span>
+        </p>
+      </div>
 
-      <label for="memberFilter">Członkowie (min):</label>
-      <input type="range" id="memberFilter" min="0" max="2000" value="0">
-      <p id="memberValue">0</p>
+      <div class="filter-item">
+        <label for="memberFilterMin">Członkowie:</label>
+        <div class="range-slider-container">
+          <div class="range-track"></div>
+          <div class="range-fill"></div>
+          <input type="range" id="memberFilterMin" class="range-min" min="0" max="1" value="0">
+          <input type="range" id="memberFilterMax" class="range-max" min="0" max="1" value="1">
+        </div>
+        <p id="memberValue" class="filter-value-display">
+          <span class="min-value">min: 0</span>
+          <span class="max-value">max: 0</span>
+        </p>
+      </div>
 
-      <label for="boostFilter">Boosty (min):</label>
-      <input type="range" id="boostFilter" min="0" max="30" value="0">
-      <p id="boostValue">0</p>
+      <div class="filter-item">
+        <label for="boostFilterMin">Boosty:</label>
+        <div class="range-slider-container">
+          <div class="range-track"></div>
+          <div class="range-fill"></div>
+          <input type="range" id="boostFilterMin" class="range-min" min="0" max="1" value="0">
+          <input type="range" id="boostFilterMax" class="range-max" min="0" max="1" value="1">
+        </div>
+        <p id="boostValue" class="filter-value-display">
+          <span class="min-value">min: 0</span>
+          <span class="max-value">max: 0</span>
+        </p>
+      </div>
 
-      <label for="partnershipFilter">Partnerstwa (min):</label>
-      <input type="range" id="partnershipFilter" min="0" value="0">
-      <p id="partnershipValue">0</p>
+      <div class="filter-item">
+        <label for="partnershipFilterMin">Partnerstwa:</label>
+        <div class="range-slider-container">
+          <div class="range-track"></div>
+          <div class="range-fill"></div>
+          <input type="range" id="partnershipFilterMin" class="range-min" min="0" max="1" value="0">
+          <input type="range" id="partnershipFilterMax" class="range-max" min="0" max="1" value="1">
+        </div>
+        <p id="partnershipValue" class="filter-value-display">
+          <span class="min-value">min: 0</span>
+          <span class="max-value">max: 0</span>
+        </p>
+      </div>
     </div>
     <div id="searchContainer">
       <h3><label for="searchInput">Wyszukiwarka:</label></h3>
@@ -82,18 +122,16 @@
       <h2 id="serverInfo-name"></h2>
       <div id="serverInfo-members"></div>
       <p id="serverInfo-boosts"></p>
-      <p id="serverInfo-partnerships-count"></p> <!-- Dodajemy nowy element -->
+      <p id="serverInfo-partnerships-count"></p>
       <h3>Partnerstwa:</h3>
       <ul id="serverInfo-partnerships-list"></ul>
     </div>
 
-    <!--  Przeniesione POZA svg -->
     <div id="bottomInfo">
         <div id="dataDate">
           <div>Liczba serwerów: <span id="serverCount"></span></div>
           <div>Dane z dnia: 21 marca 2025 r.</div>
       </div>
-      <!-- Usunięto div #dataAuthor -->
     </div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
