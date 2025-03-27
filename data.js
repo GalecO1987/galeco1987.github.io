@@ -1,4 +1,3 @@
-// data.js
 const data = {
     nodes: [
         { id: "Puszysta Oaza", creationDate: "21 czerwca 2024", members: 281, boosts: 29, partnerships: [] },
