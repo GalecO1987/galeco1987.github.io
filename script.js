@@ -1,17 +1,14 @@
-// script.js
-
-//Przerabiamy daty z data.js do formatu DD-MM-YYYY
 function convertDateFormat(dateString) {
     const [day, monthName, year] = dateString.split(" ");
     const month = [
         "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
         "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
     ].indexOf(monthName) + 1;
-    return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`; // Zwracamy DD-MM-YYYY
+    return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
 }
 
 data.nodes.forEach(node => {
-    node.creationDate = convertDateFormat(node.creationDate); // Konwertuj format daty
+    node.creationDate = convertDateFormat(node.creationDate);
     node.partnerships.forEach(partnerId => {
         const partner = data.nodes.find(n => n.id === partnerId);
         if (partner) {
@@ -22,11 +19,12 @@ data.nodes.forEach(node => {
     });
 });
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-//  Aktualizacja minDateObj i maxDateObj
-minDateObj = new Date(d3.min(data.nodes, d => d.creationDate.split("-").reverse().join("-")));  // Konwertuj DD-MM-YYYY na YYYY-MM-DD do obiektu Date
-maxDateObj = new Date(d3.max(data.nodes, d => d.creationDate.split("-").reverse().join("-"))); // Konwertuj DD-MM-YYYY na YYYY-MM-DD do obiektu Date
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+let minDateObj, maxDateObj;
+let dateRange = 0;
+
+minDateObj = new Date(d3.min(data.nodes, d => d.creationDate.split("-").reverse().join("-")));
+maxDateObj = new Date(d3.max(data.nodes, d => d.creationDate.split("-").reverse().join("-")));
+dateRange = (maxDateObj - minDateObj) / (1000 * 60 * 60 * 24);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -43,7 +41,7 @@ const g = svg.append("g");
 
 let simulation = d3.forceSimulation(data.nodes)
 .force("link", d3.forceLink(data.links).id(d => d.id).distance(d => {
-    return d.source.partnerships.includes(d.target.id) ? 30 : 150; // Krótsze połączenia dla partnerstw
+    return d.source.partnerships.includes(d.target.id) ? 30 : 150;
 }))
 .force("charge", d3.forceManyBody().strength(-1500))
 .force("center", d3.forceCenter(width / 2, height / 2))
@@ -51,7 +49,7 @@ let simulation = d3.forceSimulation(data.nodes)
 
 let freezeTimer;
 
-function drawGraph(filteredNodes, filteredLinks) {
+function drawGraph(filteredNodes, filteredLinks, initialAlpha = 1, stopDelay = 1000) {
     g.selectAll(".nodes").remove();
     g.selectAll(".links").remove();
     g.selectAll(".labels").remove();
@@ -61,11 +59,9 @@ function drawGraph(filteredNodes, filteredLinks) {
     filteredNodes.some(n => n.id === l.target.id)
     );
 
-    // Kluczowe: Ustawiamy nodes i links PRZED restartem symulacji
     simulation.nodes(filteredNodes);
     simulation.force("link").links(newLinks);
 
-    // Tworzymy elementy, ale nie dodajemy ich jeszcze do DOM
     const newLink = g.append("g")
     .attr("class", "links")
     .selectAll("line")
@@ -93,7 +89,6 @@ function drawGraph(filteredNodes, filteredLinks) {
     .attr("class", "node-label")
     .text(d => d.id);
 
-    // Funkcja tick - aktualizuje pozycje
     simulation.on("tick", () => {
         newLink
         .attr("x1", d => d.source.x)
@@ -110,17 +105,15 @@ function drawGraph(filteredNodes, filteredLinks) {
         .attr("y", d => d.y - radiusScale(d.members) - 5);
     });
 
+    simulation.alpha(initialAlpha).restart();
 
-    simulation.alpha(1).restart(); //Teraz restartujemy symulację
-
-    // Wyczyść poprzedni timer, jeśli istnieje
     clearTimeout(freezeTimer);
 
-    // Ustaw nowy timer, który zatrzyma symulację po 1 sekundzie
-    freezeTimer = setTimeout(() => {
-        simulation.stop();
-    }, 1000);
-
+    if (stopDelay > 0) {
+        freezeTimer = setTimeout(() => {
+            simulation.stop();
+        }, stopDelay);
+    }
 }
 
 
@@ -158,20 +151,19 @@ let currentlyHighlighted = null;
 let blinkingNode = null;
 
 
-// Funkcja do przełączania widoczności
 function toggleLeftPanelAndServerInfo(showServerInfo) {
     const serverInfo = d3.select("#serverInfo");
     const leftPanel = d3.select("#leftPanel");
 
     if (showServerInfo) {
-        serverInfo.classed("visible", true);
+        serverInfo.style("display", "block");
         if (window.innerWidth <= 768) {
-            leftPanel.classed("left-panel-hidden", true); // Dodaj klasę ukrywającą
+            leftPanel.classed("left-panel-hidden", true);
         }
     } else {
-        serverInfo.classed("visible", false);
+        serverInfo.style("display", "none");
         if (window.innerWidth <= 768) {
-            leftPanel.classed("left-panel-hidden", false); // Usuń klasę ukrywającą
+            leftPanel.classed("left-panel-hidden", false);
         }
     }
 }
@@ -198,7 +190,6 @@ function handleNodeClick(event, d) {
     .filter(partner => partner)
     .sort((a, b) => b.members - a.members);
 
-    //  Wyświetlania informacji:
     const serverColor = getNodeColor(d);
     d3.select("#serverInfo-name").style("color", serverColor).text(d.id);
 
@@ -265,10 +256,13 @@ function highlightNodeAndLinks(d) {
     });
 
     g.selectAll(".node").classed("dimmed", n => !connectedNodeIds.has(n.id));
-    g.selectAll(".node").style("stroke-width", n => connectedNodeIds.has(n.id) ? 2 : 0);
+    g.selectAll(".node") // Nadaj obramowanie tylko podświetlonym
+    .style("stroke", n => connectedNodeIds.has(n.id) ? "white" : "none")
+    .style("stroke-width", n => connectedNodeIds.has(n.id) ? 2 : 0);
     g.selectAll(".link").classed("hidden", l => !(connectedNodeIds.has(l.source.id) && connectedNodeIds.has(l.target.id)));
     g.selectAll(".node-label").classed("hidden", label => !connectedNodeIds.has(label.id));
 }
+
 
 function resetHighlight() {
     g.selectAll(".node")
@@ -308,16 +302,17 @@ function stopBlinking() {
     if (blinkingNode) {
         g.selectAll(".node")
         .filter(d => d.id === blinkingNode.id)
+        .interrupt() // Przerwij trwającą animację migania
         .transition()
         .duration(200)
-        .attr("r", d => radiusScale(d.members));
+        .attr("r", d => radiusScale(d.members)); // Przywróć normalny promień
         blinkingNode = null;
     }
 }
 
 
 svg.on("click", (event) => {
-    if (!g.node().contains(event.target) && !d3.select("#serverInfo").node().contains(event.target) && !d3.select("#leftPanel").node().contains(event.target)) {
+    if (!event.target.closest('.node') && !event.target.closest('#serverInfo') && !event.target.closest('#leftPanel')) {
         d3.select("#serverInfo").style("display", "none");
         currentlyHighlighted = null;
         resetHighlight();
@@ -342,16 +337,13 @@ function handleNodeMouseOver(event, d) {
         .style("top", (event.pageY - 28) + "px");
     }
 
-    // * * * * * * * * * * * * * * * * * * * *
-    //  Pogrubianie TYLKO, jeśli to jest aktualnie kliknięty serwer:
     if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
         const serverInfo = d3.select("#serverInfo");
-        serverInfo.select("h2").style("font-weight", "bold"); // Pogrub nazwę
-        serverInfo.select("#serverInfo-members").style("font-weight", "bold"); // Pogrub datę i członków
-        serverInfo.select("#serverInfo-boosts").style("font-weight", "bold"); //Pogrub boosty
-        serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "bold"); //Pogrub liczbę partnerstw.
+        serverInfo.select("h2").style("font-weight", "bold");
+        serverInfo.select("#serverInfo-members").style("font-weight", "bold");
+        serverInfo.select("#serverInfo-boosts").style("font-weight", "bold");
+        serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "bold");
     }
-    // * * * * * * * * * * * * * * * * * * * *
 
     const connectedNodeIds = new Set();
     connectedNodeIds.add(d.id);
@@ -365,10 +357,19 @@ function handleNodeMouseOver(event, d) {
         }
     });
 
+    // Dodaj obramowanie hover tylko jeśli węzeł nie jest aktualnie kliknięty
     g.selectAll(".node")
-    .filter(n => connectedNodeIds.has(n.id))
+    .filter(n => connectedNodeIds.has(n.id) && (!currentlyHighlighted || n.id !== currentlyHighlighted.id))
     .style("stroke", "lightblue")
     .style("stroke-width", 2);
+
+    // Specjalne traktowanie dla aktualnie klikniętego węzła (jeśli istnieje) podczas hoveru
+    if(currentlyHighlighted && d.id === currentlyHighlighted.id) {
+        g.selectAll(".node").filter(n => n.id === d.id)
+        .style("stroke", "lightblue") // Zmień kolor obramowania na hover
+        .style("stroke-width", 2);
+    }
+
 
     g.selectAll(".link")
     .style("stroke", l => (l.source.id === d.id || l.target.id === d.id) ? "lightblue" : "#999")
@@ -378,94 +379,244 @@ function handleNodeMouseOver(event, d) {
 function handleNodeMouseOut(event, d) {
     d3.select(".tooltip").style("display", "none");
 
-    // * * * * * * * * * * * * * * * * * * * *
-    //  Usuwanie pogrubienia, jeśli to był aktualnie kliknięty serwer
     if (currentlyHighlighted && currentlyHighlighted.id === d.id) {
         const serverInfo = d3.select("#serverInfo");
-        serverInfo.select("h2").style("font-weight", "normal");  // Normalna nazwa
-        serverInfo.select("#serverInfo-members").style("font-weight", "normal");  // Normalna data i członkowie
-        serverInfo.select("#serverInfo-boosts").style("font-weight", "normal"); //Normalne boosty
-        serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "normal"); //Normalna liczba partnerstw.
-
+        serverInfo.select("h2").style("font-weight", "normal");
+        serverInfo.select("#serverInfo-members").style("font-weight", "normal");
+        serverInfo.select("#serverInfo-boosts").style("font-weight", "normal");
+        serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "normal");
     }
-    // * * * * * * * * * * * * * * * * * * * *
 
+    // Przywróć style linków
     g.selectAll(".link").style("stroke", "#999").style("stroke-width", 1);
-    g.selectAll(".node").style("stroke", "none").style("stroke-width", 0);
+
+    // Usuń obramowanie hover ze wszystkich węzłów oprócz aktualnie klikniętego
+    g.selectAll(".node")
+    .filter(n => !currentlyHighlighted || n.id !== currentlyHighlighted.id)
+    .style("stroke", "none").style("stroke-width", 0);
+
+    // Przywróć styl obramowania dla aktualnie klikniętego węzła (jeśli istnieje)
+    if (currentlyHighlighted) {
+        g.selectAll(".node").filter(n => n.id === currentlyHighlighted.id)
+        .style("stroke", "white") // Kolor obramowania dla klikniętego
+        .style("stroke-width", 2);
+        // Upewnij się, że linki powiązane z klikniętym węzłem nie są ukryte
+        highlightNodeAndLinks(currentlyHighlighted);
+    } else {
+        // Jeśli nic nie jest kliknięte, upewnij się, że wszystkie linki są widoczne
+        g.selectAll(".link").classed("hidden", false);
+    }
 }
 
-//Dodajemy obsługę filtra dat
-const dateFilter = d3.select("#dateFilter");
+
+const dateFilterMin = d3.select("#dateFilterMin");
+const dateFilterMax = d3.select("#dateFilterMax");
 const dateValue = d3.select("#dateValue");
 
-const memberFilter = d3.select("#memberFilter");
-const boostFilter = d3.select("#boostFilter");
+const memberFilterMin = d3.select("#memberFilterMin");
+const memberFilterMax = d3.select("#memberFilterMax");
 const memberValue = d3.select("#memberValue");
+
+const boostFilterMin = d3.select("#boostFilterMin");
+const boostFilterMax = d3.select("#boostFilterMax");
 const boostValue = d3.select("#boostValue");
-const partnershipFilter = d3.select("#partnershipFilter");
+
+const partnershipFilterMin = d3.select("#partnershipFilterMin");
+const partnershipFilterMax = d3.select("#partnershipFilterMax");
 const partnershipValue = d3.select("#partnershipValue");
 
-const dateRange = (maxDateObj - minDateObj) / (1000 * 60 * 60 * 24) + 1;
 
-dateFilter.attr("min", 0);
-dateFilter.attr("max", dateRange - 1);
-dateFilter.attr("value", 0);
-
-//Funkcja formatująca datę z obiektu Date do formatu DD-MM-YYYY
 function formatDate(dateObj) {
+    if (!dateObj || isNaN(dateObj)) return "-";
     const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Miesiące są liczone od 0
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const year = dateObj.getFullYear();
     return `${day}-${month}-${year}`;
 }
 
-//Początkowa wartość pola z datą
-dateValue.text(formatDate(minDateObj));
+function updateRangeSliderVisual(minInput, maxInput) {
+    const container = minInput.node().parentNode;
+    const fill = container.querySelector('.range-fill');
+    if (!fill) return;
 
-// Event listener dla suwaka daty
-dateFilter.on("input", () => {
-    const daysSinceMinDate = +dateFilter.property("value"); // Pobieramy wartość suwaka (liczba dni od minDate)
-const selectedDateObj = new Date(minDateObj);  // Klonujemy minimalną datę, żeby na niej operować
-selectedDateObj.setDate(minDateObj.getDate() + daysSinceMinDate); // Dodajemy liczbę dni z suwaka do sklonowanej daty
-selectedDateObj.setHours(0, 0, 0, 0); //Zerowanie czasu
-dateValue.text(formatDate(selectedDateObj)); //Wyświetlamy sformatowaną datę
+    const minVal = +minInput.property("value");
+    const maxVal = +maxInput.property("value");
+    const minAttr = +minInput.attr("min");
+    const maxAttr = +minInput.attr("max");
 
-updateFilters(); //Wywołujemy funkcję filtrowania
-});
+    if (maxAttr === minAttr) {
+        fill.style.left = `0%`;
+        fill.style.width = `100%`;
+        return;
+    }
 
-memberFilter.attr("max", d3.max(data.nodes, d => d.members));
-boostFilter.attr("max", d3.max(data.nodes, d => d.boosts));
-partnershipFilter.attr("max", d3.max(data.nodes, d => d.partnerships.length));
+    const range = maxAttr - minAttr;
+    const minPercent = ((minVal - minAttr) / range) * 100;
+    const maxPercent = ((maxVal - minAttr) / range) * 100;
 
-memberFilter.on("input", updateFilters);
-boostFilter.on("input", updateFilters);
-partnershipFilter.on("input", updateFilters);
+    fill.style.left = `${minPercent}%`;
+    fill.style.width = `${maxPercent - minPercent}%`;
+}
+
+function initializeFilters() {
+    const dateMaxVal = Math.round(dateRange);
+    dateFilterMin.attr("max", dateMaxVal).attr("value", 0);
+    dateFilterMax.attr("max", dateMaxVal).attr("value", dateMaxVal);
+    dateFilterMin.property("value", 0);
+    dateFilterMax.property("value", dateMaxVal);
+    const initialMinDateStr = formatDate(minDateObj);
+    const initialMaxDateStr = formatDate(maxDateObj);
+    dateValue.select(".min-value").text(`min: ${initialMinDateStr}`);
+    dateValue.select(".max-value").text(`max: ${initialMaxDateStr}`);
+    updateRangeSliderVisual(dateFilterMin, dateFilterMax);
+    dateFilterMin.on("input", handleDateFilterInput);
+    dateFilterMax.on("input", handleDateFilterInput);
+
+    const maxMembers = d3.max(data.nodes, d => d.members) || 0;
+    memberFilterMin.attr("max", maxMembers).attr("value", 0);
+    memberFilterMax.attr("max", maxMembers).attr("value", maxMembers);
+    memberFilterMin.property("value", 0);
+    memberFilterMax.property("value", maxMembers);
+    memberValue.select(".min-value").text(`min: 0`);
+    memberValue.select(".max-value").text(`max: ${maxMembers}`);
+    updateRangeSliderVisual(memberFilterMin, memberFilterMax);
+    memberFilterMin.on("input", handleGenericFilterInput);
+    memberFilterMax.on("input", handleGenericFilterInput);
+
+    const maxBoosts = d3.max(data.nodes, d => d.boosts) || 0;
+    boostFilterMin.attr("max", maxBoosts).attr("value", 0);
+    boostFilterMax.attr("max", maxBoosts).attr("value", maxBoosts);
+    boostFilterMin.property("value", 0);
+    boostFilterMax.property("value", maxBoosts);
+    boostValue.select(".min-value").text(`min: 0`);
+    boostValue.select(".max-value").text(`max: ${maxBoosts}`);
+    updateRangeSliderVisual(boostFilterMin, boostFilterMax);
+    boostFilterMin.on("input", handleGenericFilterInput);
+    boostFilterMax.on("input", handleGenericFilterInput);
+
+    const maxPartnerships = d3.max(data.nodes, d => d.partnerships.length) || 0;
+    partnershipFilterMin.attr("max", maxPartnerships).attr("value", 0);
+    partnershipFilterMax.attr("max", maxPartnerships).attr("value", maxPartnerships);
+    partnershipFilterMin.property("value", 0);
+    partnershipFilterMax.property("value", maxPartnerships);
+    partnershipValue.select(".min-value").text(`min: 0`);
+    partnershipValue.select(".max-value").text(`max: ${maxPartnerships}`);
+    updateRangeSliderVisual(partnershipFilterMin, partnershipFilterMax);
+    partnershipFilterMin.on("input", handleGenericFilterInput);
+    partnershipFilterMax.on("input", handleGenericFilterInput);
+}
+
+function handleGenericFilterInput(event) {
+    const input = d3.select(event.target);
+    const isMin = input.classed("range-min");
+    const container = input.node().parentNode;
+    const minInput = d3.select(container).select(".range-min");
+    const maxInput = d3.select(container).select(".range-max");
+    const valueDisplay = d3.select(container.parentNode).select("p");
+
+    let minVal = +minInput.property("value");
+    let maxVal = +maxInput.property("value");
+
+    if (isMin) {
+        if (minVal > maxVal) {
+            minInput.property("value", maxVal);
+            minVal = maxVal;
+        }
+    } else {
+        if (maxVal < minVal) {
+            maxInput.property("value", minVal);
+            maxVal = minVal;
+        }
+    }
+
+    valueDisplay.select(".min-value").text(`min: ${minVal}`);
+    valueDisplay.select(".max-value").text(`max: ${maxVal}`);
+    updateRangeSliderVisual(minInput, maxInput);
+    updateFilters();
+}
+
+
+function handleDateFilterInput(event) {
+    const input = d3.select(event.target);
+    const isMin = input.classed("range-min");
+    const container = input.node().parentNode;
+    const minInput = d3.select(container).select(".range-min");
+    const maxInput = d3.select(container).select(".range-max");
+
+    let minDays = +minInput.property("value");
+    let maxDays = +maxInput.property("value");
+
+    if (isMin) {
+        if (minDays > maxDays) {
+            minInput.property("value", maxDays);
+            minDays = maxDays;
+        }
+    } else {
+        if (maxDays < minDays) {
+            maxInput.property("value", minDays);
+            maxDays = minDays;
+        }
+    }
+
+    const selectedMinDateObj = new Date(minDateObj);
+    selectedMinDateObj.setDate(minDateObj.getDate() + minDays);
+    selectedMinDateObj.setHours(0, 0, 0, 0);
+
+    const selectedMaxDateObj = new Date(minDateObj);
+    selectedMaxDateObj.setDate(minDateObj.getDate() + maxDays);
+    selectedMaxDateObj.setHours(23, 59, 59, 999);
+
+    dateValue.select(".min-value").text(`min: ${formatDate(selectedMinDateObj)}`);
+    dateValue.select(".max-value").text(`max: ${formatDate(selectedMaxDateObj)}`);
+    updateRangeSliderVisual(minInput, maxInput);
+    updateFilters();
+}
+
 
 function updateFilters() {
-    const daysSinceMinDate = +dateFilter.property("value");
-    const selectedDateObj = new Date(minDateObj);
-    selectedDateObj.setDate(minDateObj.getDate() + daysSinceMinDate);
-    selectedDateObj.setHours(0,0,0,0); //Zerowanie czasu
-    const selectedDateStr = formatDate(selectedDateObj); // DD-MM-YYYY
+    const minDays = +dateFilterMin.property("value");
+    const maxDays = +dateFilterMax.property("value");
+    const selectedMinDateObj = new Date(minDateObj);
+    selectedMinDateObj.setDate(minDateObj.getDate() + minDays);
+    selectedMinDateObj.setHours(0, 0, 0, 0);
 
-    const minMembers = +memberFilter.property("value");
-    const minBoosts = +boostFilter.property("value");
-    const minPartnerships = +partnershipFilter.property("value");
+    const selectedMaxDateObj = new Date(minDateObj);
+    selectedMaxDateObj.setDate(minDateObj.getDate() + maxDays);
+    selectedMaxDateObj.setHours(23, 59, 59, 999);
 
-    memberValue.text(minMembers);
-    boostValue.text(minBoosts);
-    partnershipValue.text(minPartnerships);
+    const minMembers = +memberFilterMin.property("value");
+    const maxMembers = +memberFilterMax.property("value");
+
+    const minBoosts = +boostFilterMin.property("value");
+    const maxBoosts = +boostFilterMax.property("value");
+
+    const minPartnerships = +partnershipFilterMin.property("value");
+    const maxPartnerships = +partnershipFilterMax.property("value");
+
+    memberValue.select(".min-value").text(`min: ${minMembers}`);
+    memberValue.select(".max-value").text(`max: ${maxMembers}`);
+    boostValue.select(".min-value").text(`min: ${minBoosts}`);
+    boostValue.select(".max-value").text(`max: ${maxBoosts}`);
+    partnershipValue.select(".min-value").text(`min: ${minPartnerships}`);
+    partnershipValue.select(".max-value").text(`max: ${maxPartnerships}`);
+    dateValue.select(".min-value").text(`min: ${formatDate(selectedMinDateObj)}`);
+    dateValue.select(".max-value").text(`max: ${formatDate(selectedMaxDateObj)}`);
+
 
     const filteredNodes = data.nodes.filter(d => {
-        const nodeDateObj = new Date(d.creationDate.split("-").reverse().join("-")); // Konwertuj DD-MM-YYYY na YYYY-MM-DD (do obiektu Date)
-    nodeDateObj.setHours(0,0,0,0); //Zerowanie czasu
+        const nodeDateObj = new Date(d.creationDate.split("-").reverse().join("-"));
+        nodeDateObj.setHours(0, 0, 0, 0);
+        const minDateCompare = new Date(selectedMinDateObj);
+        minDateCompare.setHours(0,0,0,0);
+        const maxDateCompare = new Date(selectedMaxDateObj);
+        maxDateCompare.setHours(0,0,0,0);
 
-    return (
-        nodeDateObj >= selectedDateObj &&  // Porównanie obiektów Date (po wyzerowaniu czasu)
-    d.members >= minMembers &&
-    d.boosts >= minBoosts &&
-    d.partnerships.length >= minPartnerships
-    );
+        return (
+            nodeDateObj >= minDateCompare && nodeDateObj <= maxDateCompare &&
+            d.members >= minMembers && d.members <= maxMembers &&
+            d.boosts >= minBoosts && d.boosts <= maxBoosts &&
+            d.partnerships.length >= minPartnerships && d.partnerships.length <= maxPartnerships
+        );
     });
 
     const filteredNodeIds = new Set(filteredNodes.map(d => d.id));
@@ -475,25 +626,27 @@ function updateFilters() {
 
     calculateRanks(filteredNodes);
 
-    drawGraph(filteredNodes, filteredLinks);
+    drawGraph(filteredNodes, filteredLinks, 0, 0); // Użyj niskiej alfy (0.3) i pozwól naturalnie wygasnąć (0ms stopDelay)
 
-    if (currentlyHighlighted) {
-        resetHighlight();
-        currentlyHighlighted = null;
+    if (currentlyHighlighted && !filteredNodeIds.has(currentlyHighlighted.id)) {
         d3.select("#serverInfo").style("display", "none");
+        currentlyHighlighted = null;
+        resetHighlight();
+        toggleLeftPanelAndServerInfo(false);
+    } else if (currentlyHighlighted) {
+        highlightNodeAndLinks(currentlyHighlighted);
     }
 }
 
 const searchInput = d3.select("#searchInput");
 const searchResults = d3.select("#searchResults");
 
-// Funkcja pomocnicza do przesuwania #leftPanel
 function moveLeftPanel(up) {
     const leftPanel = d3.select("#leftPanel");
-    if (window.innerWidth <= 768) { // Tylko na mobile
+    if (window.innerWidth <= 768) {
         if (up) {
             const searchResultsHeight = searchResults.node().offsetHeight;
-            leftPanel.style("transform", `translateY(-${searchResultsHeight}px)`); // Dostosuj przesunięcie
+            leftPanel.style("transform", `translateY(-${searchResultsHeight}px)`);
         } else {
             leftPanel.style("transform", "none");
         }
@@ -515,6 +668,9 @@ searchInput.on("input", () => {
             const resultDiv = searchResults.append("div");
             resultDiv.text(result.id);
             resultDiv.on("click", () => {
+                searchInput.property("value", result.id);
+                searchResults.style("display", "none");
+                moveLeftPanel(false);
                 searchServer(result.id);
             });
         });
@@ -523,13 +679,11 @@ searchInput.on("input", () => {
 });
 
 function calculateRanks(nodes) {
-    // Ranking członków
     const membersRank = [...nodes].sort((a, b) => b.members - a.members);
     membersRank.forEach((node, index) => {
         node.memberRank = index + 1;
     });
 
-    // Ranking boostów
     const boostsRank = [...nodes].sort((a, b) => b.boosts - a.boosts);
     boostsRank.forEach((node, index) => {
         node.boostRank = index + 1;
@@ -541,7 +695,7 @@ function calculateRanks(nodes) {
     });
 
     const creationDateRank = [...nodes].sort((a, b) => {
-        return new Date(a.creationDate.split("-").reverse().join("-")) - new Date(b.creationDate.split("-").reverse().join("-")); //DD-MM-YYYY -> YYYY-MM-DD
+        return new Date(a.creationDate.split("-").reverse().join("-")) - new Date(b.creationDate.split("-").reverse().join("-"));
     });
 
     creationDateRank.forEach((node, index) => {
@@ -563,10 +717,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const serverCount = data.nodes.length;
-    document.querySelector("#dataDate div:first-child").textContent = `Liczba serwerów: ${serverCount}`;
+    document.querySelector("#serverCount").textContent = serverCount;
 
+
+    initializeFilters();
     calculateRanks(data.nodes);
-    drawGraph(data.nodes, data.links);
+    drawGraph(data.nodes, data.links, 1, 1000); // Początkowe rysowanie z pełną alfą i zatrzymaniem po 1s
+    // updateFilters(); // Usunięto, bo drawGraph jest wywoływane powyżej
 
     d3.select("#closeServerInfo").on("click", () => {
         d3.select("#serverInfo").style("display", "none");
@@ -575,9 +732,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleLeftPanelAndServerInfo(false);
     });
 
-    // ****************************************
-    // **  OBSŁUGA HOVERA (MODYFIKACJA) **
-    // ****************************************
     d3.select("#serverInfo-partnerships-list").on("mouseover", (event) => {
         const target = event.target;
 
@@ -587,11 +741,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hoveredNode) {
                 handleNodeMouseOver(event, hoveredNode);
-                // Dodano pogrubianie nazwy serwera na liście:
-                d3.select(target).style("font-weight", "bold"); // KLUCZOWA ZMIANA
+                d3.select(target).style("font-weight", "bold");
 
                 if (currentlyHighlighted) {
-                    highlightNodeAndLinks(currentlyHighlighted);
+                    g.selectAll(".link")
+                    .filter(l => (l.source.id === hoveredNode.id && l.target.id === currentlyHighlighted.id) || (l.target.id === hoveredNode.id && l.source.id === currentlyHighlighted.id) )
+                    .style("stroke", "lightblue")
+                    .style("stroke-width", 2);
+                    g.selectAll(".node")
+                    .filter(n => n.id === hoveredNode.id)
+                    .style("stroke", "lightblue")
+                    .style("stroke-width", 2);
                 }
             }
         }
@@ -605,8 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hoveredNode) {
                 handleNodeMouseOut(event, hoveredNode);
-                // Dodano usuwanie pogrubiania nazwy serwera na liście:
-                d3.select(target).style("font-weight", "normal"); // KLUCZOWA ZMIANA
+                d3.select(target).style("font-weight", "normal");
 
                 if (currentlyHighlighted) {
                     highlightNodeAndLinks(currentlyHighlighted);
@@ -614,24 +773,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    // ****************************************
-    // (reszta bez zmian)
 
     d3.select("#serverInfo").on("mouseover", (event) => {
-
         if (event.target.closest("#serverInfo-partnerships-list") === null && currentlyHighlighted) {
-            handleNodeMouseOver(event, currentlyHighlighted);
-            highlightNodeAndLinks(currentlyHighlighted);
+            g.selectAll(".node").filter(n => n.id === currentlyHighlighted.id)
+            .style("stroke", "lightblue").style("stroke-width", 2);
         }
-
     });
 
     d3.select("#serverInfo").on("mouseout", (event) => {
         if (event.target.closest("#serverInfo-partnerships-list") === null && currentlyHighlighted) {
-            handleNodeMouseOut(event, currentlyHighlighted);
-            highlightNodeAndLinks(currentlyHighlighted);
+            g.selectAll(".node").filter(n => n.id === currentlyHighlighted.id)
+            .style("stroke", "white").style("stroke-width", 2);
         }
     });
+
 
     d3.select("#serverInfo-partnerships-list").on("click", (event) => {
         const target = event.target;
@@ -659,12 +815,11 @@ function handleResize() {
 
     svg.attr("width", newWidth).attr("height", newHeight);
     simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
-    clearTimeout(freezeTimer);
-    simulation.alpha(1);
-
-    freezeTimer = setTimeout(() => {
-        simulation.stop();
-    }, 1000);
+    // Nie restartujemy timera przy resize, pozwalamy symulacji działać lub być zatrzymaną
+    // Ewentualnie można dodać łagodny restart, jeśli jest zatrzymana:
+    // if (simulation.alpha() < simulation.alphaMin()) {
+    //     simulation.alpha(0.1).restart();
+    // }
 }
 
 window.addEventListener("resize", handleResize);
