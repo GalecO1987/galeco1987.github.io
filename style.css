@@ -4,10 +4,9 @@ body {
     color: #fff;
     margin: 0;
     overflow: hidden;
-    /* Dodane poniższe linie, aby ZAWSZE zajmować całą wysokość i szerokość */
     width: 100vw;
     height: 100vh;
-    position: relative; /* Potrzebne do absolutnego pozycjonowania */
+    position: relative;
 }
 
 .node {
@@ -154,7 +153,6 @@ max-width: calc(100% - 20px);
 margin-bottom: 0;
 }
 
-/* Klasy do ukrywania/pokazywania elementów na różnych urządzeniach */
 .mobile-hidden {
     display: block;
 }
@@ -184,19 +182,18 @@ color: white;
 border: none;
 cursor: pointer;
 border-radius: 5px;
-transition: background-color 0.3s ease; /* Dodajemy płynne przejście */
+transition: background-color 0.3s ease;
 }
 
 #resetButton:hover {
-background-color: #367c39; /* Ciemniejszy kolor przy najechaniu */
+background-color: #367c39;
 }
 
-/* Przezroczyste tło dla filtrowania i wyszukiwarki */
 #filterPanel,
 #searchContainer {
-background-color: transparent; /* Całkowicie przezroczyste tło */
-border: none;  /* Usuń obramowanie */
-padding: 0;  /* Usuń wewnętrzny odstęp (padding) */
+background-color: transparent;
+border: none;
+padding: 0;
 }
 
 
@@ -206,25 +203,86 @@ padding: 0;
 background-color: transparent;
 width: 100%;
 box-sizing: border-box;
+display: flex;
+flex-direction: column;
+gap: 15px;
 }
 
-#filterPanel label {
-display: block;
-margin-bottom: 5px;
+.filter-item {
+    width: 100%;
 }
 
-#filterPanel input[type="range"] {
+.filter-item label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.filter-item p {
+    margin: 5px 0 0 0;
+}
+
+.filter-value-display {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 12px;
+}
+
+.min-value {
+    text-align: left;
+}
+
+.max-value {
+    text-align: right;
+}
+
+.range-slider-container {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.range-track, .range-fill {
+    position: absolute;
+    left: 0;
+    height: 8px;
+    border-radius: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.range-track {
+    background-color: #ddd;
+    width: 100%;
+    z-index: 1;
+}
+
+.range-fill {
+    background-color: #63a365;
+    z-index: 2;
+}
+
+#filterPanel input[type="range"].range-min,
+#filterPanel input[type="range"].range-max {
+-webkit-appearance: none;
+appearance: none;
+background: transparent;
+cursor: pointer;
 width: 100%;
-margin-bottom: 10px;
--webkit-appearance: none;
-appearance: none;
-background-color: #ddd;
-height: 10px;
-border-radius: 5px;
-outline: none;
+position: absolute;
+left: 0;
+top: 50%;
+transform: translateY(-50%);
+margin: 0;
+pointer-events: none;
+z-index: 3;
 }
-/* Styl dla "kciuka" suwaka */
-#filterPanel input[type="range"]::-webkit-slider-thumb {
+
+#filterPanel input[type="range"].range-min::-webkit-slider-thumb,
+#filterPanel input[type="range"].range-max::-webkit-slider-thumb {
 -webkit-appearance: none;
 appearance: none;
 width: 20px;
@@ -232,27 +290,31 @@ height: 20px;
 border-radius: 50%;
 background-color: #4CAF50;
 cursor: pointer;
+margin-top: -6px;
+pointer-events: auto;
+position: relative;
+z-index: 4;
 }
 
-#filterPanel input[type="range"]::-moz-range-thumb {
+#filterPanel input[type="range"].range-min::-moz-range-thumb,
+#filterPanel input[type="range"].range-max::-moz-range-thumb {
 width: 20px;
 height: 20px;
 border-radius: 50%;
 background-color: #4CAF50;
 cursor: pointer;
-border: none; /* Usuń obramowanie dla Firefox */
+border: none;
+pointer-events: auto;
+position: relative;
+z-index: 4;
 }
 
-#filterPanel p {
-margin: 2px 0;
-font-size: 12px;
-}
 
 #searchContainer {
 width: 100%;
 box-sizing: border-box;
 position: relative;
-margin-top: 20px; /* Dodane by odsunąć wyszukiwarkę */
+margin-top: 20px;
 }
 
 #searchInput {
@@ -269,7 +331,7 @@ display: block;
 #searchResults {
 position: absolute;
 left: 0;
-top: 100%; /* Wracamy do top: 100%; */
+top: 100%;
 background-color: rgba(34, 34, 34, 0.9);
 border: 1px solid #444;
 border-radius: 5px;
@@ -297,7 +359,7 @@ position: absolute;
 top: 10px;
 right: 10px;
 width: 300px;
-background-color: #222; /* Zmieniono na jednolity kolor */
+background-color: #222;
 border: 1px solid #444;
 padding: 10px;
 border-radius: 5px;
@@ -308,7 +370,6 @@ display: none;
 color: #fff;
 }
 
-/* Przycisk zamykania dla #serverInfo */
 #closeServerInfo {
 position: absolute;
 top: 5px;
@@ -318,7 +379,7 @@ border: none;
 color: #fff;
 font-size: 20px;
 cursor: pointer;
-z-index: 11; /* Upewnij się, że jest nad zawartością */
+z-index: 11;
 }
 
 #serverInfo h2 {
@@ -361,36 +422,31 @@ left: 0;
 top: 5px;
 }
 
-/* Kontener dla #dataDate i #dataAuthor */
 #bottomInfo {
 position: fixed;
 bottom: 10px;
-right: 10px; /* Zmieniono z left i right na right */
+right: 10px;
 display: flex;
-justify-content: flex-end; /* Przeniesiono zawartość do prawej */
+justify-content: flex-end;
 align-items: flex-end;
 z-index: 10;
 background-color: transparent;
-padding: 5px; /* Dodano padding, aby tekst nie przylegał do krawędzi */
+padding: 5px;
 }
 
-/* Style dla #dataDate */
 #dataDate {
 color: #fff;
 border-radius: 3px;
 font-size: 12px;
 display: flex;
 flex-direction: column;
-align-items: flex-end; /* Wyrównanie tekstu do prawej */
-text-align: right; /* Dodatkowo, aby upewnić się, że tekst wewnątrz jest wyrównany do prawej */
+align-items: flex-end;
+text-align: right;
 }
 
 #serverCount {
 margin-right: 5px;
 }
-
-/* Usunięto #dataAuthor */
-
 
 #searchContainer label,
 #leftPanel h3 label {
@@ -402,7 +458,6 @@ margin-bottom: 5px;
     display: none !important;
 }
 
-/* Media queries dla responsywności */
 @media (max-width: 768px) {
     #leftPanel {
     width: 100%;
@@ -421,14 +476,13 @@ margin-bottom: 5px;
     margin-bottom: 10px;
     }
     #leftPanel > *:last-child {
-    margin-bottom: 0; /* Usunięcie marginesu z ostatniego elementu */
+    margin-bottom: 0;
     }
 
     #searchContainer {
-    margin-top: 20px; /* Zmniejszony margines */
+    margin-top: 20px;
     }
 
-    /*Dodane style by uniknąc wychodzenia divów poza viewport*/
     #filterPanel,
     #searchContainer{
     width: 100%;
@@ -471,10 +525,10 @@ margin-bottom: 5px;
     }
 
     #disclaimer {
-    max-width: 95%; /* Zwiększamy szerokość na mniejszych ekranach */
-    padding: 10px; /* Zmniejszamy padding na mniejszych ekranach */
-    font-size: 0.9em; /* Zmniejszamy nieco rozmiar czcionki */
-    margin: 10px auto; /* Zmniejsz margines */
+    max-width: 95%;
+    padding: 10px;
+    font-size: 0.9em;
+    margin: 10px auto;
 
     }
     #disclaimer h2 {
@@ -485,23 +539,20 @@ margin-bottom: 5px;
     background-color: transparent;
     }
 
-    /* Ukrywamy elementy na mobile */
     .mobile-hidden {
         display: none;
     }
     .desktop-hidden{
         display: block;
     }
-    /* Dodane media query dla ukrycia #bottomInfo na mobile */
     #bottomInfo {
     display: none;
     }
 }
 
 @media (max-width: 480px) {
-    /*Bez zmian*/
     #disclaimer {
-    padding: 5px; /* Jeszcze mniejszy padding */
+    padding: 5px;
     font-size: 0.8em;
     max-width: 100%;
     margin: 5px auto;
@@ -523,7 +574,6 @@ margin-bottom: 5px;
     }
 }
 
-/*Dodajemy nową klasę, która ukrywa leftPanel na mobile*/
 .left-panel-hidden {
     display: none !important;
 }
