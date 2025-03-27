@@ -45,7 +45,9 @@ let simulation = d3.forceSimulation(data.nodes)
 }))
 .force("charge", d3.forceManyBody().strength(-1500))
 .force("center", d3.forceCenter(width / 2, height / 2))
-.force("collision", d3.forceCollide().radius(d => radiusScale(d.members) + 5));
+.force("collision", d3.forceCollide().radius(d => radiusScale(d.members) + 5))
+.alphaMin(0);
+
 
 let freezeTimer;
 
@@ -54,18 +56,21 @@ function drawGraph(filteredNodes, filteredLinks, initialAlpha = 1, stopDelay = 1
     g.selectAll(".links").remove();
     g.selectAll(".labels").remove();
 
-    const newLinks = filteredLinks.filter(l =>
-    filteredNodes.some(n => n.id === l.source.id) &&
-    filteredNodes.some(n => n.id === l.target.id)
-    );
+    // Upewnij się, że linki odnoszą się do węzłów, które są w filteredNodes
+    const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+    const validLinks = filteredLinks.filter(l => {
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        return filteredNodeIds.has(sourceId) && filteredNodeIds.has(targetId);
+    });
 
     simulation.nodes(filteredNodes);
-    simulation.force("link").links(newLinks);
+    simulation.force("link").links(validLinks); // Użyj przefiltrowanych linków
 
     const newLink = g.append("g")
     .attr("class", "links")
     .selectAll("line")
-    .data(newLinks, d => d.source.id + "-" + d.target.id)
+    .data(validLinks, d => `${d.source.id || d.source}-${d.target.id || d.target}`)
     .enter().append("line")
     .attr("class", "link");
 
@@ -90,7 +95,9 @@ function drawGraph(filteredNodes, filteredLinks, initialAlpha = 1, stopDelay = 1
     .text(d => d.id);
 
     simulation.on("tick", () => {
+        // Sprawdzenie czy source/target istnieją - ważne przy dynamicznych zmianach
         newLink
+        .filter(d => d.source && d.target)
         .attr("x1", d => d.source.x)
         .attr("y1", d => d.source.y)
         .attr("x2", d => d.target.x)
@@ -128,17 +135,36 @@ const zoom_handler = d3.zoom()
 
 svg.call(zoom_handler).call(zoom_handler.transform, initialTransform);
 
-svg.on("mousemove", (event) => {
-    let [x, y] = d3.pointer(event, g.node());
-    x = Math.round(x);
-    y = Math.round(y);
-    const correctedY = height - y;
-    d3.select("#coords").text(`X: ${x}, Y: ${correctedY}`);
-});
 
-d3.select("#resetButton").on("click", () => {
-    svg.transition().duration(750).call(zoom_handler.transform, initialTransform);
-});
+function resetMap() {
+    svg.call(zoom_handler.transform, initialTransform);
+    initializeFilters();
+
+    if (currentlyHighlighted) {
+        resetHighlight();
+        currentlyHighlighted = null;
+        toggleLeftPanelAndServerInfo(false);
+    }
+
+    searchInput.property("value", "");
+    searchResults.style("display", "none");
+    moveLeftPanel(false);
+
+    calculateRanks(data.nodes);
+
+    data.nodes.forEach(node => {
+        delete node.x;
+        delete node.y;
+        delete node.vx;
+        delete node.vy;
+    });
+
+    // Reset przywraca PEŁNĄ animację startową
+    drawGraph(data.nodes, data.links, 1, 1000);
+}
+
+
+d3.select("#resetButton").on("click", resetMap);
 
 function getNodeColor(node) {
     const boostScale = d3.scaleLinear()
@@ -232,11 +258,53 @@ function searchServer(serverId) {
         return;
     }
 
+    // Sprawdź, czy węzeł jest widoczny po aktualnych filtrach
+    const minDays = +dateFilterMin.property("value");
+    const maxDays = +dateFilterMax.property("value");
+    const selectedMinDateObj = new Date(minDateObj);
+    selectedMinDateObj.setDate(minDateObj.getDate() + minDays);
+    selectedMinDateObj.setHours(0, 0, 0, 0);
+    const selectedMaxDateObj = new Date(minDateObj);
+    selectedMaxDateObj.setDate(minDateObj.getDate() + maxDays);
+    selectedMaxDateObj.setHours(23, 59, 59, 999);
+    const minMembers = +memberFilterMin.property("value");
+    const maxMembers = +memberFilterMax.property("value");
+    const minBoosts = +boostFilterMin.property("value");
+    const maxBoosts = +boostFilterMax.property("value");
+    const minPartnerships = +partnershipFilterMin.property("value");
+    const maxPartnerships = +partnershipFilterMax.property("value");
+    const nodeDateObj = new Date(serverNode.creationDate.split("-").reverse().join("-"));
+    nodeDateObj.setHours(0, 0, 0, 0);
+    const minDateCompare = new Date(selectedMinDateObj); minDateCompare.setHours(0,0,0,0);
+    const maxDateCompare = new Date(selectedMaxDateObj); maxDateCompare.setHours(0,0,0,0);
+
+    const isVisible = (
+        nodeDateObj >= minDateCompare && nodeDateObj <= maxDateCompare &&
+        serverNode.members >= minMembers && serverNode.members <= maxMembers &&
+        serverNode.boosts >= minBoosts && serverNode.boosts <= maxBoosts &&
+        serverNode.partnerships.length >= minPartnerships && serverNode.partnerships.length <= maxPartnerships
+    );
+
+    if (!isVisible) {
+        // Opcjonalnie: poinformuj użytkownika lub zresetuj filtry
+        console.warn("Wyszukany serwer jest ukryty przez aktywne filtry.");
+        // Można dodać np. alert('Wyszukany serwer jest ukryty przez aktywne filtry. Zresetuj filtry, aby go zobaczyć.');
+        // Lub zresetować filtry:
+        // resetMap(); // To pokaże wszystko
+        // handleNodeClick(null, serverNode); // A potem kliknie
+        return; // Na razie nic nie rób, jeśli jest ukryty
+    }
+
+
     const scale = 0.75;
+    // Upewnij się, że węzeł ma pozycje x, y zanim spróbujesz je użyć
+    const targetX = serverNode.x || width / 2;
+    const targetY = serverNode.y || height / 2;
+
     const transform = d3.zoomIdentity
     .translate(width / 2, height / 2)
     .scale(scale)
-    .translate(-serverNode.x, -serverNode.y);
+    .translate(-targetX, -targetY);
 
     svg.transition().duration(750).call(zoom_handler.transform, transform);
     handleNodeClick(null, serverNode);
@@ -247,19 +315,25 @@ function highlightNodeAndLinks(d) {
     connectedNodeIds.add(d.id);
 
     data.links.forEach(l => {
-        if (l.source.id === d.id) {
-            connectedNodeIds.add(l.target.id);
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        if (sourceId === d.id) {
+            connectedNodeIds.add(targetId);
         }
-        if (l.target.id === d.id) {
-            connectedNodeIds.add(l.source.id);
+        if (targetId === d.id) {
+            connectedNodeIds.add(sourceId);
         }
     });
 
     g.selectAll(".node").classed("dimmed", n => !connectedNodeIds.has(n.id));
-    g.selectAll(".node") // Nadaj obramowanie tylko podświetlonym
+    g.selectAll(".node")
     .style("stroke", n => connectedNodeIds.has(n.id) ? "white" : "none")
     .style("stroke-width", n => connectedNodeIds.has(n.id) ? 2 : 0);
-    g.selectAll(".link").classed("hidden", l => !(connectedNodeIds.has(l.source.id) && connectedNodeIds.has(l.target.id)));
+    g.selectAll(".link").classed("hidden", l => {
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        return !(connectedNodeIds.has(sourceId) && connectedNodeIds.has(targetId));
+    });
     g.selectAll(".node-label").classed("hidden", label => !connectedNodeIds.has(label.id));
 }
 
@@ -302,10 +376,10 @@ function stopBlinking() {
     if (blinkingNode) {
         g.selectAll(".node")
         .filter(d => d.id === blinkingNode.id)
-        .interrupt() // Przerwij trwającą animację migania
+        .interrupt()
         .transition()
         .duration(200)
-        .attr("r", d => radiusScale(d.members)); // Przywróć normalny promień
+        .attr("r", d => radiusScale(d.members));
         blinkingNode = null;
     }
 }
@@ -349,31 +423,39 @@ function handleNodeMouseOver(event, d) {
     connectedNodeIds.add(d.id);
 
     data.links.forEach(l => {
-        if (l.source.id === d.id) {
-            connectedNodeIds.add(l.target.id);
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        if (sourceId === d.id) {
+            connectedNodeIds.add(targetId);
         }
-        if (l.target.id === d.id) {
-            connectedNodeIds.add(l.source.id);
+        if (targetId === d.id) {
+            connectedNodeIds.add(sourceId);
         }
     });
 
-    // Dodaj obramowanie hover tylko jeśli węzeł nie jest aktualnie kliknięty
     g.selectAll(".node")
     .filter(n => connectedNodeIds.has(n.id) && (!currentlyHighlighted || n.id !== currentlyHighlighted.id))
     .style("stroke", "lightblue")
     .style("stroke-width", 2);
 
-    // Specjalne traktowanie dla aktualnie klikniętego węzła (jeśli istnieje) podczas hoveru
     if(currentlyHighlighted && d.id === currentlyHighlighted.id) {
         g.selectAll(".node").filter(n => n.id === d.id)
-        .style("stroke", "lightblue") // Zmień kolor obramowania na hover
+        .style("stroke", "lightblue")
         .style("stroke-width", 2);
     }
 
 
     g.selectAll(".link")
-    .style("stroke", l => (l.source.id === d.id || l.target.id === d.id) ? "lightblue" : "#999")
-    .style("stroke-width", l => (l.source.id === d.id || l.target.id === d.id) ? 2 : 1);
+    .style("stroke", l => {
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        return (sourceId === d.id || targetId === d.id) ? "lightblue" : "#999";
+    })
+    .style("stroke-width", l => {
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        return (sourceId === d.id || targetId === d.id) ? 2 : 1;
+    });
 }
 
 function handleNodeMouseOut(event, d) {
@@ -387,23 +469,18 @@ function handleNodeMouseOut(event, d) {
         serverInfo.select("#serverInfo-partnerships-count").style("font-weight", "normal");
     }
 
-    // Przywróć style linków
     g.selectAll(".link").style("stroke", "#999").style("stroke-width", 1);
 
-    // Usuń obramowanie hover ze wszystkich węzłów oprócz aktualnie klikniętego
     g.selectAll(".node")
     .filter(n => !currentlyHighlighted || n.id !== currentlyHighlighted.id)
     .style("stroke", "none").style("stroke-width", 0);
 
-    // Przywróć styl obramowania dla aktualnie klikniętego węzła (jeśli istnieje)
     if (currentlyHighlighted) {
         g.selectAll(".node").filter(n => n.id === currentlyHighlighted.id)
-        .style("stroke", "white") // Kolor obramowania dla klikniętego
+        .style("stroke", "white")
         .style("stroke-width", 2);
-        // Upewnij się, że linki powiązane z klikniętym węzłem nie są ukryte
         highlightNodeAndLinks(currentlyHighlighted);
     } else {
-        // Jeśli nic nie jest kliknięte, upewnij się, że wszystkie linki są widoczne
         g.selectAll(".link").classed("hidden", false);
     }
 }
@@ -469,8 +546,11 @@ function initializeFilters() {
     dateValue.select(".min-value").text(`min: ${initialMinDateStr}`);
     dateValue.select(".max-value").text(`max: ${initialMaxDateStr}`);
     updateRangeSliderVisual(dateFilterMin, dateFilterMax);
+    dateFilterMin.on("input", null);
+    dateFilterMax.on("input", null);
     dateFilterMin.on("input", handleDateFilterInput);
     dateFilterMax.on("input", handleDateFilterInput);
+
 
     const maxMembers = d3.max(data.nodes, d => d.members) || 0;
     memberFilterMin.attr("max", maxMembers).attr("value", 0);
@@ -480,6 +560,8 @@ function initializeFilters() {
     memberValue.select(".min-value").text(`min: 0`);
     memberValue.select(".max-value").text(`max: ${maxMembers}`);
     updateRangeSliderVisual(memberFilterMin, memberFilterMax);
+    memberFilterMin.on("input", null);
+    memberFilterMax.on("input", null);
     memberFilterMin.on("input", handleGenericFilterInput);
     memberFilterMax.on("input", handleGenericFilterInput);
 
@@ -491,6 +573,8 @@ function initializeFilters() {
     boostValue.select(".min-value").text(`min: 0`);
     boostValue.select(".max-value").text(`max: ${maxBoosts}`);
     updateRangeSliderVisual(boostFilterMin, boostFilterMax);
+    boostFilterMin.on("input", null);
+    boostFilterMax.on("input", null);
     boostFilterMin.on("input", handleGenericFilterInput);
     boostFilterMax.on("input", handleGenericFilterInput);
 
@@ -502,9 +586,12 @@ function initializeFilters() {
     partnershipValue.select(".min-value").text(`min: 0`);
     partnershipValue.select(".max-value").text(`max: ${maxPartnerships}`);
     updateRangeSliderVisual(partnershipFilterMin, partnershipFilterMax);
+    partnershipFilterMin.on("input", null);
+    partnershipFilterMax.on("input", null);
     partnershipFilterMin.on("input", handleGenericFilterInput);
     partnershipFilterMax.on("input", handleGenericFilterInput);
 }
+
 
 function handleGenericFilterInput(event) {
     const input = d3.select(event.target);
@@ -620,13 +707,17 @@ function updateFilters() {
     });
 
     const filteredNodeIds = new Set(filteredNodes.map(d => d.id));
-    const filteredLinks = data.links.filter(l =>
-    filteredNodeIds.has(l.source.id) && filteredNodeIds.has(l.target.id)
-    );
+    const filteredLinks = data.links.filter(l => {
+        const sourceId = l.source.id || l.source;
+        const targetId = l.target.id || l.target;
+        return filteredNodeIds.has(sourceId) && filteredNodeIds.has(targetId);
+    });
+
 
     calculateRanks(filteredNodes);
 
-    drawGraph(filteredNodes, filteredLinks, 0, 0); // Użyj niskiej alfy (0.3) i pozwól naturalnie wygasnąć (0ms stopDelay)
+    // *** KLUCZOWA LINIA - Przywrócenie łagodnej animacji dla filtrowania ***
+    drawGraph(filteredNodes, filteredLinks, 0, 0);
 
     if (currentlyHighlighted && !filteredNodeIds.has(currentlyHighlighted.id)) {
         d3.select("#serverInfo").style("display", "none");
@@ -722,8 +813,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeFilters();
     calculateRanks(data.nodes);
-    drawGraph(data.nodes, data.links, 1, 1000); // Początkowe rysowanie z pełną alfą i zatrzymaniem po 1s
-    // updateFilters(); // Usunięto, bo drawGraph jest wywoływane powyżej
+    // Początkowe rysowanie z pełną animacją
+    drawGraph(data.nodes, data.links, 1, 1000);
 
     d3.select("#closeServerInfo").on("click", () => {
         d3.select("#serverInfo").style("display", "none");
@@ -745,7 +836,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (currentlyHighlighted) {
                     g.selectAll(".link")
-                    .filter(l => (l.source.id === hoveredNode.id && l.target.id === currentlyHighlighted.id) || (l.target.id === hoveredNode.id && l.source.id === currentlyHighlighted.id) )
+                    .filter(l => {
+                        const sourceId = l.source.id || l.source;
+                        const targetId = l.target.id || l.target;
+                        return (sourceId === hoveredNode.id && targetId === currentlyHighlighted.id) || (targetId === hoveredNode.id && sourceId === currentlyHighlighted.id);
+                    })
                     .style("stroke", "lightblue")
                     .style("stroke-width", 2);
                     g.selectAll(".node")
@@ -815,11 +910,6 @@ function handleResize() {
 
     svg.attr("width", newWidth).attr("height", newHeight);
     simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
-    // Nie restartujemy timera przy resize, pozwalamy symulacji działać lub być zatrzymaną
-    // Ewentualnie można dodać łagodny restart, jeśli jest zatrzymana:
-    // if (simulation.alpha() < simulation.alphaMin()) {
-    //     simulation.alpha(0.1).restart();
-    // }
 }
 
 window.addEventListener("resize", handleResize);
