@@ -14,12 +14,11 @@
       <p class="centered-paragraph">
         Mapa ta została stworzona w celach informacyjnych i poglądowych, aby ułatwić wizualizację polskiego fandomu furry na platformie Discord. Przedstawia ona serwery, ich wielkość (liczbę członków), poziom zaangażowania społeczności (liczbę boostów) oraz wzajemne powiązania w postaci partnerstw. Ma ona na celu dostarczenie ogólnego obrazu polskiej części fandomu na Discordzie.
       </p>
-      <h2 class="left-aligned-heading">Uwagi:</h2>
+      <h2 class="left-aligned-heading">⚠️ Uwagi:</h2>
       <p>
         <b>Dane są publiczne:</b> Wszystkie przedstawione tutaj dane (nazwy serwerów, liczba członków, liczba
         boostów, partnerstwa) są publicznie dostępne i możliwe do uzyskania przez każdego użytkownika Discorda.
-        Nie są to dane wrażliwe ani prywatne. Mapa nie zawiera żadnych informacji, które nie byłyby już
-        publicznie dostępne.
+        Nie są to dane wrażliwe ani prywatne, które by mogły zaszkodzić jakiemukolwiek serwerowi. Taka mapa jest możliwa do zrobienia przez każdego.
       </p>
       <p>
         <b>Brak negatywnych intencji:</b> Dane zostały zebrane z ciekawości i nie są wykorzystywane w żaden
@@ -28,19 +27,19 @@
         obiektywnej wizualizacji.
       </p>
       <p>
-        <b>Aktualność danych:</b> Dane są aktualne na dzień <b>21 marca 2025 r.</b> Należy pamiętać, że społeczność
-        Discorda jest dynamiczna, a liczby członków, boostów i partnerstwa mogą się zmieniać.
+        <b>Aktualność danych:</b> Dane są aktualne na dzień <b>1 maja 2025 r.</b> Należy pamiętać, że społeczność
+        Discorda jest dynamiczna, a liczby członków, boostów i partnerstwa mogą się zmieniać. Aktualizacja danych następuje zawsze na początku każdego miesiąca.
       </p>
        <p>
         <b>Cel informacyjny:</b> Mapa ma na celu jedynie przedstawienie ogólnego obrazu fandomu. Różnice
         w wielkości kół odzwierciedlają liczbę członków, kolory ilości boostów, a linie łączące
         wskazują partnerstwa między serwerami.
       </p>
-      <h2 class="left-aligned-heading">Dodatkowe informacje:</h2>
+      <h2 class="left-aligned-heading">ℹ️ Dodatkowe informacje:</h2>
       <ul>
         <li>Mapa ta nie obejmuje wszystkich polskojęzycznych serwerów furry.</li>
-        <li>Mapa ta może zawierać błędy co do partnerstw przykładowo mogą być one nieaktualne.</li>
         <li>Obecność lub brak serwera na tej mapie nie jest w żaden sposób oceną jego jakości czy wartości.</li>
+        <li>Mapa ta może zawierać błędy co do partnerstw przykładowo mogą być one nieaktualne z powodu zerwania partnerstwa.</li>
         <li>Niektóre serwery mogły zostać pominięte z powodu braku publicznie dostępnych informacji lub ograniczonej widoczności.</li>
       </ul>
       <button id="understandButton">Rozumiem</button>
@@ -110,10 +109,30 @@
     </div>
     <div id="searchContainer">
       <h3><label for="searchInput">Wyszukiwarka:</label></h3>
-      <input type="text" id="searchInput" placeholder="Szukaj serwera...">
-      <div id="searchResults"></div>
+      <input type="text" id="searchInput" placeholder="Filtruj listę serwerów...">
+      <!-- Usunięto div#searchResults -->
     </div>
-  </div>
+
+    <div id="serverTableContainer">
+      <h3>Lista Serwerów (<span id="visibleServerCount"></span>):</h3>
+      <div class="table-wrapper">
+        <table id="serverTable">
+          <thead>
+            <tr>
+              <th class="sortable" data-sort-by="id">Nazwa <span class="sort-arrow"></span></th>
+              <th class="sortable icon-header" data-sort-by="members" title="Członkowie">👥 <span class="sort-arrow"></span></th>
+              <th class="sortable icon-header" data-sort-by="boosts" title="Boosty"><img src="images/boost-icon.png" alt="Boosty"> <span class="sort-arrow"></span></th>
+              <th class="sortable icon-header" data-sort-by="partnerships" title="Partnerstwa">🤝 <span class="sort-arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="serverTableBody">
+            <!-- Wiersze tabeli będą dodawane przez JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div> <!-- Koniec leftPanel -->
 
     <div id="serverInfo">
       <button id="closeServerInfo">X</button>
@@ -126,12 +145,14 @@
       <ul id="serverInfo-partnerships-list"></ul>
     </div>
 
-    <div id="bottomInfo">
-        <div id="dataDate">
-          <div>Liczba serwerów: <span id="serverCount"></span></div>
-          <div>Dane z dnia: 21 marca 2025 r.</div>
-      </div>
+    <!-- Stopka podzielona na lewą i prawą część -->
+    <div id="pageVersion">Wersja strony: v0.14</div>
+
+    <div id="dataDate">
+        <div>Liczba serwerów: <span id="serverCount"></span></div>
+        <div>Dane z dnia: 1 maja 2025 r.</div>
     </div>
+
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="data.js"></script>
