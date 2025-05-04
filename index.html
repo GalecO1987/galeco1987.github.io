@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa polskich serwerów furry</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Opcjonalnie: Dodaj link do favicon.ico -->
+  <!-- <link rel="icon" href="favicon.ico" type="image/x-icon"> -->
 </head>
 <body>
   <div class="tooltip"></div>
@@ -46,13 +48,21 @@
   </div>
 
 <div id="leftPanel">
-    <div id="pageTitle" class="mobile-hidden">Mapa polskich serwerów furry</div>
-    <button id="resetButton" class="mobile-hidden">Resetuj Mapę</button>
+    <!-- Usunięto klasę mobile-hidden -->
+    <div id="pageTitle">Mapa polskich serwerów furry</div>
+    <!-- Usunięto klasę mobile-hidden -->
+    <button id="resetButton">Resetuj Mapę</button>
 
-    <!-- Dodany selektor wersji danych -->
+    <!-- Przeniesiony mobilny selektor wersji danych -->
+    <div class="data-version-selector-container desktop-hidden">
+        <label for="dataVersionSelectorMobile">Wersja danych:</label>
+        <select id="dataVersionSelectorMobile"></select>
+    </div>
+
+    <!-- Stacjonarny (desktopowy) selektor wersji danych - klasa mobile-hidden ukrywa go na mobile -->
     <div class="data-version-selector-container mobile-hidden">
-      <label for="dataVersionSelector">Wersja danych:</label>
-      <select id="dataVersionSelector"></select>
+        <label for="dataVersionSelector">Wersja danych:</label>
+        <select id="dataVersionSelector"></select>
     </div>
 
     <h3>Filtrowanie:</h3>
@@ -137,14 +147,7 @@
       </div>
     </div>
 
-     <!-- Dodany selektor wersji danych - wersja mobilna -->
-     <div class="data-version-selector-container desktop-hidden">
-        <label for="dataVersionSelectorMobile">Wersja danych:</label>
-        <select id="dataVersionSelectorMobile"></select>
-    </div>
-
-
-  </div> <!-- Koniec leftPanel -->
+</div> <!-- Koniec leftPanel -->
 
     <div id="serverInfo">
       <button id="closeServerInfo">X</button>
@@ -158,17 +161,16 @@
     </div>
 
     <!-- Stopka podzielona na lewą i prawą część -->
-    <div id="pageVersion">Wersja strony: v0.16</div> <!-- Zaktualizowana wersja np. -->
+    <div id="pageVersion">Wersja strony: v0.18</div> <!-- Zaktualizuj wersję, jeśli chcesz -->
 
     <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
-        <!-- Zaktualizowane miejsce na datę -->
-        <div>Dane z dnia: <span id="loadedDataDate">Ładowanie...</span> r.</div>
+        <div>Dane z dnia: <span id="loadedDataDate">Ładowanie...</span></div>
     </div>
 
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <!-- Usunięto <script src="data.js"></script> -->
+  <!-- data.js nie jest ładowane bezpośrednio -->
   <script src="script.js"></script>
 </body>
 </html>
