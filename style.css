@@ -45,6 +45,12 @@ body {
     dominant-baseline: middle;
     fill: #fff;
     transition: opacity 0.2s ease;
+    /* --- Kontur dla etykiet SVG (ten działa dobrze) --- */
+    stroke: #000;
+    stroke-width: 0.5px;
+    stroke-linejoin: round;
+    paint-order: stroke fill;
+    /* --- Koniec konturu SVG --- */
 }
 
 .node-label.hidden {
@@ -89,7 +95,7 @@ color: #fff;
 border: 1px solid #444;
 padding: 20px;
 border-radius: 10px;
-max-width: 80%;
+max-width: 50%;
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 position: relative;
@@ -116,7 +122,7 @@ margin-bottom: 15px;
 }
 
 #disclaimer .centered-paragraph {
-text-align: center;
+text-align: left;
 }
 
 #disclaimer .additional-info {
@@ -158,6 +164,12 @@ box-sizing: border-box;
 #leftPanel h3 {
 margin-bottom: 0;
 margin-top: 10px;
+/* Używamy 1px dla nagłówków - powinny być wystarczająco duże */
+text-shadow:
+1px  1px 0 #000,
+-1px  1px 0 #000,
+1px -1px 0 #000,
+-1px -1px 0 #000;
 }
 
 .mobile-hidden {
@@ -174,6 +186,12 @@ font-weight: bold;
 padding: 2px 5px;
 border-radius: 3px;
 background-color: transparent;
+/* 1px powinien być OK dla dużego tytułu */
+text-shadow:
+1px  1px 0 #000,
+-1px  1px 0 #000,
+1px -1px 0 #000,
+-1px -1px 0 #000;
 }
 
 #resetButton {
@@ -216,6 +234,12 @@ gap: 15px;
 .filter-item label {
     display: block;
     margin-bottom: 5px;
+    /* 1px dla etykiet filtrów */
+    text-shadow:
+    1px  1px 0 #000,
+    -1px  1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000;
 }
 
 .filter-item p {
@@ -228,6 +252,15 @@ gap: 15px;
     width: 100%;
     font-size: 12px;
 }
+.filter-value-display span {
+    /* Używamy 0.5px dla małych tekstów min/max, wygląda ostrzej */
+    text-shadow:
+    0.5px  0.5px 0 #000,
+    -0.5px  0.5px 0 #000,
+    0.5px -0.5px 0 #000,
+    -0.5px -0.5px 0 #000;
+}
+
 
 .min-value {
     text-align: left;
@@ -332,7 +365,7 @@ display: block;
 position: absolute;
 top: 10px;
 right: 10px;
-width: 300px;
+width: 450px;
 background-color: #222;
 border: 1px solid #444;
 padding: 10px;
@@ -397,9 +430,7 @@ top: 50%;
 transform: translateY(-50%);
 }
 
-/* Usunięto style dla #footerInfo */
 
-/* Dodano style dla #pageVersion */
 #pageVersion {
 position: fixed;
 bottom: 10px;
@@ -407,9 +438,20 @@ left: 10px;
 color: #fff;
 font-size: 12px;
 z-index: 10;
+/* Zwiększona "grubość" konturu dla stopki */
+text-shadow:
+1.5px  1.5px 0 #000, /* Zwiększony offset */
+-1.5px  1.5px 0 #000,
+1.5px -1.5px 0 #000,
+-1.5px -1.5px 0 #000,
+/* Opcjonalnie dodaj pośrednie cienie dla jeszcze grubszego efektu */
+0px  1.5px 0 #000,
+0px -1.5px 0 #000,
+1.5px  0px 0 #000,
+-1.5px  0px 0 #000;
 }
 
-/* Zaktualizowano style dla #dataDate */
+
 #dataDate {
 position: fixed;
 bottom: 10px;
@@ -422,6 +464,18 @@ color: #fff;
 font-size: 12px;
 z-index: 10;
 }
+#dataDate div {
+/* Zwiększona "grubość" konturu dla stopki - jak wyżej */
+text-shadow:
+1.5px  1.5px 0 #000,
+-1.5px  1.5px 0 #000,
+1.5px -1.5px 0 #000,
+-1.5px -1.5px 0 #000,
+0px  1.5px 0 #000,
+0px -1.5px 0 #000,
+1.5px  0px 0 #000,
+-1.5px  0px 0 #000;
+}
 
 #serverCount {
 margin-right: 5px;
@@ -429,8 +483,7 @@ margin-right: 5px;
 
 #searchContainer label,
 #leftPanel h3 label {
-display: block;
-margin-bottom: 5px;
+/* Kontur jest już w regule #leftPanel h3 */
 }
 
 .hidden {
@@ -444,10 +497,6 @@ margin-bottom: 5px;
 margin-top: 15px;
 width: 100%;
 box-sizing: border-box;
-}
-
-#serverTableContainer h3 {
-margin-bottom: 5px;
 }
 
 .table-wrapper {
@@ -477,6 +526,12 @@ overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
 vertical-align: middle;
+/* Używamy 0.5px dla tekstu tabeli - dla ostrości */
+text-shadow:
+0.5px  0.5px 0 #000,
+-0.5px  0.5px 0 #000,
+0.5px -0.5px 0 #000,
+-0.5px -0.5px 0 #000;
 }
 
 #serverTable th {
@@ -486,6 +541,8 @@ position: sticky;
 top: 0;
 z-index: 1;
 cursor: default;
+/* Usunięcie cienia z WSZYSTKICH nagłówków tabeli dla spójności */
+text-shadow: none;
 }
 
 #serverTable th.sortable {
@@ -500,13 +557,13 @@ background-color: #4CAF50;
 font-size: 14px;
 text-align: center;
 }
-
 #serverTable th.icon-header img {
-height: 18px; /* Zmieniono na 16px - dostosuj wg potrzeb */
+height: 16px;
 width: auto;
 vertical-align: middle;
 margin: 0 2px;
 }
+/* Usunięto regułę przywracającą cień dla th:first-child */
 
 #serverTable td {
 white-space: nowrap;
@@ -534,6 +591,12 @@ text-overflow: ellipsis;
     font-size: 10px;
     line-height: 1;
     vertical-align: middle;
+    /* Kontur 0.5px dla strzałek, dla ostrości */
+    text-shadow:
+    0.5px  0.5px 0 #000,
+    -0.5px  0.5px 0 #000,
+    0.5px -0.5px 0 #000,
+    -0.5px -0.5px 0 #000;
 }
 #serverTable th.sorted .sort-arrow {
 opacity: 1;
@@ -571,6 +634,11 @@ transition: background-color 0.1s ease-in-out;
     #leftPanel h3 {
     margin-top: 5px;
     margin-bottom: 3px;
+    text-shadow: /* Używamy 1px na mobilnych */
+    1px  1px 0 #000,
+    -1px  1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000;
     }
     #searchContainer {
     margin-top: 5px;
@@ -588,11 +656,12 @@ transition: background-color 0.1s ease-in-out;
     #serverTable th,
     #serverTable td {
     padding: 5px 3px;
+    /* Usunięcie cienia z komórek tabeli na mobilnych dla wydajności/czytelności */
+    text-shadow: none;
     }
     .mobile-hidden { display: none; }
     .desktop-hidden{ display: block; }
 
-    /* Ukrycie obu części stopki na mobilnych */
     #pageVersion { display: none; }
     #dataDate { display: none; }
 
@@ -618,4 +687,87 @@ transition: background-color 0.1s ease-in-out;
     #serverInfo { bottom: 45vh; max-height: 50vh; }
 }
 
-.left-panel-hidden { }
+/* Dodaj te style na końcu pliku lub w odpowiedniej sekcji */
+
+.data-version-selector-container {
+    margin-top: 10px; /* Odstęp od przycisku reset */
+    margin-bottom: 10px; /* Odstęp przed filtrami */
+    display: flex; /* Ustawienie w jednej linii */
+    align-items: center; /* Wyśrodkowanie w pionie */
+    gap: 5px; /* Odstęp między etykietą a selectem */
+    width: 100%; /* Rozciągnij na całą szerokość panelu */
+    box-sizing: border-box;
+}
+
+.data-version-selector-container label {
+    /* Używamy 1px dla etykiet filtrów */
+    text-shadow:
+    1px  1px 0 #000,
+    -1px  1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000;
+    white-space: nowrap; /* Zapobiegaj zawijaniu etykiety */
+    margin-bottom: 0; /* Usuń domyślny margines */
+}
+
+#dataVersionSelector, #dataVersionSelectorMobile {
+padding: 5px;
+border-radius: 5px;
+border: 1px solid #444;
+background-color: rgba(34, 34, 34, 0.9);
+color: white;
+flex-grow: 1; /* Pozwól selektorowi zająć dostępną przestrzeń */
+min-width: 150px; /* Minimalna szerokość dla czytelności */
+cursor: pointer;
+}
+
+/* Ukrywanie/Pokazywanie selektora w zależności od widoku */
+@media (min-width: 769px) { /* Style dla desktop */
+    .desktop-hidden {
+        display: none;
+    }
+    .mobile-hidden {
+        display: block; /* lub flex, grid - zależnie od kontenera */
+    }
+    #leftPanel .data-version-selector-container.desktop-hidden {
+    display: none; /* Upewnij się, że mobilny jest ukryty na desktopie */
+    }
+    #leftPanel .data-version-selector-container.mobile-hidden {
+    display: flex; /* Pokaż desktopowy na desktopie */
+    }
+}
+
+
+@media (max-width: 768px) { /* Style dla mobile */
+    #leftPanel .data-version-selector-container.mobile-hidden {
+    display: none; /* Ukryj desktopowy na mobilnym */
+    }
+    #leftPanel .data-version-selector-container.desktop-hidden {
+    display: flex; /* Pokaż mobilny na mobilnym */
+    margin-bottom: 10px; /* Dodaj trochę odstępu na mobilnym */
+    }
+
+    #leftPanel {
+    gap: 8px; /* Można dostosować odstępy w panelu mobilnym */
+    }
+}
+
+/* Istniejące style dla #leftPanel h3 - upewnijmy się, że są */
+#leftPanel h3 {
+margin-bottom: 0;
+margin-top: 10px;
+text-shadow:
+1px  1px 0 #000,
+-1px  1px 0 #000,
+1px -1px 0 #000,
+-1px -1px 0 #000;
+}
+
+/* Istniejące style dla mobile-hidden / desktop-hidden - upewnijmy się, że są */
+.mobile-hidden {
+    display: block;
+}
+
+.desktop-hidden {
+    display: none;
+}
