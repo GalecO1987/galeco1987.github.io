@@ -234,7 +234,14 @@ function setupSVGAndView() {
         const clickedOnServerInfo = event.target.closest('#serverInfo');
         const clickedOnLeftPanel = event.target.closest('#leftPanel');
         if (!clickedOnNode && !clickedOnServerInfo && !clickedOnLeftPanel) {
-            if (currentlyHighlighted) { serverInfoPanel.style("display", "none"); resetHighlight(); currentlyHighlighted = null; }
+            if (currentlyHighlighted) {
+                serverInfoPanel.style("display", "none");
+                // *** DODANO: Usuń klasę przy kliknięciu tła ***
+                document.body.classList.remove('mobile-info-active');
+                // ------------------------------------------
+                resetHighlight();
+                currentlyHighlighted = null;
+            }
         }
     });
 }
@@ -338,11 +345,13 @@ function resetMap() {
 }
 
 function handleNodeClick(event, d) {
-    const clickedNodeData = currentDataSet.nodes.find(n => n.id === d.id);
-    if (!clickedNodeData) return;
+    const clickedNodeData = currentDataSet.nodes.find(n => n.id === d.id); if (!clickedNodeData) return;
 
     if (currentlyHighlighted === clickedNodeData) {
         serverInfoPanel.style("display", "none");
+        // *** DODANO: Usuń klasę przy zamykaniu przez ponowne kliknięcie ***
+        document.body.classList.remove('mobile-info-active');
+        // -----------------------------------------------------------
         resetHighlight();
         currentlyHighlighted = null;
         return;
@@ -350,57 +359,37 @@ function handleNodeClick(event, d) {
     if (currentlyHighlighted) resetHighlight();
 
     currentlyHighlighted = clickedNodeData;
-    serverInfoPanel.style("display", "block");
+    serverInfoPanel.style("display", "block"); // Pokazuje panel (CSS zadba o resztę)
+    // *** DODANO: Dodaj klasę do body, aby przełączyć widok na mobile ***
+    document.body.classList.add('mobile-info-active');
+    // ------------------------------------------------------------
 
-    // Sortowanie partnerów wg liczby członków (jak poprzednio)
-    const partnershipsData = (clickedNodeData.partnerships || [])
-    .map(pId => currentDataSet.nodes.find(n => n.id === pId))
-    .filter(p => p) // Usuń jeśli partner nie istnieje w danych
-    .sort((a, b) => (b.members || 0) - (a.members || 0));
-
-    const serverColor = getNodeColor(clickedNodeData);
-    d3.select("#serverInfo-name").style("color", serverColor).text(clickedNodeData.id);
-    const serverInfoMembersDiv = d3.select("#serverInfo-members");
-    serverInfoMembersDiv.selectAll("*").remove();
-
-    // Oblicz rangi dla CAŁEGO zestawu danych (dla spójności z tooltipem)
+    // Reszta funkcji bez zmian...
+    const partnershipsData = (clickedNodeData.partnerships || []).map(pId => currentDataSet.nodes.find(n => n.id === pId)).filter(p => p).sort((a, b) => (b.members || 0) - (a.members || 0));
+    const serverColor = getNodeColor(clickedNodeData); d3.select("#serverInfo-name").style("color", serverColor).text(clickedNodeData.id);
+    const serverInfoMembersDiv = d3.select("#serverInfo-members"); serverInfoMembersDiv.selectAll("*").remove();
     calculateRanks(currentDataSet.nodes);
     serverInfoMembersDiv.append("div").text(`Data założenia: ${clickedNodeData.creationDate}`);
     serverInfoMembersDiv.append("div").text(`Członkowie: ${clickedNodeData.members || 0} (miejsce #${clickedNodeData.memberRank || '?'})`);
     d3.select("#serverInfo-boosts").text(`Boosty: ${clickedNodeData.boosts || 0} (miejsce #${clickedNodeData.boostRank || '?'})`);
-    d3.select("#serverInfo-partnerships-count").text(`Liczba partnerstw: ${partnershipsData.length} (miejsce #${clickedNodeData.partnershipRank || '?'})`); // Główna liczba partnerstw klikniętego serwera
-
+    d3.select("#serverInfo-partnerships-count").text(`Liczba partnerstw: ${partnershipsData.length} (miejsce #${clickedNodeData.partnershipRank || '?'})`);
     let partnershipsHtml = "";
     if(partnershipsData.length > 0){
-        partnershipsData.forEach(p => { // Iterujemy przez partnerów klikniętego serwera
+        partnershipsData.forEach(p => {
             const pCol = getNodeColor(p);
             const isVis = currentFilteredNodes.some(n => n.id === p.id);
             const boostIconHtml = `<img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: middle; margin: 0 2px;">`;
-            // *** DODANO LICZBĘ PARTNERSTW PARTNERA z emotką 🤝 ***
-            const partnerPartnershipCount = (p.partnerships || []).length; // Liczba partnerstw dla partnera 'p'
-
-            partnershipsHtml +=
-            `<li style="color:${isVis?pCol:'#888'};cursor:${isVis?'pointer':'default'};" data-partner-id="${p.id}" data-visible="${isVis}">
+            const partnerPartnershipCount = (p.partnerships || []).length;
+            partnershipsHtml += `<li style="color:${isVis?pCol:'#888'};cursor:${isVis?'pointer':'default'};" data-partner-id="${p.id}" data-visible="${isVis}">
             ${p.id} (👥 ${p.members||0}, ${boostIconHtml} ${p.boosts||0}, 🤝 ${partnerPartnershipCount})
-            ${!isVis?' [ukryty]':''}
-            </li>`;
+            ${!isVis?' [ukryty]':''}</li>`;
         });
-    } else {
-        partnershipsHtml="<li>Brak partnerstw</li>";
-    }
+    } else { partnershipsHtml="<li>Brak partnerstw</li>"; }
     d3.select("#serverInfo-partnerships-list").html(partnershipsHtml);
-
     highlightNodeAndLinks(clickedNodeData);
-
-    const scale = 0.6;
-    const targetX = d.x || window.innerWidth / 2;
-    const targetY = d.y || window.innerHeight / 2;
-    const transform = d3.zoomIdentity
-    .translate(window.innerWidth/2, window.innerHeight/2)
-    .scale(scale)
-    .translate(-targetX, -targetY);
+    const scale = 0.6; const targetX = d.x || window.innerWidth / 2; const targetY = d.y || window.innerHeight / 2;
+    const transform = d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(scale).translate(-targetX, -targetY);
     svg.transition().duration(750).call(zoom_handler.transform, transform);
-
     startBlinking(clickedNodeData);
 }
 
@@ -751,9 +740,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Podpięcie Event Listenerów ---
     serverTableHeaders.on("click", handleSortClick);
-    d3.select("#resetButton").on("click", resetMap);
+
+    // Listener dla resetButton - DODANO usuwanie klasy
+    d3.select("#resetButton").on("click", () => {
+        document.body.classList.remove('mobile-info-active'); // Usuń klasę przy resecie
+        resetMap(); // Wywołaj istniejącą funkcję reset
+    });
+
+    // Listener dla przycisku zamknięcia #serverInfo
     d3.select("#closeServerInfo").on("click", () => {
         serverInfoPanel.style("display", "none");
+        document.body.classList.remove('mobile-info-active'); // Usuń klasę
         if (currentlyHighlighted) {
             resetHighlight();
             currentlyHighlighted = null;
@@ -767,9 +764,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const partnerId = targetLi.dataset.partnerId;
             const isVisible = targetLi.dataset.visible === 'true';
             if (partnerId && isVisible) {
-                // *** DODANA LINIA: Usuń podświetlenie hover z głównej tabeli ***
+                // Usuń podświetlenie hover z głównej tabeli przed wyszukaniem
                 d3.selectAll("#serverTableBody tr").classed("table-row-hovered", false);
-                // ---------------------------------------------------------
+                // Nie usuwamy klasy mobile-info-active, bo od razu pokazujemy info o partnerze
                 searchServer(partnerId); // Wyszukaj i kliknij partnera
             } else if (partnerId && !isVisible) {
                 console.log(`Partner ${partnerId} jest ukryty przez filtry.`);
@@ -784,6 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!targetLi) return;
         const partnerId = targetLi.dataset.partnerId;
         if (!partnerId) return;
+        // Znajdź dane partnera, nawet jeśli jest ukryty na mapie
         const partnerNodeData = currentDataSet.nodes.find(n => n.id === partnerId);
         if (partnerNodeData) {
             highlightHovered(partnerNodeData, true); // Podświetl w tabeli i/lub na mapie
@@ -800,9 +798,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Listenery dla selektorów wersji
-    dataVersionSelector.on("change", handleDataVersionChange);
-    dataVersionSelectorMobile.on("change", handleDataVersionChange);
+    // Listenery dla selektorów wersji - DODANO usuwanie klasy
+    dataVersionSelector.on("change", function() { // Użyj 'function', aby 'this' działało
+        document.body.classList.remove('mobile-info-active');
+        handleDataVersionChange.call(this); // Wywołaj handler w kontekście selecta
+    });
+    dataVersionSelectorMobile.on("change", function() { // Użyj 'function'
+        document.body.classList.remove('mobile-info-active');
+        handleDataVersionChange.call(this); // Wywołaj handler w kontekście selecta
+    });
 
     // Listener resize
     window.addEventListener("resize", () => {
