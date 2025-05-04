@@ -14,7 +14,8 @@ body {
     transition: fill 0.2s ease, stroke 0.2s ease, opacity 0.2s ease;
 }
 
-.node:hover, .node.table-hovered {
+.node:hover,
+.node.table-hovered {
     stroke: lightblue;
     stroke-width: 2px;
 }
@@ -45,12 +46,10 @@ body {
     dominant-baseline: middle;
     fill: #fff;
     transition: opacity 0.2s ease;
-    /* --- Kontur dla etykiet SVG (ten działa dobrze) --- */
     stroke: #000;
     stroke-width: 0.5px;
     stroke-linejoin: round;
     paint-order: stroke fill;
-    /* --- Koniec konturu SVG --- */
 }
 
 .node-label.hidden {
@@ -95,7 +94,7 @@ color: #fff;
 border: 1px solid #444;
 padding: 20px;
 border-radius: 10px;
-max-width: 50%;
+max-width: 80%;
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 position: relative;
@@ -117,12 +116,12 @@ line-height: 1.5;
 margin-bottom: 15px;
 }
 
-#disclaimer p:nth-of-type(4){
+#disclaimer p:nth-of-type(4) {
 margin-bottom: 15px;
 }
 
 #disclaimer .centered-paragraph {
-text-align: left;
+text-align: center;
 }
 
 #disclaimer .additional-info {
@@ -148,13 +147,14 @@ transition: background-color: 0.3s ease;
 background-color: #367c39;
 }
 
+/* --- Style dla #leftPanel (domyślne - desktop) --- */
 #leftPanel {
 position: absolute;
 top: 10px;
 left: 10px;
 display: flex;
 flex-direction: column;
-gap: 10px;
+gap: 10px; /* Odstęp między elementami w panelu */
 z-index: 10;
 width: 400px;
 max-width: calc(100% - 20px);
@@ -164,34 +164,34 @@ box-sizing: border-box;
 #leftPanel h3 {
 margin-bottom: 0;
 margin-top: 10px;
-/* Używamy 1px dla nagłówków - powinny być wystarczająco duże */
 text-shadow:
-1px  1px 0 #000,
--1px  1px 0 #000,
+1px 1px 0 #000,
+-1px 1px 0 #000,
 1px -1px 0 #000,
 -1px -1px 0 #000;
 }
 
+/* Definicje klas ukrywających/pokazujących */
 .mobile-hidden {
-    display: block;
+    display: block; /* Widoczne na desktop */
 }
-
 .desktop-hidden {
-    display: none;
+    display: none; /* Ukryte na desktop */
 }
 
 #pageTitle {
 font-size: 24px;
 font-weight: bold;
-padding: 2px 5px;
+padding: 2px 5px; /* Dodano padding */
 border-radius: 3px;
 background-color: transparent;
-/* 1px powinien być OK dla dużego tytułu */
 text-shadow:
-1px  1px 0 #000,
--1px  1px 0 #000,
+1px 1px 0 #000,
+-1px 1px 0 #000,
 1px -1px 0 #000,
 -1px -1px 0 #000;
+text-align: center; /* Wyśrodkowanie tytułu */
+margin-bottom: 5px; /* Dodano margines dolny */
 }
 
 #resetButton {
@@ -202,6 +202,9 @@ border: none;
 cursor: pointer;
 border-radius: 5px;
 transition: background-color 0.3s ease;
+width: fit-content; /* Dopasuj szerokość do treści */
+align-self: center; /* Wyśrodkuj przycisk w kontenerze flex */
+margin-bottom: 10px; /* Dodano margines dolny */
 }
 
 #resetButton:hover {
@@ -234,10 +237,9 @@ gap: 15px;
 .filter-item label {
     display: block;
     margin-bottom: 5px;
-    /* 1px dla etykiet filtrów */
     text-shadow:
-    1px  1px 0 #000,
-    -1px  1px 0 #000,
+    1px 1px 0 #000,
+    -1px 1px 0 #000,
     1px -1px 0 #000,
     -1px -1px 0 #000;
 }
@@ -253,14 +255,12 @@ gap: 15px;
     font-size: 12px;
 }
 .filter-value-display span {
-    /* Używamy 0.5px dla małych tekstów min/max, wygląda ostrzej */
     text-shadow:
-    0.5px  0.5px 0 #000,
-    -0.5px  0.5px 0 #000,
+    0.5px 0.5px 0 #000,
+    -0.5px 0.5px 0 #000,
     0.5px -0.5px 0 #000,
     -0.5px -0.5px 0 #000;
 }
-
 
 .min-value {
     text-align: left;
@@ -276,9 +276,11 @@ gap: 15px;
     height: 20px;
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
-.range-track, .range-fill {
+.range-track,
+.range-fill {
     position: absolute;
     left: 0;
     height: 8px;
@@ -346,7 +348,7 @@ z-index: 4;
 
 #searchContainer {
 position: relative;
-margin-top: 20px;
+/* Usunięto margin-top, odstępy kontrolowane przez gap w #leftPanel */
 }
 
 #searchInput {
@@ -360,19 +362,53 @@ box-sizing: border-box;
 display: block;
 }
 
+/* --- Style dla selektora wersji danych --- */
+.data-version-selector-container {
+    /* Usunięto margin-top/bottom, odstępy kontrolowane przez gap */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
 
+.data-version-selector-container label {
+    text-shadow:
+    1px 1px 0 #000,
+    -1px 1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+#dataVersionSelector,
+#dataVersionSelectorMobile {
+padding: 5px;
+border-radius: 5px;
+border: 1px solid #444;
+background-color: rgba(34, 34, 34, 0.9);
+color: white;
+flex-grow: 1;
+min-width: 150px;
+cursor: pointer;
+}
+
+
+/* --- Style dla #serverInfo (domyślne - desktop) --- */
 #serverInfo {
 position: absolute;
 top: 10px;
 right: 10px;
-width: 450px;
+width: 400px;
 background-color: #222;
 border: 1px solid #444;
 padding: 10px;
+padding-top: 35px;
 border-radius: 5px;
 z-index: 10;
 overflow-y: auto;
-max-height: 90vh;
+max-height: calc(100vh - 20px);
 display: none;
 color: #fff;
 }
@@ -402,10 +438,20 @@ padding-left: 0;
 
 #serverInfo li {
 margin-bottom: 5px;
-padding-left: 20px;
+padding-left: 0px;
 position: relative;
 font-weight: normal;
+word-wrap: break-word; /* Dodano zawijanie długich nazw */
 }
+
+/* Styl dla ikon w liście partnerów */
+#serverInfo li img {
+height: 1em;
+width: auto;
+vertical-align: middle;
+margin: 0 2px;
+}
+
 
 #serverInfo > p {
 margin-top: 0;
@@ -417,20 +463,6 @@ margin-bottom: 10px;
 margin-top: 10px;
 }
 
-#serverInfo li::before {
-content: '';
-display: block;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-background-color: inherit;
-position: absolute;
-left: 0;
-top: 50%;
-transform: translateY(-50%);
-}
-
-
 #pageVersion {
 position: fixed;
 bottom: 10px;
@@ -438,19 +470,11 @@ left: 10px;
 color: #fff;
 font-size: 12px;
 z-index: 10;
-/* Zwiększona "grubość" konturu dla stopki */
 text-shadow:
-1.5px  1.5px 0 #000, /* Zwiększony offset */
--1.5px  1.5px 0 #000,
-1.5px -1.5px 0 #000,
--1.5px -1.5px 0 #000,
-/* Opcjonalnie dodaj pośrednie cienie dla jeszcze grubszego efektu */
-0px  1.5px 0 #000,
-0px -1.5px 0 #000,
-1.5px  0px 0 #000,
--1.5px  0px 0 #000;
+1.5px 1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px -1.5px 0 #000,
+-1.5px -1.5px 0 #000, 0px 1.5px 0 #000, 0px -1.5px 0 #000,
+1.5px 0px 0 #000, -1.5px 0px 0 #000;
 }
-
 
 #dataDate {
 position: fixed;
@@ -465,25 +489,14 @@ font-size: 12px;
 z-index: 10;
 }
 #dataDate div {
-/* Zwiększona "grubość" konturu dla stopki - jak wyżej */
 text-shadow:
-1.5px  1.5px 0 #000,
--1.5px  1.5px 0 #000,
-1.5px -1.5px 0 #000,
--1.5px -1.5px 0 #000,
-0px  1.5px 0 #000,
-0px -1.5px 0 #000,
-1.5px  0px 0 #000,
--1.5px  0px 0 #000;
+1.5px 1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px -1.5px 0 #000,
+-1.5px -1.5px 0 #000, 0px 1.5px 0 #000, 0px -1.5px 0 #000,
+1.5px 0px 0 #000, -1.5px 0px 0 #000;
 }
 
 #serverCount {
 margin-right: 5px;
-}
-
-#searchContainer label,
-#leftPanel h3 label {
-/* Kontur jest już w regule #leftPanel h3 */
 }
 
 .hidden {
@@ -494,7 +507,7 @@ margin-right: 5px;
 /* === Style dla tabeli serwerów === */
 
 #serverTableContainer {
-margin-top: 15px;
+/* Usunięto margin-top, odstępy kontrolowane przez gap */
 width: 100%;
 box-sizing: border-box;
 }
@@ -526,11 +539,8 @@ overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
 vertical-align: middle;
-/* Używamy 0.5px dla tekstu tabeli - dla ostrości */
 text-shadow:
-0.5px  0.5px 0 #000,
--0.5px  0.5px 0 #000,
-0.5px -0.5px 0 #000,
+0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000,
 -0.5px -0.5px 0 #000;
 }
 
@@ -541,7 +551,6 @@ position: sticky;
 top: 0;
 z-index: 1;
 cursor: default;
-/* Usunięcie cienia z WSZYSTKICH nagłówków tabeli dla spójności */
 text-shadow: none;
 }
 
@@ -551,7 +560,6 @@ cursor: pointer;
 #serverTable th.sortable:hover {
 background-color: #4CAF50;
 }
-
 
 #serverTable th.icon-header {
 font-size: 14px;
@@ -563,7 +571,6 @@ width: auto;
 vertical-align: middle;
 margin: 0 2px;
 }
-/* Usunięto regułę przywracającą cień dla th:first-child */
 
 #serverTable td {
 white-space: nowrap;
@@ -571,18 +578,10 @@ overflow: hidden;
 text-overflow: ellipsis;
 }
 
-#serverTable th:nth-child(1),
-#serverTable td:nth-child(1) { width: 64%; }
-
-#serverTable th:nth-child(2),
-#serverTable td:nth-child(2) { width: 12%; text-align: right;}
-
-#serverTable th:nth-child(3),
-#serverTable td:nth-child(3) { width: 12%; text-align: right;}
-
-#serverTable th:nth-child(4),
-#serverTable td:nth-child(4) { width: 12%; text-align: right;}
-
+#serverTable th:nth-child(1), #serverTable td:nth-child(1) { width: 64%; }
+#serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 12%; text-align: right;}
+#serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 12%; text-align: right;}
+#serverTable th:nth-child(4), #serverTable td:nth-child(4) { width: 12%; text-align: right;}
 
 .sort-arrow {
     display: inline-block;
@@ -591,11 +590,8 @@ text-overflow: ellipsis;
     font-size: 10px;
     line-height: 1;
     vertical-align: middle;
-    /* Kontur 0.5px dla strzałek, dla ostrości */
     text-shadow:
-    0.5px  0.5px 0 #000,
-    -0.5px  0.5px 0 #000,
-    0.5px -0.5px 0 #000,
+    0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000,
     -0.5px -0.5px 0 #000;
 }
 #serverTable th.sorted .sort-arrow {
@@ -615,36 +611,58 @@ cursor: pointer;
 transition: background-color 0.1s ease-in-out;
 }
 
+tr.table-row-highlighted-search td {
+    background-color: rgba(100, 180, 255, 0.3) !important;
+    transition: background-color 0.3s ease-in-out;
+}
+
+
+/* --- Style mobilne --- */
 @media (max-width: 768px) {
+
+    /* --- Styl dla #leftPanel na mobile (domyślny stan) --- */
     #leftPanel {
-    width: 100%;
-    top: auto;
+    position: absolute;
     bottom: 0;
-    left: 0;
-    padding: 10px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+    /* *** ZMIENIONO: Użycie left/right dla centrowania *** */
+    left: 10px;
+    right: 10px;
+    width: auto; /* Automatyczna szerokość */
+    /* *** USUNIĘTO: padding: 10px; *** */
     max-height: 50vh;
     overflow-y: auto;
     background-color: rgba(0, 0, 0, 0.9);
     border-top: 1px solid #444;
-    gap: 5px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Zwiększono gap dla lepszych odstępów */
+    z-index: 10;
+    top: auto;
     }
+
+    /* Style dla tytułu i przycisku reset na mobile */
+    #pageTitle {
+    font-size: 20px; /* Zmniejszono czcionkę na mobile */
+    margin-bottom: 5px;
+    }
+    #resetButton {
+    padding: 4px 8px; /* Mniejszy padding */
+    font-size: 14px; /* Mniejsza czcionka */
+    margin-bottom: 5px; /* Zmniejszono margines */
+    }
+
     #leftPanel h3 {
     margin-top: 5px;
     margin-bottom: 3px;
-    text-shadow: /* Używamy 1px na mobilnych */
-    1px  1px 0 #000,
-    -1px  1px 0 #000,
-    1px -1px 0 #000,
-    -1px -1px 0 #000;
+    text-shadow:
+    1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
     }
     #searchContainer {
-    margin-top: 5px;
+    margin-top: 0; /* Usunięto, gap kontroluje odstęp */
     }
     #serverTableContainer {
-    margin-top: 5px;
+    margin-top: 0; /* Usunięto, gap kontroluje odstęp */
     }
     .table-wrapper {
         flex-grow: 1;
@@ -656,118 +674,85 @@ transition: background-color 0.1s ease-in-out;
     #serverTable th,
     #serverTable td {
     padding: 5px 3px;
-    /* Usunięcie cienia z komórek tabeli na mobilnych dla wydajności/czytelności */
     text-shadow: none;
     }
-    .mobile-hidden { display: none; }
-    .desktop-hidden{ display: block; }
 
-    #pageVersion { display: none; }
-    #dataDate { display: none; }
-
+    /* --- Styl dla #serverInfo na mobile (domyślnie ukryty) --- */
     #serverInfo {
-    bottom: 50vh;
-    max-height: 45vh;
+    position: absolute;
+    bottom: 0;
+    left: 10px; /* Taki sam margines jak #leftPanel */
+    right: 10px; /* Taki sam margines jak #leftPanel */
+    width: auto;
+    max-height: 50vh;
+    overflow-y: auto;
     background-color: rgba(34, 34, 34, 0.95);
-    }
-    .left-panel-hidden { display: block !important; }
-
-}
-
-@media (max-width: 480px) {
-    #disclaimer {
-    padding: 5px;
-    font-size: 0.8em;
-    max-width: 100%;
-    margin: 5px auto;
-    }
-    #disclaimer h2 { font-size: 1em; }
-    #disclaimer button { font-size: 0.9em; padding: 8px 16px; }
-    #leftPanel { max-height: 45vh; }
-    #serverInfo { bottom: 45vh; max-height: 50vh; }
-}
-
-/* Dodaj te style na końcu pliku lub w odpowiedniej sekcji */
-
-.data-version-selector-container {
-    margin-top: 10px; /* Odstęp od przycisku reset */
-    margin-bottom: 10px; /* Odstęp przed filtrami */
-    display: flex; /* Ustawienie w jednej linii */
-    align-items: center; /* Wyśrodkowanie w pionie */
-    gap: 5px; /* Odstęp między etykietą a selectem */
-    width: 100%; /* Rozciągnij na całą szerokość panelu */
+    border: 1px solid #444;
+    border-radius: 5px 5px 0 0;
+    padding: 10px;
+    padding-top: 35px;
     box-sizing: border-box;
-}
+    display: none;
+    z-index: 11;
+    top: auto;
+    }
 
-.data-version-selector-container label {
-    /* Używamy 1px dla etykiet filtrów */
-    text-shadow:
-    1px  1px 0 #000,
-    -1px  1px 0 #000,
-    1px -1px 0 #000,
-    -1px -1px 0 #000;
-    white-space: nowrap; /* Zapobiegaj zawijaniu etykiety */
-    margin-bottom: 0; /* Usuń domyślny margines */
-}
+    #closeServerInfo {
+    top: 5px;
+    right: 5px;
+    font-size: 24px;
+    z-index: 12;
+    }
 
-#dataVersionSelector, #dataVersionSelectorMobile {
-padding: 5px;
-border-radius: 5px;
-border: 1px solid #444;
-background-color: rgba(34, 34, 34, 0.9);
-color: white;
-flex-grow: 1; /* Pozwól selektorowi zająć dostępną przestrzeń */
-min-width: 150px; /* Minimalna szerokość dla czytelności */
-cursor: pointer;
-}
-
-/* Ukrywanie/Pokazywanie selektora w zależności od widoku */
-@media (min-width: 769px) { /* Style dla desktop */
-    .desktop-hidden {
+    /* --- Przełączanie widoczności paneli na mobile --- */
+    body.mobile-info-active #leftPanel {
         display: none;
     }
+    body.mobile-info-active #serverInfo {
+        display: block; /* Pokaż panel info */
+    }
+
+    /* Ukryj/Pokaż elementy specyficzne dla widoku */
     .mobile-hidden {
-        display: block; /* lub flex, grid - zależnie od kontenera */
+        display: none !important; /* Ukryj elementy desktopowe */
     }
-    #leftPanel .data-version-selector-container.desktop-hidden {
-    display: none; /* Upewnij się, że mobilny jest ukryty na desktopie */
+    .desktop-hidden {
+        display: block; /* Pokaż elementy mobilne (domyślnie) */
     }
-    #leftPanel .data-version-selector-container.mobile-hidden {
-    display: flex; /* Pokaż desktopowy na desktopie */
-    }
-}
-
-
-@media (max-width: 768px) { /* Style dla mobile */
-    #leftPanel .data-version-selector-container.mobile-hidden {
-    display: none; /* Ukryj desktopowy na mobilnym */
-    }
-    #leftPanel .data-version-selector-container.desktop-hidden {
-    display: flex; /* Pokaż mobilny na mobilnym */
-    margin-bottom: 10px; /* Dodaj trochę odstępu na mobilnym */
+    /* Upewnij się, że mobilny selektor wersji używa flex */
+    .data-version-selector-container.desktop-hidden {
+        display: flex;
+        /* Usunięto margin-bottom, gap kontroluje odstęp */
     }
 
-    #leftPanel {
-    gap: 8px; /* Można dostosować odstępy w panelu mobilnym */
-    }
-}
-
-/* Istniejące style dla #leftPanel h3 - upewnijmy się, że są */
-#leftPanel h3 {
-margin-bottom: 0;
-margin-top: 10px;
-text-shadow:
-1px  1px 0 #000,
--1px  1px 0 #000,
-1px -1px 0 #000,
--1px -1px 0 #000;
-}
-
-/* Istniejące style dla mobile-hidden / desktop-hidden - upewnijmy się, że są */
-.mobile-hidden {
-    display: block;
-}
-
-.desktop-hidden {
+    /* Ukryj stopkę na mobile */
+    #pageVersion,
+    #dataDate {
     display: none;
+    }
+}
+
+/* Dodatkowe dostosowania dla bardzo małych ekranów */
+@media (max-width: 480px) {
+    #disclaimer {
+    padding: 10px;
+    font-size: 0.9em;
+    max-width: 95%;
+    margin: 10px auto;
+    }
+    #disclaimer h2 {
+    font-size: 1.1em;
+    }
+    #disclaimer button {
+    font-size: 1em;
+    padding: 8px 16px;
+    }
+
+    #leftPanel,
+    #serverInfo {
+    max-height: 45vh; /* Opcjonalnie zmniejsz wysokość */
+    gap: 8px; /* Mniejszy odstęp */
+    }
+    #pageTitle { font-size: 18px; }
+    #resetButton { font-size: 13px; }
 }
