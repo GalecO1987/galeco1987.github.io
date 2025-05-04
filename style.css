@@ -154,7 +154,7 @@ top: 10px;
 left: 10px;
 display: flex;
 flex-direction: column;
-gap: 10px; /* Odstęp między elementami w panelu */
+gap: 10px;
 z-index: 10;
 width: 400px;
 max-width: calc(100% - 20px);
@@ -165,33 +165,36 @@ box-sizing: border-box;
 margin-bottom: 0;
 margin-top: 10px;
 text-shadow:
-1px 1px 0 #000,
--1px 1px 0 #000,
-1px -1px 0 #000,
--1px -1px 0 #000;
+1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
 }
 
-/* Definicje klas ukrywających/pokazujących */
+/* --- Definicje klas ukrywających/pokazujących (Desktop First) --- */
 .mobile-hidden {
     display: block; /* Widoczne na desktop */
+    /* Użyj display: flex; jeśli element jest kontenerem flex */
 }
 .desktop-hidden {
     display: none; /* Ukryte na desktop */
 }
+/* Specyficzne dla selektora wersji danych na Desktop */
+.data-version-selector-container.mobile-hidden {
+    display: flex; /* Użyj flex dla wyrównania etykiety i selecta */
+}
+.data-version-selector-container.desktop-hidden {
+    display: none; /* Upewnij się, że mobilny jest ukryty */
+}
+
 
 #pageTitle {
 font-size: 24px;
 font-weight: bold;
-padding: 2px 5px; /* Dodano padding */
+padding: 2px 5px;
 border-radius: 3px;
 background-color: transparent;
 text-shadow:
-1px 1px 0 #000,
--1px 1px 0 #000,
-1px -1px 0 #000,
--1px -1px 0 #000;
-text-align: center; /* Wyśrodkowanie tytułu */
-margin-bottom: 5px; /* Dodano margines dolny */
+1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
+text-align: center;
+margin-bottom: 5px;
 }
 
 #resetButton {
@@ -202,9 +205,9 @@ border: none;
 cursor: pointer;
 border-radius: 5px;
 transition: background-color 0.3s ease;
-width: fit-content; /* Dopasuj szerokość do treści */
-align-self: center; /* Wyśrodkuj przycisk w kontenerze flex */
-margin-bottom: 10px; /* Dodano margines dolny */
+margin-bottom: 10px;
+width: 100%;
+box-sizing: border-box;
 }
 
 #resetButton:hover {
@@ -238,10 +241,7 @@ gap: 15px;
     display: block;
     margin-bottom: 5px;
     text-shadow:
-    1px 1px 0 #000,
-    -1px 1px 0 #000,
-    1px -1px 0 #000,
-    -1px -1px 0 #000;
+    1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
 }
 
 .filter-item p {
@@ -256,19 +256,11 @@ gap: 15px;
 }
 .filter-value-display span {
     text-shadow:
-    0.5px 0.5px 0 #000,
-    -0.5px 0.5px 0 #000,
-    0.5px -0.5px 0 #000,
-    -0.5px -0.5px 0 #000;
+    0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px -0.5px 0 #000;
 }
 
-.min-value {
-    text-align: left;
-}
-
-.max-value {
-    text-align: right;
-}
+.min-value { text-align: left; }
+.max-value { text-align: right; }
 
 .range-slider-container {
     position: relative;
@@ -290,82 +282,43 @@ gap: 15px;
     pointer-events: none;
 }
 
-.range-track {
-    background-color: #ddd;
-    width: 100%;
-    z-index: 1;
-}
-
-.range-fill {
-    background-color: #63a365;
-    z-index: 2;
-}
+.range-track { background-color: #ddd; width: 100%; z-index: 1; }
+.range-fill { background-color: #63a365; z-index: 2; }
 
 #filterPanel input[type="range"].range-min,
 #filterPanel input[type="range"].range-max {
--webkit-appearance: none;
-appearance: none;
-background: transparent;
-cursor: pointer;
-width: 100%;
-position: absolute;
-left: 0;
-top: 50%;
-transform: translateY(-50%);
-margin: 0;
-pointer-events: none;
-z-index: 3;
+-webkit-appearance: none; appearance: none; background: transparent; cursor: pointer;
+width: 100%; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+margin: 0; pointer-events: none; z-index: 3;
 }
 
 #filterPanel input[type="range"].range-min::-webkit-slider-thumb,
 #filterPanel input[type="range"].range-max::-webkit-slider-thumb {
--webkit-appearance: none;
-appearance: none;
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background-color: #4CAF50;
-cursor: pointer;
-margin-top: -6px;
-pointer-events: auto;
-position: relative;
-z-index: 4;
+-webkit-appearance: none; appearance: none; width: 20px; height: 20px;
+border-radius: 50%; background-color: #4CAF50; cursor: pointer; margin-top: -6px;
+pointer-events: auto; position: relative; z-index: 4;
 }
 
 #filterPanel input[type="range"].range-min::-moz-range-thumb,
 #filterPanel input[type="range"].range-max::-moz-range-thumb {
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background-color: #4CAF50;
-cursor: pointer;
-border: none;
-pointer-events: auto;
-position: relative;
-z-index: 4;
+width: 20px; height: 20px; border-radius: 50%; background-color: #4CAF50;
+cursor: pointer; border: none; pointer-events: auto; position: relative; z-index: 4;
 }
 
 
 #searchContainer {
 position: relative;
-/* Usunięto margin-top, odstępy kontrolowane przez gap w #leftPanel */
 }
 
 #searchInput {
-padding: 5px;
-border-radius: 5px;
-border: 1px solid #444;
-background-color: rgba(34, 34, 34, 0.9);
-color: white;
-width: 100%;
-box-sizing: border-box;
-display: block;
+padding: 5px; border-radius: 5px; border: 1px solid #444;
+background-color: rgba(34, 34, 34, 0.9); color: white;
+width: 100%; box-sizing: border-box; display: block;
 }
 
-/* --- Style dla selektora wersji danych --- */
+/* --- Style dla selektora wersji danych (wspólne) --- */
 .data-version-selector-container {
-    /* Usunięto margin-top/bottom, odstępy kontrolowane przez gap */
-    display: flex;
+    display: flex; /* Zmieniono z block na flex */
     align-items: center;
     gap: 5px;
     width: 100%;
@@ -374,247 +327,84 @@ display: block;
 
 .data-version-selector-container label {
     text-shadow:
-    1px 1px 0 #000,
-    -1px 1px 0 #000,
-    1px -1px 0 #000,
-    -1px -1px 0 #000;
+    1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
     white-space: nowrap;
     margin-bottom: 0;
 }
 
 #dataVersionSelector,
 #dataVersionSelectorMobile {
-padding: 5px;
-border-radius: 5px;
-border: 1px solid #444;
-background-color: rgba(34, 34, 34, 0.9);
-color: white;
-flex-grow: 1;
-min-width: 150px;
-cursor: pointer;
+padding: 5px; border-radius: 5px; border: 1px solid #444;
+background-color: rgba(34, 34, 34, 0.9); color: white;
+flex-grow: 1; min-width: 150px; cursor: pointer;
 }
 
 
 /* --- Style dla #serverInfo (domyślne - desktop) --- */
 #serverInfo {
-position: absolute;
-top: 10px;
-right: 10px;
-width: 400px;
-background-color: #222;
-border: 1px solid #444;
-padding: 10px;
-padding-top: 35px;
-border-radius: 5px;
-z-index: 10;
-overflow-y: auto;
-max-height: calc(100vh - 20px);
-display: none;
-color: #fff;
+position: absolute; top: 10px; right: 10px; width: 400px;
+background-color: #222; border: 1px solid #444; padding: 10px; padding-top: 35px;
+border-radius: 5px; z-index: 10; overflow-y: auto; max-height: calc(100vh - 20px);
+display: none; color: #fff;
 }
 
 #closeServerInfo {
-position: absolute;
-top: 5px;
-right: 5px;
-background: none;
-border: none;
-color: #fff;
-font-size: 20px;
-cursor: pointer;
-z-index: 11;
+position: absolute; top: 5px; right: 5px; background: none; border: none;
+color: #fff; font-size: 20px; cursor: pointer; z-index: 11;
 }
 
-#serverInfo h2 {
-margin: 0 0 5px 0;
-font-size: 16px;
-font-weight: normal;
-}
-
-#serverInfo ul {
-list-style: none;
-padding-left: 0;
-}
-
-#serverInfo li {
-margin-bottom: 5px;
-padding-left: 0px;
-position: relative;
-font-weight: normal;
-word-wrap: break-word; /* Dodano zawijanie długich nazw */
-}
-
-/* Styl dla ikon w liście partnerów */
-#serverInfo li img {
-height: 1em;
-width: auto;
-vertical-align: middle;
-margin: 0 2px;
-}
-
-
-#serverInfo > p {
-margin-top: 0;
-margin-bottom: 2px;
-}
-
-#serverInfo h3 {
-margin-bottom: 10px;
-margin-top: 10px;
-}
+#serverInfo h2 { margin: 0 0 5px 0; font-size: 16px; font-weight: normal; }
+#serverInfo ul { list-style: none; padding-left: 0; }
+#serverInfo li { margin-bottom: 5px; padding-left: 0px; position: relative; font-weight: normal; word-wrap: break-word; }
+#serverInfo li img { height: 1em; width: auto; vertical-align: middle; margin: 0 2px; }
+#serverInfo > p { margin-top: 0; margin-bottom: 2px; }
+#serverInfo h3 { margin-bottom: 10px; margin-top: 10px; }
 
 #pageVersion {
-position: fixed;
-bottom: 10px;
-left: 10px;
-color: #fff;
-font-size: 12px;
-z-index: 10;
-text-shadow:
-1.5px 1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px -1.5px 0 #000,
--1.5px -1.5px 0 #000, 0px 1.5px 0 #000, 0px -1.5px 0 #000,
-1.5px 0px 0 #000, -1.5px 0px 0 #000;
+position: fixed; bottom: 10px; left: 10px; color: #fff; font-size: 12px; z-index: 10;
+text-shadow: 1.5px 1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px -1.5px 0 #000, 0px 1.5px 0 #000, 0px -1.5px 0 #000, 1.5px 0px 0 #000, -1.5px 0px 0 #000;
 }
 
 #dataDate {
-position: fixed;
-bottom: 10px;
-right: 10px;
-display: flex;
-flex-direction: column;
-align-items: flex-end;
-text-align: right;
-color: #fff;
-font-size: 12px;
-z-index: 10;
+position: fixed; bottom: 10px; right: 10px; display: flex; flex-direction: column;
+align-items: flex-end; text-align: right; color: #fff; font-size: 12px; z-index: 10;
 }
 #dataDate div {
-text-shadow:
-1.5px 1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px -1.5px 0 #000,
--1.5px -1.5px 0 #000, 0px 1.5px 0 #000, 0px -1.5px 0 #000,
-1.5px 0px 0 #000, -1.5px 0px 0 #000;
+text-shadow: 1.5px 1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px -1.5px 0 #000, 0px 1.5px 0 #000, 0px -1.5px 0 #000, 1.5px 0px 0 #000, -1.5px 0px 0 #000;
 }
 
-#serverCount {
-margin-right: 5px;
-}
-
-.hidden {
-    display: none !important;
-}
+#serverCount { margin-right: 5px; }
+.hidden { display: none !important; }
 
 
 /* === Style dla tabeli serwerów === */
-
-#serverTableContainer {
-/* Usunięto margin-top, odstępy kontrolowane przez gap */
-width: 100%;
-box-sizing: border-box;
-}
-
+#serverTableContainer { width: 100%; box-sizing: border-box; }
 .table-wrapper {
-    max-height: 25vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 100%;
-    border: 1px solid #444;
-    border-radius: 5px;
-    background-color: rgba(34, 34, 34, 0.9);
+    max-height: 28vh; overflow-y: auto; overflow-x: hidden; width: 100%;
+    border: 1px solid #444; border-radius: 5px; background-color: rgba(34, 34, 34, 0.9);
 }
-
-#serverTable {
-width: 100%;
-border-collapse: collapse;
-font-size: 12px;
-color: #fff;
-table-layout: fixed;
+#serverTable { width: 100%; border-collapse: collapse; font-size: 12px; color: #fff; table-layout: fixed; }
+#serverTable th, #serverTable td {
+padding: 6px 4px; text-align: left; border-bottom: 1px solid #444;
+overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;
+text-shadow: 0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px -0.5px 0 #000;
 }
-
-#serverTable th,
-#serverTable td {
-padding: 6px 4px;
-text-align: left;
-border-bottom: 1px solid #444;
-overflow: hidden;
-text-overflow: ellipsis;
-white-space: nowrap;
-vertical-align: middle;
-text-shadow:
-0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000,
--0.5px -0.5px 0 #000;
-}
-
-#serverTable th {
-background-color: #367c39;
-font-weight: bold;
-position: sticky;
-top: 0;
-z-index: 1;
-cursor: default;
-text-shadow: none;
-}
-
-#serverTable th.sortable {
-cursor: pointer;
-}
-#serverTable th.sortable:hover {
-background-color: #4CAF50;
-}
-
-#serverTable th.icon-header {
-font-size: 14px;
-text-align: center;
-}
-#serverTable th.icon-header img {
-height: 16px;
-width: auto;
-vertical-align: middle;
-margin: 0 2px;
-}
-
-#serverTable td {
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-}
-
+#serverTable th { background-color: #367c39; font-weight: bold; position: sticky; top: 0; z-index: 1; cursor: default; text-shadow: none; }
+#serverTable th.sortable { cursor: pointer; }
+#serverTable th.sortable:hover { background-color: #4CAF50; }
+#serverTable th.icon-header { font-size: 14px; text-align: center; }
+#serverTable th.icon-header img { height: 16px; width: auto; vertical-align: middle; margin: 0 2px; }
+#serverTable td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #serverTable th:nth-child(1), #serverTable td:nth-child(1) { width: 64%; }
 #serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 12%; text-align: right;}
 #serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 12%; text-align: right;}
 #serverTable th:nth-child(4), #serverTable td:nth-child(4) { width: 12%; text-align: right;}
-
-.sort-arrow {
-    display: inline-block;
-    margin-left: 3px;
-    opacity: 0.5;
-    font-size: 10px;
-    line-height: 1;
-    vertical-align: middle;
-    text-shadow:
-    0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000,
-    -0.5px -0.5px 0 #000;
-}
-#serverTable th.sorted .sort-arrow {
-opacity: 1;
-}
-
-#serverTable tbody tr:last-child td {
-border-bottom: none;
-}
-
-#serverTable tbody tr:hover td,
-#serverTable tbody tr.table-row-hovered td {
-background-color: rgba(173, 216, 230, 0.2);
-}
-#serverTable tbody tr {
-cursor: pointer;
-transition: background-color 0.1s ease-in-out;
-}
-
-tr.table-row-highlighted-search td {
-    background-color: rgba(100, 180, 255, 0.3) !important;
-    transition: background-color 0.3s ease-in-out;
-}
+.sort-arrow { display: inline-block; margin-left: 3px; opacity: 0.5; font-size: 10px; line-height: 1; vertical-align: middle; text-shadow: 0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px -0.5px 0 #000; }
+#serverTable th.sorted .sort-arrow { opacity: 1; }
+#serverTable tbody tr:last-child td { border-bottom: none; }
+#serverTable tbody tr:hover td, #serverTable tbody tr.table-row-hovered td { background-color: rgba(173, 216, 230, 0.2); }
+#serverTable tbody tr { cursor: pointer; transition: background-color 0.1s ease-in-out; }
+tr.table-row-highlighted-search td { background-color: rgba(100, 180, 255, 0.3) !important; transition: background-color 0.3s ease-in-out; }
 
 
 /* --- Style mobilne --- */
@@ -622,137 +412,55 @@ tr.table-row-highlighted-search td {
 
     /* --- Styl dla #leftPanel na mobile (domyślny stan) --- */
     #leftPanel {
-    position: absolute;
-    bottom: 0;
-    /* *** ZMIENIONO: Użycie left/right dla centrowania *** */
-    left: 10px;
-    right: 10px;
-    width: auto; /* Automatyczna szerokość */
-    /* *** USUNIĘTO: padding: 10px; *** */
-    max-height: 50vh;
-    overflow-y: auto;
-    background-color: rgba(0, 0, 0, 0.9);
-    border-top: 1px solid #444;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Zwiększono gap dla lepszych odstępów */
-    z-index: 10;
-    top: auto;
+    position: absolute; bottom: 0; left: 10px; right: 10px; width: auto;
+    max-height: 50vh; overflow-y: auto; background-color: rgba(0, 0, 0, 0.9);
+    border-top: 1px solid #444; box-sizing: border-box; display: flex;
+    flex-direction: column; gap: 10px; z-index: 10; top: auto;
+    padding: 10px; /* Dodano padding dla zawartości */
     }
 
-    /* Style dla tytułu i przycisku reset na mobile */
-    #pageTitle {
-    font-size: 20px; /* Zmniejszono czcionkę na mobile */
-    margin-bottom: 5px;
-    }
-    #resetButton {
-    padding: 4px 8px; /* Mniejszy padding */
-    font-size: 14px; /* Mniejsza czcionka */
-    margin-bottom: 5px; /* Zmniejszono margines */
-    }
+    #pageTitle { font-size: 20px; margin-bottom: 5px; }
+    #resetButton { padding: 4px 8px; font-size: 14px; margin-bottom: 5px; }
 
-    #leftPanel h3 {
-    margin-top: 5px;
-    margin-bottom: 3px;
-    text-shadow:
-    1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
-    }
-    #searchContainer {
-    margin-top: 0; /* Usunięto, gap kontroluje odstęp */
-    }
-    #serverTableContainer {
-    margin-top: 0; /* Usunięto, gap kontroluje odstęp */
-    }
-    .table-wrapper {
-        flex-grow: 1;
-        max-height: none;
-    }
-    #serverTable {
-    font-size: 11px;
-    }
-    #serverTable th,
-    #serverTable td {
-    padding: 5px 3px;
-    text-shadow: none;
-    }
+    #leftPanel h3 { margin-top: 5px; margin-bottom: 3px; text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000; }
+    #searchContainer, #serverTableContainer { margin-top: 0; }
+    .table-wrapper { flex-grow: 1; max-height: none; }
+    #serverTable { font-size: 11px; }
+    #serverTable th, #serverTable td { padding: 5px 3px; text-shadow: none; }
 
     /* --- Styl dla #serverInfo na mobile (domyślnie ukryty) --- */
     #serverInfo {
-    position: absolute;
-    bottom: 0;
-    left: 10px; /* Taki sam margines jak #leftPanel */
-    right: 10px; /* Taki sam margines jak #leftPanel */
-    width: auto;
-    max-height: 50vh;
-    overflow-y: auto;
-    background-color: rgba(34, 34, 34, 0.95);
-    border: 1px solid #444;
-    border-radius: 5px 5px 0 0;
-    padding: 10px;
-    padding-top: 35px;
-    box-sizing: border-box;
-    display: none;
-    z-index: 11;
-    top: auto;
+    position: absolute; bottom: 0; left: 10px; right: 10px; width: auto;
+    max-height: 50vh; overflow-y: auto; background-color: rgba(34, 34, 34, 0.95);
+    border: 1px solid #444; border-radius: 5px 5px 0 0; padding: 10px; padding-top: 35px;
+    box-sizing: border-box; display: none; z-index: 11; top: auto;
     }
-
-    #closeServerInfo {
-    top: 5px;
-    right: 5px;
-    font-size: 24px;
-    z-index: 12;
-    }
+    #closeServerInfo { top: 5px; right: 5px; font-size: 24px; z-index: 12; }
 
     /* --- Przełączanie widoczności paneli na mobile --- */
-    body.mobile-info-active #leftPanel {
-        display: none;
-    }
-    body.mobile-info-active #serverInfo {
-        display: block; /* Pokaż panel info */
-    }
+    body.mobile-info-active #leftPanel { display: none; }
+    body.mobile-info-active #serverInfo { display: block; }
 
     /* Ukryj/Pokaż elementy specyficzne dla widoku */
-    .mobile-hidden {
-        display: none !important; /* Ukryj elementy desktopowe */
-    }
-    .desktop-hidden {
-        display: block; /* Pokaż elementy mobilne (domyślnie) */
-    }
-    /* Upewnij się, że mobilny selektor wersji używa flex */
-    .data-version-selector-container.desktop-hidden {
-        display: flex;
-        /* Usunięto margin-bottom, gap kontroluje odstęp */
-    }
+    .mobile-hidden { display: none !important; }
+    .desktop-hidden { display: block; }
+
+    /* Upewnij się, że mobilny selektor danych jest widoczny i używa flex */
+    .data-version-selector-container.desktop-hidden { display: flex; }
+    /* Ukryj desktopowy selektor danych na mobile */
+    .data-version-selector-container.mobile-hidden { display: none; }
+
 
     /* Ukryj stopkę na mobile */
-    #pageVersion,
-    #dataDate {
-    display: none;
-    }
+    #pageVersion, #dataDate { display: none; }
 }
 
 /* Dodatkowe dostosowania dla bardzo małych ekranów */
 @media (max-width: 480px) {
-    #disclaimer {
-    padding: 10px;
-    font-size: 0.9em;
-    max-width: 95%;
-    margin: 10px auto;
-    }
-    #disclaimer h2 {
-    font-size: 1.1em;
-    }
-    #disclaimer button {
-    font-size: 1em;
-    padding: 8px 16px;
-    }
-
-    #leftPanel,
-    #serverInfo {
-    max-height: 45vh; /* Opcjonalnie zmniejsz wysokość */
-    gap: 8px; /* Mniejszy odstęp */
-    }
+    #disclaimer { padding: 10px; font-size: 0.9em; max-width: 95%; margin: 10px auto; }
+    #disclaimer h2 { font-size: 1.1em; }
+    #disclaimer button { font-size: 1em; padding: 8px 16px; }
+    #leftPanel, #serverInfo { max-height: 45vh; gap: 8px; padding: 8px; } /* Zmniejszono padding */
     #pageTitle { font-size: 18px; }
     #resetButton { font-size: 13px; }
 }
