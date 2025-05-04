@@ -27,8 +27,7 @@
         obiektywnej wizualizacji.
       </p>
       <p>
-        <b>Aktualność danych:</b> Dane są aktualne na dzień <b>1 maja 2025 r.</b> Należy pamiętać, że społeczność
-        Discorda jest dynamiczna, a liczby członków, boostów i partnerstwa mogą się zmieniać. Aktualizacja danych następuje zawsze na początku każdego miesiąca.
+        <b>Aktualność danych:</b> Dane na tej mapie mogą pochodzić z różnych okresów czasu. Możesz przełączać się między dostępnymi datami aktualizacji danych za pomocą selektora w panelu bocznym. Domyślnie ładowane są najnowsze dostępne dane. Należy pamiętać, że społeczność Discorda jest dynamiczna, a liczby członków, boostów i partnerstwa mogą się zmieniać.
       </p>
        <p>
         <b>Cel informacyjny:</b> Mapa ma na celu jedynie przedstawienie ogólnego obrazu fandomu. Różnice
@@ -37,10 +36,10 @@
       </p>
       <h2 class="left-aligned-heading">ℹ️ Dodatkowe informacje:</h2>
       <ul>
-        <li>Mapa ta nie obejmuje wszystkich polskojęzycznych serwerów furry.</li>
+        <li>Mapa ta nie obejmuje wszystkich polskojęzycznych serwerów furry dla danego okresu.</li>
         <li>Obecność lub brak serwera na tej mapie nie jest w żaden sposób oceną jego jakości czy wartości.</li>
-        <li>Mapa ta może zawierać błędy co do partnerstw przykładowo mogą być one nieaktualne z powodu zerwania partnerstwa.</li>
-        <li>Niektóre serwery mogły zostać pominięte z powodu braku publicznie dostępnych informacji lub ograniczonej widoczności.</li>
+        <li>Mapa ta może zawierać błędy co do partnerstw przykładowo mogą być one nieaktualne z powodu zerwania partnerstwa lub zmian w danych historycznych.</li>
+        <li>Niektóre serwery mogły zostać pominięte z powodu braku publicznie dostępnych informacji lub ograniczonej widoczności w danym okresie.</li>
       </ul>
       <button id="understandButton">Rozumiem</button>
     </div>
@@ -49,6 +48,13 @@
 <div id="leftPanel">
     <div id="pageTitle" class="mobile-hidden">Mapa polskich serwerów furry</div>
     <button id="resetButton" class="mobile-hidden">Resetuj Mapę</button>
+
+    <!-- Dodany selektor wersji danych -->
+    <div class="data-version-selector-container mobile-hidden">
+      <label for="dataVersionSelector">Wersja danych:</label>
+      <select id="dataVersionSelector"></select>
+    </div>
+
     <h3>Filtrowanie:</h3>
     <div id="filterPanel">
       <div class="filter-item">
@@ -110,7 +116,6 @@
     <div id="searchContainer">
       <h3><label for="searchInput">Wyszukiwarka:</label></h3>
       <input type="text" id="searchInput" placeholder="Filtruj listę serwerów...">
-      <!-- Usunięto div#searchResults -->
     </div>
 
     <div id="serverTableContainer">
@@ -132,6 +137,13 @@
       </div>
     </div>
 
+     <!-- Dodany selektor wersji danych - wersja mobilna -->
+     <div class="data-version-selector-container desktop-hidden">
+        <label for="dataVersionSelectorMobile">Wersja danych:</label>
+        <select id="dataVersionSelectorMobile"></select>
+    </div>
+
+
   </div> <!-- Koniec leftPanel -->
 
     <div id="serverInfo">
@@ -146,16 +158,17 @@
     </div>
 
     <!-- Stopka podzielona na lewą i prawą część -->
-    <div id="pageVersion">Wersja strony: v0.14</div>
+    <div id="pageVersion">Wersja strony: v0.16</div> <!-- Zaktualizowana wersja np. -->
 
     <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
-        <div>Dane z dnia: 1 maja 2025 r.</div>
+        <!-- Zaktualizowane miejsce na datę -->
+        <div>Dane z dnia: <span id="loadedDataDate">Ładowanie...</span> r.</div>
     </div>
 
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="data.js"></script>
+  <!-- Usunięto <script src="data.js"></script> -->
   <script src="script.js"></script>
 </body>
 </html>
