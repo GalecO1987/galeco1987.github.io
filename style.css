@@ -94,7 +94,7 @@ color: #fff;
 border: 1px solid #444;
 padding: 20px;
 border-radius: 10px;
-max-width: 80%;
+max-width: 50%;
 text-align: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 position: relative;
@@ -121,7 +121,7 @@ margin-bottom: 15px;
 }
 
 #disclaimer .centered-paragraph {
-text-align: center;
+text-align: left;
 }
 
 #disclaimer .additional-info {
@@ -156,7 +156,7 @@ display: flex;
 flex-direction: column;
 gap: 10px;
 z-index: 10;
-width: 400px;
+width: 500px;
 max-width: calc(100% - 20px);
 box-sizing: border-box;
 }
@@ -353,12 +353,66 @@ position: absolute; top: 5px; right: 5px; background: none; border: none;
 color: #fff; font-size: 20px; cursor: pointer; z-index: 11;
 }
 
-#serverInfo h2 { margin: 0 0 5px 0; font-size: 16px; font-weight: normal; }
-#serverInfo ul { list-style: none; padding-left: 0; }
-#serverInfo li { margin-bottom: 5px; padding-left: 0px; position: relative; font-weight: normal; word-wrap: break-word; }
-#serverInfo li img { height: 1em; width: auto; vertical-align: middle; margin: 0 2px; }
-#serverInfo > p { margin-top: 0; margin-bottom: 2px; }
-#serverInfo h3 { margin-bottom: 10px; margin-top: 10px; }
+/* --- Style dla #serverInfo (domyślne - desktop) --- */
+#serverInfo {
+    position: absolute; top: 10px; right: 10px; width: 400px;
+    background-color: #222; border: 1px solid #444; padding: 10px; padding-top: 35px;
+    border-radius: 5px; z-index: 10; overflow-y: auto; max-height: calc(100vh - 20px);
+    display: none; color: #fff;
+}
+
+/* Ustawiamy domyślny line-height dla całego panelu */
+#serverInfo {
+    line-height: 1; /* Możesz dostosować tę wartość, np. 1.5 lub 1.6 */
+}
+
+/* Informacje główne o serwerze */
+#serverInfo #serverInfo-members div, /* Data założenia, Członkowie */
+#serverInfo #serverInfo-boosts,      /* Boosty (to jest <p>) */
+#serverInfo #serverInfo-partnerships-count { /* Liczba partnerstw (to jest <p>) */
+    margin-top: 0;
+    margin-bottom: 10px; /* Ustaw spójny dolny margines, np. 10px */
+    padding: 2px 0; /* Dodaj mały padding góra/dół dla "oddechu" wewnątrz linii */
+    line-height: 0.75;
+}
+
+#closeServerInfo {
+    position: absolute; top: 5px; right: 5px; background: none; border: none;
+    color: #fff; font-size: 20px; cursor: pointer; z-index: 11;
+}
+
+#serverInfo h2 { /* Nazwa serwera */
+    margin: 0 0 10px 0; /* Zwiększony dolny margines */
+    font-size: 16px;
+    font-weight: normal;
+}
+
+#serverInfo h3 { /* Nagłówki sekcji np. "Partnerstwa:" */
+    margin-top: 20px; /* Zwiększony górny margines przed nagłówkiem sekcji */
+    margin-bottom: 8px; /* Odstęp po nagłówku sekcji, przed listą */
+}
+
+#serverInfo ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0; /* Usuń domyślny margines listy */
+}
+
+#serverInfo li { /* Elementy listy partnerów */
+    margin-bottom: 8px; /* Spójny dolny margines dla elementów listy */
+    padding-left: 0px;
+    position: relative;
+    font-weight: normal;
+    word-wrap: break-word;
+    /* line-height dziedziczony z #serverInfo */
+}
+
+#serverInfo li img {
+    height: 1em;
+    width: auto;
+    vertical-align: middle; /* Lepsze wyrównanie obrazków w liście */
+    margin: 0 2px;
+}
 
 #pageVersion {
 position: fixed; bottom: 10px; left: 10px; color: #fff; font-size: 12px; z-index: 10;
@@ -395,10 +449,36 @@ text-shadow: 0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5p
 #serverTable th.icon-header { font-size: 14px; text-align: center; }
 #serverTable th.icon-header img { height: 16px; width: auto; vertical-align: middle; margin: 0 2px; }
 #serverTable td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#serverTable th:nth-child(1), #serverTable td:nth-child(1) { width: 64%; }
-#serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 12%; text-align: right;}
-#serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 12%; text-align: right;}
-#serverTable th:nth-child(4), #serverTable td:nth-child(4) { width: 12%; text-align: right;}
+#serverTable th:nth-child(1), /* Miejsce (NOWA) */
+#serverTable td:nth-child(1) {
+width: 10%;  /* Szerokość dla kolumny Miejsca */
+text-align: right;
+}
+#serverTable th:nth-child(2), /* Nazwa */
+#serverTable td:nth-child(2) {
+width: 34%; /* Zmniejszono, aby zmieścić Miejsce */
+text-align: left; /* Nazwa wyrównana do lewej */
+}
+#serverTable th:nth-child(3), /* Data Założenia */
+#serverTable td:nth-child(3) {
+width: 20%;
+text-align: center;
+}
+#serverTable th:nth-child(4), /* Członkowie */
+#serverTable td:nth-child(4) {
+width: 12%;
+text-align: center;
+}
+#serverTable th:nth-child(5), /* Boosty */
+#serverTable td:nth-child(5) {
+width: 12%;
+text-align: center;
+}
+#serverTable th:nth-child(6), /* Partnerstwa */
+#serverTable td:nth-child(6) {
+width: 12%;
+text-align: center;
+}
 .sort-arrow { display: inline-block; margin-left: 3px; opacity: 0.5; font-size: 10px; line-height: 1; vertical-align: middle; text-shadow: 0.5px 0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px -0.5px 0 #000; }
 #serverTable th.sorted .sort-arrow { opacity: 1; }
 #serverTable tbody tr:last-child td { border-bottom: none; }
