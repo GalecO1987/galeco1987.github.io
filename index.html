@@ -68,7 +68,7 @@
     <h3>Filtrowanie:</h3>
     <div id="filterPanel">
       <div class="filter-item">
-        <label for="dateFilterMin">Data założenia:</label>
+        <label for="dateFilterMin">🗓️ Data założenia:</label>
         <div class="range-slider-container">
           <div class="range-track"></div>
           <div class="range-fill"></div>
@@ -82,7 +82,7 @@
       </div>
 
       <div class="filter-item">
-        <label for="memberFilterMin">Członkowie:</label>
+        <label for="memberFilterMin">👥 Członkowie:</label>
         <div class="range-slider-container">
           <div class="range-track"></div>
           <div class="range-fill"></div>
@@ -96,7 +96,9 @@
       </div>
 
       <div class="filter-item">
-        <label for="boostFilterMin">Boosty:</label>
+        <label for="boostFilterMin">
+          <img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: -0.15em; margin-right: 0.85em; position: relative; left: 5px;">Boosty:
+        </label>
         <div class="range-slider-container">
           <div class="range-track"></div>
           <div class="range-fill"></div>
@@ -110,7 +112,7 @@
       </div>
 
       <div class="filter-item">
-        <label for="partnershipFilterMin">Partnerstwa:</label>
+        <label for="partnershipFilterMin">🤝 Partnerstwa:</label>
         <div class="range-slider-container">
           <div class="range-track"></div>
           <div class="range-fill"></div>
@@ -134,7 +136,9 @@
         <table id="serverTable">
           <thead>
             <tr>
+              <th class="non-sortable icon-header" title="Miejsce">#</th>
               <th class="sortable" data-sort-by="id">Nazwa <span class="sort-arrow"></span></th>
+              <th class="sortable icon-header" data-sort-by="creationDate" title="Data Założenia">🗓️ <span class="sort-arrow"></span></th>
               <th class="sortable icon-header" data-sort-by="members" title="Członkowie">👥 <span class="sort-arrow"></span></th>
               <th class="sortable icon-header" data-sort-by="boosts" title="Boosty"><img src="images/boost-icon.png" alt="Boosty"> <span class="sort-arrow"></span></th>
               <th class="sortable icon-header" data-sort-by="partnerships" title="Partnerstwa">🤝 <span class="sort-arrow"></span></th>
@@ -161,7 +165,7 @@
     </div>
 
     <!-- Stopka podzielona na lewą i prawą część -->
-    <div id="pageVersion">Wersja strony: v0.16</div>
+    <div id="pageVersion">Wersja strony: v0.17</div>
 
     <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
