@@ -61,13 +61,13 @@ function convertDateFormat(dateString) {
 }
 
 function formatDate(dateObj) {
-    if (!dateObj || isNaN(dateObj)) return "-";
+    if (!dateObj || isNaN(dateObj.getTime())) return "-"; // Sprawdzamy getTime() dla pewności
     try {
         const day = String(dateObj.getDate()).padStart(2, '0');
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Miesiące są 0-indeksowane
         const year = dateObj.getFullYear();
-        if (year < 1970 || year > 2100) return "-";
-        return `${day}-${month}-${year}`;
+        if (year < 1970 || year > 2100) return "-"; // Podstawowa walidacja roku
+        return `${day}.${month}.${year}`; // Zmieniony format na kropki
     } catch (e) {
         return "-";
     }
@@ -81,13 +81,23 @@ function getNodeColor(node) {
     return boostScale(node.boosts || 0);
 }
 
+function parseDateString(dateStr_DDMMYYYY) {
+    if (typeof dateStr_DDMMYYYY !== 'string' || !/^\d{2}-\d{2}-\d{4}$/.test(dateStr_DDMMYYYY)) {
+        return null;
+    }
+    const parts = dateStr_DDMMYYYY.split('-');
+    // new Date(year, monthIndex, day)
+    const dateObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    return !isNaN(dateObj.getTime()) ? dateObj : null;
+}
+
 // === LOGIKA ŁADOWANIA DANYCH ===
 
 function loadDataVersion(versionInfo) {
     console.log(`Ładowanie danych z: ${versionInfo.file}`);
     loadedDataDateSpan.text("Ładowanie...");
     serverCountSpan.text("...");
-    serverTableBody.html("<tr><td colspan='4'>Ładowanie danych...</td></tr>");
+    serverTableBody.html("<tr><td colspan='6'>Ładowanie danych...</td></tr>"); // Zmieniono colspan z 5 na 6
     if (simulation) simulation.stop();
     g.selectAll("*").remove();
 
@@ -349,9 +359,7 @@ function handleNodeClick(event, d) {
 
     if (currentlyHighlighted === clickedNodeData) {
         serverInfoPanel.style("display", "none");
-        // *** DODANO: Usuń klasę przy zamykaniu przez ponowne kliknięcie ***
         document.body.classList.remove('mobile-info-active');
-        // -----------------------------------------------------------
         resetHighlight();
         currentlyHighlighted = null;
         return;
@@ -359,29 +367,32 @@ function handleNodeClick(event, d) {
     if (currentlyHighlighted) resetHighlight();
 
     currentlyHighlighted = clickedNodeData;
-    serverInfoPanel.style("display", "block"); // Pokazuje panel (CSS zadba o resztę)
-    // *** DODANO: Dodaj klasę do body, aby przełączyć widok na mobile ***
+    serverInfoPanel.style("display", "block");
     document.body.classList.add('mobile-info-active');
-    // ------------------------------------------------------------
 
-    // Reszta funkcji bez zmian...
     const partnershipsData = (clickedNodeData.partnerships || []).map(pId => currentDataSet.nodes.find(n => n.id === pId)).filter(p => p).sort((a, b) => (b.members || 0) - (a.members || 0));
     const serverColor = getNodeColor(clickedNodeData); d3.select("#serverInfo-name").style("color", serverColor).text(clickedNodeData.id);
     const serverInfoMembersDiv = d3.select("#serverInfo-members"); serverInfoMembersDiv.selectAll("*").remove();
-    calculateRanks(currentDataSet.nodes);
-    serverInfoMembersDiv.append("div").text(`Data założenia: ${clickedNodeData.creationDate}`);
-    serverInfoMembersDiv.append("div").text(`Członkowie: ${clickedNodeData.members || 0} (miejsce #${clickedNodeData.memberRank || '?'})`);
-    d3.select("#serverInfo-boosts").text(`Boosty: ${clickedNodeData.boosts || 0} (miejsce #${clickedNodeData.boostRank || '?'})`);
-    d3.select("#serverInfo-partnerships-count").text(`Liczba partnerstw: ${partnershipsData.length} (miejsce #${clickedNodeData.partnershipRank || '?'})`);
+    // calculateRanks(currentDataSet.nodes); // Rankingi nie są już tu potrzebne do wyświetlania
+
+    const creationDateObj = parseDateString(clickedNodeData.creationDate);
+    serverInfoMembersDiv.append("div").html(`🗓️ Data założenia: ${formatDate(creationDateObj)}`);
+    serverInfoMembersDiv.append("div").html(`👥 Członkowie: ${clickedNodeData.members || 0}`); // USUNIĘTO RANKING
+
+    const boostIconHtmlLarge = `<img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: -0.15em; margin-right: 0.575em; position: relative; left: 5px;">`;
+    d3.select("#serverInfo-boosts").html(`${boostIconHtmlLarge} Boosty: ${clickedNodeData.boosts || 0}`); // USUNIĘTO RANKING
+
+    d3.select("#serverInfo-partnerships-count").html(`🤝 Liczba partnerstw: ${partnershipsData.length}`); // USUNIĘTO RANKING
+
     let partnershipsHtml = "";
     if(partnershipsData.length > 0){
         partnershipsData.forEach(p => {
             const pCol = getNodeColor(p);
             const isVis = currentFilteredNodes.some(n => n.id === p.id);
-            const boostIconHtml = `<img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: middle; margin: 0 2px;">`;
+            const boostIconPartnerHtml = `<img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: middle; margin: 0 0.2em 0 0; position: relative; left: 1px;">`;
             const partnerPartnershipCount = (p.partnerships || []).length;
             partnershipsHtml += `<li style="color:${isVis?pCol:'#888'};cursor:${isVis?'pointer':'default'};" data-partner-id="${p.id}" data-visible="${isVis}">
-            ${p.id} (👥 ${p.members||0}, ${boostIconHtml} ${p.boosts||0}, 🤝 ${partnerPartnershipCount})
+            ${p.id} (👥 ${p.members||0}, ${boostIconPartnerHtml} ${p.boosts||0}, 🤝 ${partnerPartnershipCount})
             ${!isVis?' [ukryty]':''}</li>`;
         });
     } else { partnershipsHtml="<li>Brak partnerstw</li>"; }
@@ -455,8 +466,20 @@ function handleNodeMouseOver(event, d) {
     if (!d) return;
     if (event && event.target.tagName === 'circle') {
         const tooltip = d3.select(".tooltip"); const fullDataNode = currentDataSet.nodes.find(n => n.id === d.id);
-        if(fullDataNode){ calculateRanks(currentDataSet.nodes); tooltip.style("display", "block").html(`<strong>${fullDataNode.id}</strong><br>Data założenia: ${fullDataNode.creationDate}<br>Członkowie: ${fullDataNode.members || 0} (#${fullDataNode.memberRank||'?'})<br>Boosty: ${fullDataNode.boosts || 0} (#${fullDataNode.boostRank||'?'})<br>Partnerstwa: ${(fullDataNode.partnerships||[]).length} (#${fullDataNode.partnershipRank||'?'})`).style("left", (event.pageX+10)+"px").style("top",(event.pageY-28)+"px"); }
-        else { tooltip.style("display", "none"); }
+        if(fullDataNode){
+            // calculateRanks(currentDataSet.nodes); // Rankingi nie są już tu potrzebne do wyświetlania
+            const creationDateObj = parseDateString(fullDataNode.creationDate);
+            const boostIconHtml = `<img src="images/boost-icon.png" alt="Boosty" style="height: 0.9em; width: auto; vertical-align: -0.1em; margin-right: 0.65em; position: relative; left: 5px;">`;
+            tooltip.style("display", "block").html(
+                `<strong>${fullDataNode.id}</strong><br>` +
+                `🗓️ Data założenia: ${formatDate(creationDateObj)}<br>` +
+                `👥 Członkowie: ${fullDataNode.members || 0}<br>` + // USUNIĘTO RANKING
+                `${boostIconHtml} Boosty: ${fullDataNode.boosts || 0}<br>` + // USUNIĘTO RANKING
+                `🤝 Partnerstwa: ${(fullDataNode.partnerships||[]).length}` // USUNIĘTO RANKING
+            ).style("left", (event.pageX+10)+"px").style("top",(event.pageY-28)+"px");
+        } else {
+            tooltip.style("display", "none");
+        }
     }
     highlightHovered(d, true);
 }
@@ -680,22 +703,97 @@ function updateServerTable(nodesForTable, searchTerm = "") {
     const nodesToDisplay = nodesForTable.filter(node =>
     node.id.toLowerCase().includes(searchTerm)
     );
+
+    // Sortowanie odbywa się tutaj
     const sortedNodes = [...nodesToDisplay].sort((a, b) => {
-        let valA, valB; switch (currentSortKey) { case 'id': valA=a.id.toLowerCase(); valB=b.id.toLowerCase(); break; case 'members': valA=a.members||0; valB=b.members||0; break; case 'boosts': valA=a.boosts||0; valB=b.boosts||0; break; case 'partnerships': valA=(a.partnerships||[]).length; valB=(b.partnerships||[]).length; break; default: return 0; }
-        if(currentSortDirection==='asc'){return typeof valA==='string'?valA.localeCompare(valB):valA-valB;}else{return typeof valA==='string'?valB.localeCompare(valA):valB-valA;}
+        let valA, valB;
+        switch (currentSortKey) {
+            case 'id':
+                valA = a.id.toLowerCase(); valB = b.id.toLowerCase();
+                break;
+            case 'creationDate':
+                valA = parseDateString(a.creationDate);
+                valB = parseDateString(b.creationDate);
+                if (valA === null && valB === null) { valA = 0; valB = 0; }
+                else if (valA === null) { valA = (currentSortDirection === 'asc' ? new Date(8.64e15) : new Date(-8.64e15)); }
+                else if (valB === null) { valB = (currentSortDirection === 'asc' ? new Date(8.64e15) : new Date(-8.64e15)); }
+                break;
+            case 'members':
+                valA = a.members || 0; valB = b.members || 0;
+                break;
+            case 'boosts':
+                valA = a.boosts || 0; valB = b.boosts || 0;
+                break;
+            case 'partnerships':
+                valA = (a.partnerships || []).length; valB = (b.partnerships || []).length;
+                break;
+            default: return 0;
+        }
+        if (currentSortDirection === 'asc') {
+            // Dla sortowania rosnącego (najmniejsze/najmłodsze pierwsze)
+            // Chcemy, aby miały większe numery miejsc, więc odwracamy logikę sortowania dla rankingu
+            // ale dla samego sortowania danych zostawiamy jak jest.
+            // Ranking będzie liczony po posortowaniu.
+            return typeof valA === 'string' ? valA.localeCompare(valB) : (valA instanceof Date ? valA - valB : valA - valB);
+        } else {
+            // Dla sortowania malejącego (największe/najstarsze pierwsze)
+            return typeof valA === 'string' ? valB.localeCompare(valA) : (valB instanceof Date ? valB - valA : valB - valA);
+        }
     });
+
     serverTableBody.html("");
     visibleServerCountSpan.text(sortedNodes.length);
-    serverTableHeaders.each(function() { const h=d3.select(this); const sk=h.attr('data-sort-by'); const as=h.select('.sort-arrow'); if(!as.node())return; if(sk===currentSortKey){h.classed('sorted',true); as.text(currentSortDirection==='asc'?'▲':'▼');}else{h.classed('sorted',false); as.text('');} });
-    sortedNodes.forEach(node => {
+
+    serverTableHeaders.each(function() {
+        const h = d3.select(this);
+        const sk = h.attr('data-sort-by');
+        const as = h.select('.sort-arrow');
+        if (!as.node()) return; // Pomiń nagłówek Miejsca, bo nie jest sortowalny
+        if (h.classed('non-sortable')) return; // Pomiń, jeśli ma klasę non-sortable
+
+        if (sk === currentSortKey) {
+            h.classed('sorted', true);
+            as.text(currentSortDirection === 'asc' ? '▲' : '▼');
+        } else {
+            h.classed('sorted', false);
+            as.text('');
+        }
+    });
+
+    // Generowanie wierszy tabeli z numeracją miejsc
+    sortedNodes.forEach((node, index) => {
         const row = serverTableBody.append("tr").datum(node).classed("table-row-highlighted-search", false);
+
+        // Kolumna Miejsca
+        row.append("td").text(`#${index + 1}`).style("text-align", "right"); // Dodajemy # i numer miejsca
+
         row.append("td").text(node.id).attr("title", node.id);
+
+        const creationDateObj = parseDateString(node.creationDate);
+        row.append("td").text(formatDate(creationDateObj)).style("text-align", "right");
+
         row.append("td").text(node.members || 0);
         row.append("td").text(node.boosts || 0);
         row.append("td").text((node.partnerships || []).length);
-        row.on("click", (event, d) => { const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id); if (nodeOnMap) { handleNodeClick(event, nodeOnMap); } else { searchServer(d.id); } });
-        row.on("mouseover", (event, d) => { hoveredTableRowNodeId = d.id; const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id); if (nodeOnMap) highlightHovered(nodeOnMap, true); });
-        row.on("mouseout", (event, d) => { if (hoveredTableRowNodeId === d.id) hoveredTableRowNodeId = null; const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id); if (nodeOnMap) highlightHovered(nodeOnMap, false); });
+
+        row.on("click", (event, d) => {
+            const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id);
+            if (nodeOnMap) {
+                handleNodeClick(event, nodeOnMap);
+            } else {
+                searchServer(d.id);
+            }
+        });
+        row.on("mouseover", (event, d) => {
+            hoveredTableRowNodeId = d.id;
+            const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id);
+            if (nodeOnMap) highlightHovered(nodeOnMap, true);
+        });
+            row.on("mouseout", (event, d) => {
+                if (hoveredTableRowNodeId === d.id) hoveredTableRowNodeId = null;
+                const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id);
+                if (nodeOnMap) highlightHovered(nodeOnMap, false);
+            });
     });
 }
 
