@@ -111,7 +111,8 @@ window.loadedDataSet = {
         { id: "Futrzana Strefa Polska", creationDate: "23 kwietnia 2025", members: 23, boosts: 2, partnerships: ["Planeta Futrzaków"]},
         { id: "Shadow Fox", creationDate: "14 grudnia 2021", members: 146, boosts: 1, partnerships: ["New Foxing Town", "Planeta Futrzaków", "Futrzaki na Fali", "Futrzasta Oceania", "Furrasowy Hellfire", "Futrzasty Serwer", "Rasowe Stado"]},
         { id: "Rasowe Stado", creationDate: "12 lutego 2021", members: 935, boosts: 17, partnerships: ["Gwiazdeczki Cosmiego", "Futrzaki na Fali", "New Foxing Town", "Planeta Futrzaków", "Shadow Fox", "Futrzasta Chatka"]},
-        { id: "Nasze Skromne Grono", creationDate: "2 marca 2025", members: 46, boosts: 0, partnerships: ["Futrzaki na Fali"]}
+        { id: "Nasze Skromne Grono", creationDate: "2 marca 2025", members: 46, boosts: 0, partnerships: ["Futrzaki na Fali"]},
+        { id: "Łuskata Ostoya", creationDate: "5 maja 2025", members: 8, boosts: 0, partnerships: []}
     ],
     links: []
 };
