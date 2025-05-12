@@ -114,7 +114,8 @@ window.loadedDataSet = {
         { id: "Nasze Skromne Grono", creationDate: "2 marca 2025", members: 46, boosts: 0, partnerships: ["Futrzaki na Fali"]},
         { id: "Łuskata Ostoya", creationDate: "5 maja 2025", members: 8, boosts: 0, partnerships: []},
         { id: "Niedojeby Umysłowe", creationDate: "14 sierpnia 2023", members: 144, boosts: 10, partnerships: []},
-        { id: "Lisiasta Wyspa", creationDate: "17 października 2021", members: 78, boosts: 0, partnerships: []}
+        { id: "Lisiasta Wyspa", creationDate: "17 października 2021", members: 78, boosts: 0, partnerships: []},
+        { id: "Pysiolandia", creationDate: "26 lipca 2018", members: 785, boosts: 0, partnerships: []}
     ],
     links: []
 };
