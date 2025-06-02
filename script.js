@@ -29,6 +29,7 @@ let resizeTimer;
 let radiusScale;
 
 const availableDataVersions = [
+    { date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
     { date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
     { date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
 ];
