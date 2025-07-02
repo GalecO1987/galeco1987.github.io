@@ -48,21 +48,25 @@
   </div>
 
 <div id="leftPanel">
-    <!-- Usunięto klasę mobile-hidden -->
     <div id="pageTitle">Mapa polskich serwerów furry</div>
-    <!-- Usunięto klasę mobile-hidden -->
-    <button id="resetButton">Resetuj Mapę</button>
 
-    <!-- Przeniesiony mobilny selektor wersji danych -->
-    <div class="data-version-selector-container desktop-hidden">
-        <label for="dataVersionSelectorMobile">Wersja danych:</label>
-        <select id="dataVersionSelectorMobile"></select>
+    <!-- NOWY KONTENER NA GÓRNE PRZYCISKI (WERSJA DESKTUPOWA) -->
+    <div id="topControlsContainer" class="mobile-hidden">
+        <div class="data-version-selector-container">
+            <label for="dataVersionSelector">Wersja danych:</label>
+            <select id="dataVersionSelector"></select>
+        </div>
+        <button id="resetButton">Resetuj Mapę</button>
     </div>
 
-    <!-- Stacjonarny (desktopowy) selektor wersji danych - klasa mobile-hidden ukrywa go na mobile -->
-    <div class="data-version-selector-container mobile-hidden">
-        <label for="dataVersionSelector">Wersja danych:</label>
-        <select id="dataVersionSelector"></select>
+    <!-- Zaktualizowany kontener na mobilne przyciski -->
+    <div class="desktop-hidden">
+        <div class="data-version-selector-container">
+            <label for="dataVersionSelectorMobile">Wersja danych:</label>
+            <select id="dataVersionSelectorMobile"></select>
+        </div>
+        <!-- Przycisk resetu na mobile pozostaje osobno dla lepszej użyteczności -->
+        <button id="resetButtonMobile" class="reset-button-mobile">Resetuj Mapę</button>
     </div>
 
     <h3>Filtrowanie:</h3>
@@ -165,7 +169,7 @@
     </div>
 
     <!-- Stopka podzielona na lewą i prawą część -->
-    <div id="pageVersion">Wersja strony: v0.17</div>
+    <div id="pageVersion">Wersja strony: v0.18</div>
 
     <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
