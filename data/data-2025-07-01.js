@@ -121,7 +121,8 @@ window.loadedDataSet = {
         { id: "FurCafe", creationDate: "22 maja 2025", members: 28, boosts: 0, partnerships: ["Woodhood City RP"]},
         { id: "Płomienna Chatka Chan", creationDate: "12 lipca 2022", members: 55, boosts: 0, partnerships: []},
         { id: "Stacja: Futro", creationDate: "20 czerwca 2025", members: 25, boosts: 7, partnerships: []},
-        { id: "MyFurCity", creationDate: "21 sierpnia 2024", members: 71, boosts: 0, partnerships: ["Futerkowy Las"]}
+        { id: "MyFurCity", creationDate: "21 sierpnia 2024", members: 71, boosts: 0, partnerships: ["Futerkowy Las"]},
+        { id: "Apach camp", creationDate: "27 lipca 2024", members: 18, boosts: 0, partnerships: []}
     ],
     links: []
 };
