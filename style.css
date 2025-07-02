@@ -270,42 +270,42 @@ box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 #closeServerInfo {
-position: absolute;
-top: 15px;
-right: 15px;
-background: #333;
-border: none;
-color: #fff;
-font-size: 16px;
-cursor: pointer;
-z-index: 16;
-border-radius: 50%;
-width: 28px;
-height: 28px;
-line-height: 28px;
-text-align: center;
-transition: background-color 0.2s;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #333;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 16;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    transition: background-color 0.2s;
 }
 #closeServerInfo:hover { background-color: #555; }
 
 #serverInfo h3 {
-margin: 0; font-size: 12px; font-weight: normal;
-text-transform: uppercase; color: #888; margin-bottom: 8px; padding-top: 0;
+    margin: 0; font-size: 12px; font-weight: normal;
+    text-transform: uppercase; color: #888; margin-bottom: 8px; padding-top: 0;
 }
 #serverInfo h3:not(:first-of-type) {
-margin-top: 25px; padding-top: 15px; border-top: 1px solid #333;
+    margin-top: 25px; padding-top: 15px; border-top: 1px solid #333;
 }
 #serverInfo #serverInfo-name {
-margin: 0 0 20px 0; font-size: 22px; font-weight: bold; line-height: 1.2;
+    margin: 0 0 20px 0; font-size: 22px; font-weight: bold; line-height: 1.2;
 }
 #serverInfo .server-stat-line {
-display: flex;
-align-items: baseline;
-font-size: 14px; margin-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    font-size: 14px; margin-bottom: 12px;
 }
 #serverInfo .stat-label {
-font-weight: bold;
-margin-right: 5px;
+    font-weight: bold;
+    margin-right: 5px;
 }
 .server-stat-line .stat-icon {
     display: inline-flex; align-items: center; justify-content: center;
@@ -380,8 +380,13 @@ text-shadow: 1px 1px 2px #000;
 .desktop-hidden { display: none; }
 
 @media (max-width: 768px) {
-    #topControlsContainer { display: none; }
+    /* OSTATNIA POPRAWKA: Ukrycie tooltipa na mobile */
+    .tooltip {
+        display: none !important;
+    }
 
+    #topControlsContainer { display: none; }
+    
     .reset-button-mobile {
         width: 100%; padding: 8px 10px; background-color: #4CAF50;
         color: white; border: none; cursor: pointer; border-radius: 8px;
@@ -393,7 +398,6 @@ text-shadow: 1px 1px 2px #000;
     bottom: 0;
     left: 0;
     right: 0;
-    /* WAŻNA POPRAWKA: Zmiana sposobu ustawiania szerokości */
     width: auto;
     max-width: 100%;
     max-height: 45vh;
@@ -426,17 +430,17 @@ text-shadow: 1px 1px 2px #000;
         background-color: transparent;
     }
     #serverTable {
-    font-size: 13px; /* Zmniejszona czcionka dla lepszego dopasowania */
+    font-size: 13px;
     border: 1px solid #444;
     border-radius: 8px;
     overflow: hidden;
     }
     #serverTable th, #serverTable td {
-    white-space: nowrap; /* Przywracamy nowrap, szerokość kolumn załatwi resztę */
-    padding: 10px 5px; /* Mniejszy padding boczny */
+    white-space: nowrap;
+    padding: 10px 5px;
     }
 
-    /* NOWE SZEROKOŚCI KOLUMN DLA MOBILE */
+    /* Szerokości kolumn dla mobile z Twoimi poprawkami */
     #serverTable th:nth-child(1), #serverTable td:nth-child(1) { width: 11%; }
     #serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 24%; }
     #serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 23%; }
@@ -447,7 +451,7 @@ text-shadow: 1px 1px 2px #000;
 
     #serverInfo {
     position: absolute; bottom: 0; left: 0; right: 0; width: 100%;
-    max-height: 50vh; /* Zmniejszona wysokość */
+    max-height: 50vh;
     overflow-y: auto; background-color: rgba(10, 10, 10, 0.98);
     border-top: 1px solid #444; border-radius: 0;
     padding: 15px; padding-top: 45px; box-sizing: border-box;
@@ -466,6 +470,6 @@ text-shadow: 1px 1px 2px #000;
     #disclaimer { padding: 10px; font-size: 0.9em; max-width: 95%; margin: 10px auto; }
     #disclaimer h2 { font-size: 1.1em; }
     #disclaimer button { font-size: 1em; padding: 8px 16px; }
-    #leftPanel, #serverInfo { max-height: 50vh; } /* Zwiększamy trochę na najmniejszych ekranach */
+    #leftPanel, #serverInfo { max-height: 50vh; }
     #pageTitle { font-size: 18px; }
 }
