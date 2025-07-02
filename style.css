@@ -438,9 +438,9 @@ text-shadow: 1px 1px 2px #000;
 
     /* NOWE SZEROKOŚCI KOLUMN DLA MOBILE */
     #serverTable th:nth-child(1), #serverTable td:nth-child(1) { width: 10%; }
-    #serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 30%; }
-    #serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 21%; }
-    #serverTable th:nth-child(4), #serverTable td:nth-child(4) { width: 15%; }
+    #serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 25%; }
+    #serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 23%; }
+    #serverTable th:nth-child(4), #serverTable td:nth-child(4) { width: 18%; }
     #serverTable th:nth-child(5), #serverTable td:nth-child(5) { width: 12%; }
     #serverTable th:nth-child(6), #serverTable td:nth-child(6) { width: 12%; }
 
