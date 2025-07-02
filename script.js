@@ -16,6 +16,7 @@ let currentSortKey = 'members';
 let currentSortDirection = 'desc';
 let currentFilteredNodes = [];
 let currentDataSet = { nodes: [], links: [] };
+let previousDataSet = { nodes: [], links: [] }; // Do przechowywania danych z poprzedniego miesiąca
 let minDateObj, maxDateObj;
 let dateRange = 0;
 let simulation;
@@ -30,9 +31,9 @@ let radiusScale;
 
 const availableDataVersions = [
     { date: "2025-07-01", file: "data/data-2025-07-01.js", label: "1 lipca 2025" },
-    { date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
-    { date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
-    { date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
+{ date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
+{ date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
+{ date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
 ];
 
 // === FUNKCJE POMOCNICZE ===
@@ -63,13 +64,13 @@ function convertDateFormat(dateString) {
 }
 
 function formatDate(dateObj) {
-    if (!dateObj || isNaN(dateObj.getTime())) return "-"; // Sprawdzamy getTime() dla pewności
+    if (!dateObj || isNaN(dateObj.getTime())) return "-";
     try {
         const day = String(dateObj.getDate()).padStart(2, '0');
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Miesiące są 0-indeksowane
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
         const year = dateObj.getFullYear();
-        if (year < 1970 || year > 2100) return "-"; // Podstawowa walidacja roku
-        return `${day}.${month}.${year}`; // Zmieniony format na kropki
+        if (year < 1970 || year > 2100) return "-";
+        return `${day}.${month}.${year}`;
     } catch (e) {
         return "-";
     }
@@ -88,47 +89,66 @@ function parseDateString(dateStr_DDMMYYYY) {
         return null;
     }
     const parts = dateStr_DDMMYYYY.split('-');
-    // new Date(year, monthIndex, day)
     const dateObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
     return !isNaN(dateObj.getTime()) ? dateObj : null;
 }
 
 // === LOGIKA ŁADOWANIA DANYCH ===
 
-function loadDataVersion(versionInfo) {
+async function loadDataVersion(versionInfo) {
     console.log(`Ładowanie danych z: ${versionInfo.file}`);
     loadedDataDateSpan.text("Ładowanie...");
     serverCountSpan.text("...");
-    serverTableBody.html("<tr><td colspan='6'>Ładowanie danych...</td></tr>"); // Zmieniono colspan z 5 na 6
+    serverTableBody.html("<tr><td colspan='6'>Ładowanie danych...</td></tr>");
     if (simulation) simulation.stop();
     g.selectAll("*").remove();
 
-    const oldScript = document.getElementById('dynamicDataScript');
-    if (oldScript) oldScript.remove();
-    delete window.loadedDataSet;
+    previousDataSet = { nodes: [], links: [] };
 
-    const script = document.createElement('script');
-    script.id = 'dynamicDataScript';
-    script.src = versionInfo.file;
-    script.async = true;
+    const currentIndex = availableDataVersions.findIndex(v => v.file === versionInfo.file);
+    const previousIndex = currentIndex + 1;
 
-    script.onload = () => {
-        console.log(`Pomyślnie załadowano: ${versionInfo.file}`);
-        if (window.loadedDataSet) {
-            initializeVisualization(window.loadedDataSet, versionInfo);
-            delete window.loadedDataSet;
-            script.remove();
-        } else {
-            console.error("Błąd: Plik danych załadowany, ale obiekt window.loadedDataSet nie został znaleziony.");
-            loadedDataDateSpan.text("Błąd ładowania!");
+    const loadScript = (file) => {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = file;
+            script.async = true;
+            script.onload = () => {
+                if (window.loadedDataSet) {
+                    const data = window.loadedDataSet;
+                    window.loadedDataSet = null; // Czyszczenie globalnej zmiennej
+                    script.remove();
+                    resolve(data);
+                } else {
+                    script.remove();
+                    reject(new Error(`Błąd: Plik danych ${file} nie zdefiniował window.loadedDataSet.`));
+                }
+            };
+            script.onerror = () => {
+                script.remove();
+                reject(new Error(`Błąd ładowania skryptu: ${file}`));
+            };
+            document.body.appendChild(script);
+        });
+    };
+
+    try {
+        const currentData = await loadScript(versionInfo.file);
+
+        if (previousIndex < availableDataVersions.length) {
+            console.log(`Ładowanie danych porównawczych z: ${availableDataVersions[previousIndex].file}`);
+            const previousData = await loadScript(availableDataVersions[previousIndex].file);
+            previousDataSet = previousData;
         }
-    };
-    script.onerror = (error) => {
-        console.error(`Błąd ładowania skryptu: ${versionInfo.file}`, error);
+
+        initializeVisualization(currentData, versionInfo);
+
+    } catch (error) {
+        console.error("Błąd podczas ładowania wersji danych:", error);
         loadedDataDateSpan.text("Błąd ładowania!");
-    };
-    document.body.appendChild(script);
+    }
 }
+
 
 function populateDataVersionSelector(selectedVersionFile) {
     const options = availableDataVersions.map(v =>
@@ -181,7 +201,7 @@ function initializeVisualization(dataSet, versionInfo) {
     console.log(`Przetworzono ${currentDataSet.nodes.length} węzłów i ${currentDataSet.links.length} linków.`);
 
     calculateFilterRanges();
-    initializeFilters(); // To również podpina listenery do suwaków
+    initializeFilters();
     calculateRanks(currentDataSet.nodes);
 
     currentFilteredNodes = [...currentDataSet.nodes];
@@ -210,17 +230,12 @@ function initializeVisualization(dataSet, versionInfo) {
     populateDataVersionSelector(versionInfo.file);
 }
 
-
 // === FUNKCJE D3 I WIZUALIZACJI ===
 
 function calculateFilterRanges() {
     const validDates = currentDataSet.nodes
-    .map(d => {
-        if (typeof d.creationDate !== 'string' || !/^\d{2}-\d{2}-\d{4}$/.test(d.creationDate)) return null;
-        const parts = d.creationDate.split("-"); const dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        const dateObj = new Date(dateStr); return !isNaN(dateObj.getTime()) ? dateObj : null;
-    })
-    .filter(dStr => dStr !== null);
+    .map(d => parseDateString(d.creationDate))
+    .filter(d => d !== null);
     if (validDates.length > 0) {
         minDateObj = new Date(d3.min(validDates)); maxDateObj = new Date(d3.max(validDates));
         if (!(minDateObj instanceof Date) || isNaN(minDateObj)) minDateObj = new Date();
@@ -248,9 +263,7 @@ function setupSVGAndView() {
         if (!clickedOnNode && !clickedOnServerInfo && !clickedOnLeftPanel) {
             if (currentlyHighlighted) {
                 serverInfoPanel.style("display", "none");
-                // *** DODANO: Usuń klasę przy kliknięciu tła ***
                 document.body.classList.remove('mobile-info-active');
-                // ------------------------------------------
                 resetHighlight();
                 currentlyHighlighted = null;
             }
@@ -265,14 +278,7 @@ function setupSimulation() {
     }
     if (!radiusScale) { console.error("setupSimulation: radiusScale nie zdefiniowana!"); return; }
     simulation = d3.forceSimulation(currentDataSet.nodes)
-    .force("link", d3.forceLink(currentDataSet.links).id(d => d.id).distance(d => {
-        const sourceNode = typeof d.source === 'object' ? d.source : currentDataSet.nodes.find(n => n.id === d.source);
-        const targetNode = typeof d.target === 'object' ? d.target : currentDataSet.nodes.find(n => n.id === d.target);
-        if (sourceNode && targetNode && sourceNode.partnerships && targetNode.partnerships) {
-            const isPartner = sourceNode.partnerships.includes(targetNode.id) || (targetNode.partnerships && targetNode.partnerships.includes(sourceNode.id));
-            return isPartner ? 30 : 150;
-        } return 150;
-    }).strength(0.1))
+    .force("link", d3.forceLink(currentDataSet.links).id(d => d.id).distance(150).strength(0.1))
     .force("charge", d3.forceManyBody().strength(-1500))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(d => radiusScale(d.members || 0) + 5))
@@ -324,18 +330,9 @@ function drawGraph(nodesToDraw, linksToDraw, initialAlpha = 1, stopDelay = 1000)
 
 function ticked() {
     if (!radiusScale) return;
-    g.selectAll(".node")
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y);
-    g.selectAll(".link")
-    .filter(d => d.source && d.target)
-    .attr("x1", d => d.source.x)
-    .attr("y1", d => d.source.y)
-    .attr("x2", d => d.target.x)
-    .attr("y2", d => d.target.y);
-    g.selectAll(".node-label")
-    .attr("x", d => d.x)
-    .attr("y", d => d.y - radiusScale(d.members || 0) - 5);
+    g.selectAll(".node").attr("cx", d => d.x).attr("cy", d => d.y);
+    g.selectAll(".link").filter(d => d.source && d.target).attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+    g.selectAll(".node-label").attr("x", d => d.x).attr("y", d => d.y - radiusScale(d.members || 0) - 5);
 }
 
 // === OBSŁUGA INTERAKCJI ===
@@ -373,32 +370,70 @@ function handleNodeClick(event, d) {
     document.body.classList.add('mobile-info-active');
 
     const partnershipsData = (clickedNodeData.partnerships || []).map(pId => currentDataSet.nodes.find(n => n.id === pId)).filter(p => p).sort((a, b) => (b.members || 0) - (a.members || 0));
-    const serverColor = getNodeColor(clickedNodeData); d3.select("#serverInfo-name").style("color", serverColor).text(clickedNodeData.id);
-    const serverInfoMembersDiv = d3.select("#serverInfo-members"); serverInfoMembersDiv.selectAll("*").remove();
-    // calculateRanks(currentDataSet.nodes); // Rankingi nie są już tu potrzebne do wyświetlania
+    const serverColor = getNodeColor(clickedNodeData);
+    d3.select("#serverInfo-name").style("color", serverColor).text(clickedNodeData.id);
+
+    // --- LOGIKA PORÓWNYWANIA DANYCH ---
+    const previousNodeData = previousDataSet.nodes.find(n => n.id === clickedNodeData.id);
+
+    const formatDelta = (delta) => {
+        if (delta > 0) return `<span class="stat-delta positive">(+${delta})</span>`;
+        if (delta < 0) return `<span class="stat-delta negative">(${delta})</span>`;
+        return '';
+    };
+
+    let membersDeltaHtml = '', boostsDeltaHtml = '', partnershipsDeltaHtml = '';
+
+    if (previousNodeData) {
+        const membersDelta = (clickedNodeData.members || 0) - (previousNodeData.members || 0);
+        membersDeltaHtml = formatDelta(membersDelta);
+        const boostsDelta = (clickedNodeData.boosts || 0) - (previousNodeData.boosts || 0);
+        boostsDeltaHtml = formatDelta(boostsDelta);
+        const partnershipsDelta = (clickedNodeData.partnerships || []).length - (previousNodeData.partnerships || []).length;
+        partnershipsDeltaHtml = formatDelta(partnershipsDelta);
+    }
+    // --- KONIEC LOGIKI PORÓWNYWANIA ---
 
     const creationDateObj = parseDateString(clickedNodeData.creationDate);
-    serverInfoMembersDiv.append("div").html(`🗓️ Data założenia: ${formatDate(creationDateObj)}`);
-    serverInfoMembersDiv.append("div").html(`👥 Członkowie: ${clickedNodeData.members || 0}`); // USUNIĘTO RANKING
+    const serverInfoMembersDiv = d3.select("#serverInfo-members");
+    serverInfoMembersDiv.selectAll("*").remove();
 
-    const boostIconHtmlLarge = `<img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: -0.15em; margin-right: 0.575em; position: relative; left: 5px;">`;
-    d3.select("#serverInfo-boosts").html(`${boostIconHtmlLarge} Boosty: ${clickedNodeData.boosts || 0}`); // USUNIĘTO RANKING
+    serverInfoMembersDiv.append("div").attr('class', 'server-stat-line')
+    .html(`<span class="stat-icon">🗓️</span><span class="stat-label">Data założenia:</span> ${formatDate(creationDateObj)}`);
 
-    d3.select("#serverInfo-partnerships-count").html(`🤝 Liczba partnerstw: ${partnershipsData.length}`); // USUNIĘTO RANKING
+    serverInfoMembersDiv.append("div").attr('class', 'server-stat-line')
+    .html(`<span class="stat-icon">👥</span><span class="stat-label">Członkowie:</span> ${clickedNodeData.members || 0} ${membersDeltaHtml}`);
+
+    d3.select("#serverInfo-boosts").attr('class', 'server-stat-line')
+    .html(`<span class="stat-icon"><img src="images/boost-icon.png" alt="Boosty"></span><span class="stat-label">Boosty:</span> ${clickedNodeData.boosts || 0} ${boostsDeltaHtml}`);
+
+    d3.select("#serverInfo-partnerships-count").attr('class', 'server-stat-line')
+    .html(`<span class="stat-icon">🤝</span><span class="stat-label">Liczba partnerstw:</span> ${partnershipsData.length} ${partnershipsDeltaHtml}`);
 
     let partnershipsHtml = "";
-    if(partnershipsData.length > 0){
+    if (partnershipsData.length > 0) {
         partnershipsData.forEach(p => {
             const pCol = getNodeColor(p);
             const isVis = currentFilteredNodes.some(n => n.id === p.id);
-            const boostIconPartnerHtml = `<img src="images/boost-icon.png" alt="Boosty" style="height: 1em; width: auto; vertical-align: middle; margin: 0 0.2em 0 0; position: relative; left: 1px;">`;
             const partnerPartnershipCount = (p.partnerships || []).length;
-            partnershipsHtml += `<li style="color:${isVis?pCol:'#888'};cursor:${isVis?'pointer':'default'};" data-partner-id="${p.id}" data-visible="${isVis}">
-            ${p.id} (👥 ${p.members||0}, ${boostIconPartnerHtml} ${p.boosts||0}, 🤝 ${partnerPartnershipCount})
-            ${!isVis?' [ukryty]':''}</li>`;
+            partnershipsHtml += `
+            <li data-partner-id="${p.id}" data-visible="${isVis}">
+            <span class="partner-name" style="color: ${isVis ? pCol : '#888'};">
+            ${p.id} ${!isVis ? '<span style="font-size: 0.8em; color: #777;">[ukryty]</span>' : ''}
+            </span>
+            <span class="partner-stats">
+            <span><span class="partner-icon">👥</span> ${p.members || 0}</span>
+            <span><img src="images/boost-icon.png" alt="Boosty" class="partner-icon"> ${p.boosts || 0}</span>
+            <span><span class="partner-icon">🤝</span> ${partnerPartnershipCount}</span>
+            </span>
+            </li>
+            `;
         });
-    } else { partnershipsHtml="<li>Brak partnerstw</li>"; }
+    } else {
+        partnershipsHtml = `<li style="justify-content: center; background: none; color: #888;">Brak partnerstw</li>`;
+    }
     d3.select("#serverInfo-partnerships-list").html(partnershipsHtml);
+
     highlightNodeAndLinks(clickedNodeData);
     const scale = 0.6; const targetX = d.x || window.innerWidth / 2; const targetY = d.y || window.innerHeight / 2;
     const transform = d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(scale).translate(-targetX, -targetY);
@@ -423,7 +458,6 @@ function searchServer(serverId) {
 function highlightTableRow(nodeId, highlight = true) {
     serverTableBody.selectAll('tr').filter(rowData => rowData && rowData.id === nodeId).classed('table-row-highlighted-search', highlight);
 }
-// CSS: tr.table-row-highlighted-search td { background-color: rgba(100, 180, 255, 0.3); }
 
 function highlightNodeAndLinks(d) {
     if (!d) return; const connectedNodeIds = new Set([d.id]); (d.partnerships || []).forEach(pId => connectedNodeIds.add(pId)); currentDataSet.nodes.forEach(n => { if((n.partnerships || []).includes(d.id)) connectedNodeIds.add(n.id); });
@@ -434,12 +468,49 @@ function highlightNodeAndLinks(d) {
 }
 
 function highlightHovered(d, isHovering) {
-    if (!d) return; const nodeElement = g.selectAll(".node").filter(node => node && node.id === d.id);
-    const connectedLinks = g.selectAll(".link").filter(l => { const srcId=l.source?.id||l.source; const tgtId=l.target?.id||l.target; return srcId === d.id || tgtId === d.id; });
-    if (isHovering) { nodeElement.classed("table-hovered", true); connectedLinks.classed("hovered", true); }
-    else { nodeElement.classed("table-hovered", false); connectedLinks.classed("hovered", false); if (currentlyHighlighted) { highlightNodeAndLinks(currentlyHighlighted); } else { resetHighlight(); } }
-    d3.selectAll("#serverTableBody tr").filter(rd => rd && rd.id === d.id).classed("table-row-hovered", isHovering);
-    if (currentlyHighlighted) { highlightInServerInfoPanel(d.id, isHovering); }
+    if (!d) return;
+
+    // Podświetlanie węzła na mapie i linków
+    const nodeElement = g.selectAll(".node").filter(node => node && node.id === d.id);
+    const connectedLinks = g.selectAll(".link").filter(l => {
+        const srcId = l.source?.id || l.source;
+        const tgtId = l.target?.id || l.target;
+        return srcId === d.id || tgtId === d.id;
+    });
+
+    if (isHovering) {
+        nodeElement.classed("table-hovered", true);
+        connectedLinks.classed("hovered", true);
+    } else {
+        nodeElement.classed("table-hovered", false);
+        connectedLinks.classed("hovered", false);
+        if (currentlyHighlighted) {
+            highlightNodeAndLinks(currentlyHighlighted);
+        } else {
+            resetHighlight();
+        }
+    }
+
+    // Podświetlanie wiersza w tabeli po lewej
+    d3.selectAll("#serverTableBody tr")
+    .filter(rd => rd && rd.id === d.id)
+    .classed("table-row-hovered", isHovering);
+
+    // NOWA LOGIKA: Podświetlanie w panelu po prawej
+    if (currentlyHighlighted) {
+        const isMainServer = d.id === currentlyHighlighted.id;
+
+        // Pogrubienie głównej nazwy serwera
+        d3.select("#serverInfo-name").style("font-weight", isMainServer && isHovering ? "bold" : "bold");
+
+        // Pogrubienie/podświetlenie partnera na liście
+        d3.select("#serverInfo-partnerships-list")
+        .selectAll("li")
+        .classed("partner-hovered", function() {
+            const partnerId = d3.select(this).attr("data-partner-id");
+            return isHovering && partnerId === d.id;
+        });
+    }
 }
 
 function highlightInServerInfoPanel(nodeId, highlight) {
@@ -466,23 +537,45 @@ function stopBlinking() {
 
 function handleNodeMouseOver(event, d) {
     if (!d) return;
+
     if (event && event.target.tagName === 'circle') {
-        const tooltip = d3.select(".tooltip"); const fullDataNode = currentDataSet.nodes.find(n => n.id === d.id);
-        if(fullDataNode){
-            // calculateRanks(currentDataSet.nodes); // Rankingi nie są już tu potrzebne do wyświetlania
+        const tooltip = d3.select(".tooltip");
+        const fullDataNode = currentDataSet.nodes.find(n => n.id === d.id);
+
+        if (fullDataNode) {
             const creationDateObj = parseDateString(fullDataNode.creationDate);
-            const boostIconHtml = `<img src="images/boost-icon.png" alt="Boosty" style="height: 0.9em; width: auto; vertical-align: -0.1em; margin-right: 0.65em; position: relative; left: 5px;">`;
-            tooltip.style("display", "block").html(
-                `<strong>${fullDataNode.id}</strong><br>` +
-                `🗓️ Data założenia: ${formatDate(creationDateObj)}<br>` +
-                `👥 Członkowie: ${fullDataNode.members || 0}<br>` + // USUNIĘTO RANKING
-                `${boostIconHtml} Boosty: ${fullDataNode.boosts || 0}<br>` + // USUNIĘTO RANKING
-                `🤝 Partnerstwa: ${(fullDataNode.partnerships||[]).length}` // USUNIĘTO RANKING
-            ).style("left", (event.pageX+10)+"px").style("top",(event.pageY-28)+"px");
+
+            const tooltipHtml = `
+            <div class="tooltip-title" style="color: ${getNodeColor(fullDataNode)};">${fullDataNode.id}</div>
+            <div class="tooltip-stat">
+            <span class="tooltip-icon">🗓️</span>
+            <span class="tooltip-label">Data założenia:</span> ${formatDate(creationDateObj)}
+            </div>
+            <div class="tooltip-stat">
+            <span class="tooltip-icon">👥</span>
+            <span class="tooltip-label">Członkowie:</span> ${fullDataNode.members || 0}
+            </div>
+            <div class="tooltip-stat">
+            <span class="tooltip-icon">
+            <img src="images/boost-icon.png" alt="Boosty">
+            </span>
+            <span class="tooltip-label">Boosty:</span> ${fullDataNode.boosts || 0}
+            </div>
+            <div class="tooltip-stat">
+            <span class="tooltip-icon">🤝</span>
+            <span class="tooltip-label">Partnerstwa:</span> ${(fullDataNode.partnerships || []).length}
+            </div>
+            `;
+
+            tooltip.style("display", "block")
+            .html(tooltipHtml)
+            .style("left", (event.pageX + 15) + "px")
+            .style("top", (event.pageY + 15) + "px");
         } else {
             tooltip.style("display", "none");
         }
     }
+
     highlightHovered(d, true);
 }
 
@@ -574,41 +667,29 @@ function handleDateFilterInput(event) {
 }
 
 function handleTrackClick(event) {
-    // *** POPRAWIONA FUNKCJA ***
     if (event.target.type === 'range') return;
-
     const container = event.currentTarget;
     const minInput = d3.select(container).select(".range-min");
     const maxInput = d3.select(container).select(".range-max");
     const track = container.querySelector('.range-track');
-
     if (!minInput.node() || !maxInput.node() || !track) return;
-
-    // Identyfikuj typ filtra na podstawie ID inputów
     const inputId = minInput.attr('id') || maxInput.attr('id');
-    // Użyj bardziej precyzyjnych ID, jeśli istnieją (np. dateFilterMin, memberFilterMin)
     const isDateFilter = inputId && inputId.toLowerCase().includes('datefilter');
-    const targetHandler = isDateFilter ? handleDateFilterInput : handleGenericFilterInput;
-
     const rect = track.getBoundingClientRect();
     const clickX = event.clientX;
     const trackStart = rect.left;
     const trackWidth = rect.width;
     const clickRatio = Math.max(0, Math.min(1, (clickX - trackStart) / trackWidth));
-
     const minAttr = +minInput.attr("min");
     const maxAttr = +maxInput.attr("max");
     const range = maxAttr - minAttr;
     const clickedValue = Math.round(minAttr + clickRatio * range);
-
     const currentMinVal = +minInput.property("value");
     const currentMaxVal = +maxInput.property("value");
     const distToMin = Math.abs(clickedValue - currentMinVal);
     const distToMax = Math.abs(clickedValue - currentMaxVal);
     const minSeparation = range > 0 ? 1 : 0;
-
     let targetInputNode = null;
-
     if (distToMin <= distToMax) {
         const newMinVal = Math.min(clickedValue, currentMaxVal - minSeparation);
         minInput.property("value", newMinVal);
@@ -618,13 +699,10 @@ function handleTrackClick(event) {
         maxInput.property("value", newMaxVal);
         targetInputNode = maxInput.node();
     }
-
-    // Wywołaj programistycznie zdarzenie 'input', które uruchomi odpowiedni handler
     if (targetInputNode) {
         targetInputNode.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
-
 
 function getAppliedFilters() {
     const baseMinDate = (minDateObj instanceof Date && !isNaN(minDateObj)) ? new Date(minDateObj) : new Date(0);
@@ -648,9 +726,9 @@ function getAppliedFilters() {
 function updateFilters() {
     if (!currentDataSet || !currentDataSet.nodes) return;
     const currentFilterValues = getAppliedFilters();
-
     const filteredForMap = currentDataSet.nodes.filter(d => {
-        let nodeDateObj; try { if (typeof d.creationDate !== 'string' || !/^\d{2}-\d{2}-\d{4}$/.test(d.creationDate)) throw 0; const p=d.creationDate.split('-'); nodeDateObj = new Date(`${p[2]}-${p[1]}-${p[0]}`); if (isNaN(nodeDateObj.getTime())) throw 0; nodeDateObj.setHours(12,0,0,0); } catch (e) { return false; }
+        let nodeDateObj = parseDateString(d.creationDate);
+        if (!nodeDateObj) return false;
         const nodeDt = new Date(nodeDateObj.getFullYear(), nodeDateObj.getMonth(), nodeDateObj.getDate());
         const minDt = new Date(currentFilterValues.minDate.getFullYear(), currentFilterValues.minDate.getMonth(), currentFilterValues.minDate.getDate());
         const maxDt = new Date(currentFilterValues.maxDate.getFullYear(), currentFilterValues.maxDate.getMonth(), currentFilterValues.maxDate.getDate());
@@ -660,19 +738,14 @@ function updateFilters() {
         const partnershipMatch = (d.partnerships || []).length >= currentFilterValues.minPartnerships && (d.partnerships || []).length <= currentFilterValues.maxPartnerships;
         return dateMatch && memberMatch && boostMatch && partnershipMatch;
     });
-
     currentFilteredNodes = [...filteredForMap];
     const filteredNodeIds = new Set(currentFilteredNodes.map(d => d.id));
     const filteredLinks = currentDataSet.links.filter(l => {
         const sourceId = l.source?.id || l.source; const targetId = l.target?.id || l.target;
         return filteredNodeIds.has(sourceId) && filteredNodeIds.has(targetId);
     });
-
     updateServerTable(currentFilteredNodes, currentFilterValues.searchTerm);
-
-    console.log("updateFilters: Rysowanie grafu z restartem symulacji (alpha=0.1, stop=250ms)");
     drawGraph(currentFilteredNodes, filteredLinks, 0.1, 250);
-
     if (currentlyHighlighted && !filteredNodeIds.has(currentlyHighlighted.id)) {
         serverInfoPanel.style("display", "none"); resetHighlight(); currentlyHighlighted = null;
     } else if (currentlyHighlighted) {
@@ -689,7 +762,6 @@ function updateTableFilter() {
     updateServerTable(currentFilteredNodes, searchTerm);
 }
 
-
 // === TABELA SERWERÓW ===
 
 function calculateRanks(nodes) {
@@ -697,16 +769,12 @@ function calculateRanks(nodes) {
     const sortByMembers = [...nodesToSort].sort((a, b) => (b.members || 0) - (a.members || 0)); sortByMembers.forEach((node, index) => { const originalNode = nodes.find(n => n.id === node.id); if (originalNode) originalNode.memberRank = index + 1; });
     const sortByBoosts = [...nodesToSort].sort((a, b) => (b.boosts || 0) - (a.boosts || 0)); sortByBoosts.forEach((node, index) => { const originalNode = nodes.find(n => n.id === node.id); if (originalNode) originalNode.boostRank = index + 1; });
     const sortByPartnerships = [...nodesToSort].sort((a, b) => (b.partnerships || []).length - (a.partnerships || []).length); sortByPartnerships.forEach((node, index) => { const originalNode = nodes.find(n => n.id === node.id); if (originalNode) originalNode.partnershipRank = index + 1; });
-    const sortByCreationDate = [...nodesToSort].sort((a, b) => { let d1,d2; try{if(typeof a.creationDate!=='string'||!/^\d{2}-\d{2}-\d{4}$/.test(a.creationDate)) throw 0; const p=a.creationDate.split('-');d1=new Date(`${p[2]}-${p[1]}-${p[0]}`); if(isNaN(d1)) throw 0;}catch{d1=new Date(8.64e15);} try{if(typeof b.creationDate!=='string'||!/^\d{2}-\d{2}-\d{4}$/.test(b.creationDate)) throw 0; const p=b.creationDate.split('-');d2=new Date(`${p[2]}-${p[1]}-${p[0]}`); if(isNaN(d2)) throw 0;}catch{d2=new Date(8.64e15);} return d1-d2; });
+    const sortByCreationDate = [...nodesToSort].sort((a, b) => (parseDateString(a.creationDate) || new Date(8.64e15)) - (parseDateString(b.creationDate) || new Date(8.64e15)));
     sortByCreationDate.forEach((node, index) => { const originalNode = nodes.find(n => n.id === node.id); if (originalNode) originalNode.creationDateRank = index + 1; });
 }
 
 function updateServerTable(nodesForTable, searchTerm = "") {
-    const nodesToDisplay = nodesForTable.filter(node =>
-    node.id.toLowerCase().includes(searchTerm)
-    );
-
-    // Sortowanie odbywa się tutaj
+    const nodesToDisplay = nodesForTable.filter(node => node.id.toLowerCase().includes(searchTerm));
     const sortedNodes = [...nodesToDisplay].sort((a, b) => {
         let valA, valB;
         switch (currentSortKey) {
@@ -714,31 +782,18 @@ function updateServerTable(nodesForTable, searchTerm = "") {
                 valA = a.id.toLowerCase(); valB = b.id.toLowerCase();
                 break;
             case 'creationDate':
-                valA = parseDateString(a.creationDate);
-                valB = parseDateString(b.creationDate);
-                if (valA === null && valB === null) { valA = 0; valB = 0; }
-                else if (valA === null) { valA = (currentSortDirection === 'asc' ? new Date(8.64e15) : new Date(-8.64e15)); }
-                else if (valB === null) { valB = (currentSortDirection === 'asc' ? new Date(8.64e15) : new Date(-8.64e15)); }
+                valA = parseDateString(a.creationDate); valB = parseDateString(b.creationDate);
+                if (valA === null) valA = (currentSortDirection === 'asc' ? new Date(8.64e15) : new Date(-8.64e15));
+                if (valB === null) valB = (currentSortDirection === 'asc' ? new Date(8.64e15) : new Date(-8.64e15));
                 break;
-            case 'members':
-                valA = a.members || 0; valB = b.members || 0;
-                break;
-            case 'boosts':
-                valA = a.boosts || 0; valB = b.boosts || 0;
-                break;
-            case 'partnerships':
-                valA = (a.partnerships || []).length; valB = (b.partnerships || []).length;
-                break;
+            case 'members': valA = a.members || 0; valB = b.members || 0; break;
+            case 'boosts': valA = a.boosts || 0; valB = b.boosts || 0; break;
+            case 'partnerships': valA = (a.partnerships || []).length; valB = (b.partnerships || []).length; break;
             default: return 0;
         }
         if (currentSortDirection === 'asc') {
-            // Dla sortowania rosnącego (najmniejsze/najmłodsze pierwsze)
-            // Chcemy, aby miały większe numery miejsc, więc odwracamy logikę sortowania dla rankingu
-            // ale dla samego sortowania danych zostawiamy jak jest.
-            // Ranking będzie liczony po posortowaniu.
             return typeof valA === 'string' ? valA.localeCompare(valB) : (valA instanceof Date ? valA - valB : valA - valB);
         } else {
-            // Dla sortowania malejącego (największe/najstarsze pierwsze)
             return typeof valA === 'string' ? valB.localeCompare(valA) : (valB instanceof Date ? valB - valA : valB - valA);
         }
     });
@@ -750,9 +805,7 @@ function updateServerTable(nodesForTable, searchTerm = "") {
         const h = d3.select(this);
         const sk = h.attr('data-sort-by');
         const as = h.select('.sort-arrow');
-        if (!as.node()) return; // Pomiń nagłówek Miejsca, bo nie jest sortowalny
-        if (h.classed('non-sortable')) return; // Pomiń, jeśli ma klasę non-sortable
-
+        if (!as.node() || h.classed('non-sortable')) return;
         if (sk === currentSortKey) {
             h.classed('sorted', true);
             as.text(currentSortDirection === 'asc' ? '▲' : '▼');
@@ -762,29 +815,17 @@ function updateServerTable(nodesForTable, searchTerm = "") {
         }
     });
 
-    // Generowanie wierszy tabeli z numeracją miejsc
     sortedNodes.forEach((node, index) => {
         const row = serverTableBody.append("tr").datum(node).classed("table-row-highlighted-search", false);
-
-        // Kolumna Miejsca
-        row.append("td").text(`#${index + 1}`).style("text-align", "right"); // Dodajemy # i numer miejsca
-
+        row.append("td").text(`#${index + 1}`);
         row.append("td").text(node.id).attr("title", node.id);
-
-        const creationDateObj = parseDateString(node.creationDate);
-        row.append("td").text(formatDate(creationDateObj)).style("text-align", "right");
-
-        row.append("td").text(node.members || 0);
-        row.append("td").text(node.boosts || 0);
-        row.append("td").text((node.partnerships || []).length);
-
+        row.append("td").text(formatDate(parseDateString(node.creationDate)));
+        row.append("td").html(`<span>👥 ${node.members || 0}</span>`);
+        row.append("td").html(`<span style="display:inline-flex; align-items:center;"><img src="images/boost-icon.png" style="height:1em; margin-right: 5px;"> ${node.boosts || 0}</span>`);
+        row.append("td").html(`<span>🤝 ${(node.partnerships || []).length}</span>`);
         row.on("click", (event, d) => {
             const nodeOnMap = currentFilteredNodes.find(n => n.id === d.id);
-            if (nodeOnMap) {
-                handleNodeClick(event, nodeOnMap);
-            } else {
-                searchServer(d.id);
-            }
+            if (nodeOnMap) { handleNodeClick(event, nodeOnMap); } else { searchServer(d.id); }
         });
         row.on("mouseover", (event, d) => {
             hoveredTableRowNodeId = d.id;
@@ -838,53 +879,45 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeVisualization({ nodes: [], links: [] }, { label: "Brak danych", file: "" });
     }
 
-    // --- Podpięcie Event Listenerów ---
     serverTableHeaders.on("click", handleSortClick);
 
-    // Listener dla resetButton - DODANO usuwanie klasy
-    d3.select("#resetButton").on("click", () => {
-        document.body.classList.remove('mobile-info-active'); // Usuń klasę przy resecie
-        resetMap(); // Wywołaj istniejącą funkcję reset
+    d3.selectAll("#resetButton, #resetButtonMobile").on("click", () => {
+        document.body.classList.remove('mobile-info-active');
+        resetMap();
     });
 
-    // Listener dla przycisku zamknięcia #serverInfo
     d3.select("#closeServerInfo").on("click", () => {
         serverInfoPanel.style("display", "none");
-        document.body.classList.remove('mobile-info-active'); // Usuń klasę
+        document.body.classList.remove('mobile-info-active');
         if (currentlyHighlighted) {
             resetHighlight();
             currentlyHighlighted = null;
         }
     });
 
-    // Listener dla kliknięcia na partnera w panelu info
     d3.select("#serverInfo-partnerships-list").on("click", (event) => {
         const targetLi = event.target.closest('li');
         if (targetLi) {
             const partnerId = targetLi.dataset.partnerId;
             const isVisible = targetLi.dataset.visible === 'true';
             if (partnerId && isVisible) {
-                // Usuń podświetlenie hover z głównej tabeli przed wyszukaniem
                 d3.selectAll("#serverTableBody tr").classed("table-row-hovered", false);
-                // Nie usuwamy klasy mobile-info-active, bo od razu pokazujemy info o partnerze
-                searchServer(partnerId); // Wyszukaj i kliknij partnera
+                searchServer(partnerId);
             } else if (partnerId && !isVisible) {
                 console.log(`Partner ${partnerId} jest ukryty przez filtry.`);
             }
         }
     });
 
-    // Listener dla hover na partnerach w panelu info
     d3.select("#serverInfo-partnerships-list")
     .on("mouseover", (event) => {
         const targetLi = event.target.closest('li');
         if (!targetLi) return;
         const partnerId = targetLi.dataset.partnerId;
         if (!partnerId) return;
-        // Znajdź dane partnera, nawet jeśli jest ukryty na mapie
         const partnerNodeData = currentDataSet.nodes.find(n => n.id === partnerId);
         if (partnerNodeData) {
-            highlightHovered(partnerNodeData, true); // Podświetl w tabeli i/lub na mapie
+            highlightHovered(partnerNodeData, true);
         }
     })
     .on("mouseout", (event) => {
@@ -894,24 +927,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!partnerId) return;
         const partnerNodeData = currentDataSet.nodes.find(n => n.id === partnerId);
         if (partnerNodeData) {
-            highlightHovered(partnerNodeData, false); // Zdejmij podświetlenie
+            highlightHovered(partnerNodeData, false);
         }
     });
 
-    // Listenery dla selektorów wersji - DODANO usuwanie klasy
-    dataVersionSelector.on("change", function() { // Użyj 'function', aby 'this' działało
+    dataVersionSelector.on("change", function() {
         document.body.classList.remove('mobile-info-active');
-        handleDataVersionChange.call(this); // Wywołaj handler w kontekście selecta
+        handleDataVersionChange.call(this);
     });
-    dataVersionSelectorMobile.on("change", function() { // Użyj 'function'
+    dataVersionSelectorMobile.on("change", function() {
         document.body.classList.remove('mobile-info-active');
-        handleDataVersionChange.call(this); // Wywołaj handler w kontekście selecta
+        handleDataVersionChange.call(this);
     });
 
-    // Listener resize
     window.addEventListener("resize", () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(handleResize, 250);
     });
-
-}); // Koniec DOMContentLoaded
+});
