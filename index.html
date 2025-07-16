@@ -4,44 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa polskich serwerów furry</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/graph.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/mobile.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="tooltip"></div>
   <div id="overlay" class="visible">
     <div id="disclaimer">
-      <h2>Witaj na interaktywnej mapie polskich serwerów furry!</h2>
-      <p class="centered-paragraph">
-        Mapa ta została stworzona w celach informacyjnych i poglądowych, aby ułatwić wizualizację polskiego fandomu furry na platformie Discord. Przedstawia ona serwery, ich wielkość (liczbę członków), poziom zaangażowania społeczności (liczbę boostów) oraz wzajemne powiązania w postaci partnerstw. Ma ona na celu dostarczenie ogólnego obrazu polskiej części fandomu na Discordzie.
-      </p>
-      <h2 class="left-aligned-heading">⚠️ Uwagi:</h2>
-      <p>
-        <b>Dane są publiczne:</b> Wszystkie przedstawione tutaj dane (nazwy serwerów, liczba członków, liczba
-        boostów, partnerstwa) są publicznie dostępne i możliwe do uzyskania przez każdego użytkownika Discorda.
-        Nie są to dane wrażliwe ani prywatne, które by mogły zaszkodzić jakiemukolwiek serwerowi. Taka mapa jest możliwa do zrobienia przez każdego.
-      </p>
-      <p>
-        <b>Brak negatywnych intencji:</b> Dane zostały zebrane z ciekawości i nie są wykorzystywane w żaden
-        sposób, który mógłby zaszkodzić którymkolwiek z serwerów lub ich członkom. Nie ma na celu oczerniania,
-        dyskryminowania ani promowania żadnego z serwerów. Celem jest wyłącznie dostarczenie
-        obiektywnej wizualizacji.
-      </p>
-      <p>
-        <b>Aktualność danych:</b> Dane na tej mapie mogą pochodzić z różnych okresów czasu. Możesz przełączać się między dostępnymi datami aktualizacji danych za pomocą selektora w panelu bocznym. Domyślnie ładowane są najnowsze dostępne dane. Należy pamiętać, że społeczność Discorda jest dynamiczna, a liczby członków, boostów i partnerstwa mogą się zmieniać.
-      </p>
-       <p>
-        <b>Cel informacyjny:</b> Mapa ma na celu jedynie przedstawienie ogólnego obrazu fandomu. Różnice
-        w wielkości kół odzwierciedlają liczbę członków, kolory ilości boostów, a linie łączące
-        wskazują partnerstwa między serwerami.
-      </p>
-      <h2 class="left-aligned-heading">ℹ️ Dodatkowe informacje:</h2>
-      <ul>
-        <li>Mapa ta nie obejmuje wszystkich polskojęzycznych serwerów furry dla danego okresu.</li>
-        <li>Obecność lub brak serwera na tej mapie nie jest w żaden sposób oceną jego jakości czy wartości.</li>
-        <li>Niektóre serwery mogły zostać pominięte z powodu braku publicznie dostępnych informacji lub ograniczonej widoczności w danym okresie.</li>
-        <li>Mapa ta może zawierać błędy co do partnerstw przykładowo mogą być one nieaktualne z powodu zerwania partnerstwa lub zmian w danych historycznych.</li>
-      </ul>
+      <div id="disclaimer-header">
+        <h2>Witaj na interaktywnej mapie polskich serwerów furry!</h2>
+      </div>
+      <div id="disclaimer-body">
+        <p>
+          Mapa ta została stworzona w celach informacyjnych i poglądowych, aby ułatwić wizualizację polskiego fandomu furry na platformie Discord. Przedstawia ona serwery, ich wielkość (liczbę członków), poziom zaangażowania społeczności (liczbę boostów) oraz wzajemne powiązania w postaci partnerstw. Ma ona na celu dostarczenie ogólnego obrazu polskiej części fandomu na Discordzie.
+        </p>
+
+        <div class="disclaimer-section">
+          <h3><span class="icon">⚠️</span> Uwagi</h3>
+          <ul>
+            <li><b>Dane są publiczne:</b> Wszystkie przedstawione tutaj dane (nazwy serwerów, liczba członków, liczba boostów, partnerstwa) są publicznie dostępne i możliwe do uzyskania przez każdego użytkownika Discorda. Nie są to dane wrażliwe ani prywatne.</li>
+            <li><b>Brak negatywnych intencji:</b> Dane zostały zebrane z ciekawości i nie są wykorzystywane w sposób, który mógłby zaszkodzić którymkolwiek z serwerów lub ich członkom. Celem jest wyłącznie dostarczenie obiektywnej wizualizacji.</li>
+            <li><b>Aktualność danych:</b> Dane na tej mapie mogą pochodzić z różnych okresów. Możesz przełączać się między dostępnymi datami aktualizacji za pomocą selektora w panelu bocznym. Społeczność Discorda jest dynamiczna, a liczby i partnerstwa mogą się zmieniać.</li>
+            <li><b>Cel informacyjny:</b> Mapa ma na celu jedynie przedstawienie ogólnego obrazu fandomu. Różnice w wielkości kół odzwierciedlają liczbę członków, kolory ilości boostów, a linie łączące wskazują partnerstwa między serwerami.</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer-section">
+          <h3><span class="icon">ℹ️</span> Dodatkowe informacje</h3>
+          <ul>
+            <li>Mapa ta nie obejmuje wszystkich polskojęzycznych serwerów furry dla danego okresu.</li>
+            <li>Obecność lub brak serwera na tej mapie nie jest w żaden sposób oceną jego jakości czy wartości.</li>
+            <li>Niektóre serwery mogły zostać pominięte z powodu braku publicznie dostępnych informacji lub ograniczonej widoczności.</li>
+            <li>Mapa ta może zawierać błędy co do partnerstw, które mogą być nieaktualne z powodu zerwania relacji lub zmian w danych historycznych.</li>
+          </ul>
+        </div>
+      </div>
       <button id="understandButton">Rozumiem</button>
     </div>
   </div>
@@ -49,22 +49,37 @@
 <div id="leftPanel">
     <div id="pageTitle">Mapa polskich serwerów furry</div>
 
-    <!-- NOWY KONTENER NA GÓRNE PRZYCISKI (WERSJA DESKTUPOWA) -->
     <div id="topControlsContainer" class="mobile-hidden">
         <div class="data-version-selector-container">
             <label for="dataVersionSelector">Wersja danych:</label>
             <select id="dataVersionSelector"></select>
         </div>
+        <div class="color-mode-selector-container">
+            <label for="colorModeSelector">Koloruj wg:</label>
+            <select id="colorModeSelector">
+                <option value="boosts">Boostów</option>
+                <option value="age">Wieku</option>
+                <option value="partnerships">Partnerstw</option>
+                <option value="influence">Wpływu</option>
+            </select>
+        </div>
         <button id="resetButton">Resetuj Mapę</button>
     </div>
 
-    <!-- Zaktualizowany kontener na mobilne przyciski -->
     <div class="desktop-hidden">
         <div class="data-version-selector-container">
             <label for="dataVersionSelectorMobile">Wersja danych:</label>
             <select id="dataVersionSelectorMobile"></select>
         </div>
-        <!-- Przycisk resetu na mobile pozostaje osobno dla lepszej użyteczności -->
+        <div class="color-mode-selector-container">
+            <label for="colorModeSelectorMobile">Koloruj wg:</label>
+            <select id="colorModeSelectorMobile">
+                <option value="boosts">Boostów</option>
+                <option value="age">Wieku</option>
+                <option value="partnerships">Partnerstw</option>
+                <option value="influence">Wpływu</option>
+            </select>
+        </div>
         <button id="resetButtonMobile" class="reset-button-mobile">Resetuj Mapę</button>
     </div>
 
@@ -128,6 +143,15 @@
         </p>
       </div>
     </div>
+
+    <div id="colorLegend">
+        <h3>Legenda kolorów:</h3>
+        <div class="legend-section legend-boosts"></div>
+        <div class="legend-section legend-age hidden"></div>
+        <div class="legend-section legend-partnerships hidden"></div>
+        <div class="legend-section legend-influence hidden"></div>
+    </div>
+
     <div id="searchContainer">
       <h3><label for="searchInput">Wyszukiwarka:</label></h3>
       <input type="text" id="searchInput" placeholder="Filtruj listę serwerów...">
@@ -148,13 +172,12 @@
             </tr>
           </thead>
           <tbody id="serverTableBody">
-            <!-- Wiersze tabeli będą dodawane przez JavaScript -->
           </tbody>
         </table>
       </div>
     </div>
 
-</div> <!-- Koniec leftPanel -->
+</div>
 
     <div id="serverInfo">
       <button id="closeServerInfo">X</button>
@@ -163,12 +186,22 @@
       <div id="serverInfo-members"></div>
       <p id="serverInfo-boosts"></p>
       <p id="serverInfo-partnerships-count"></p>
-      <h3>Partnerstwa:</h3>
+
+      <div id="chart-container" class="hidden">
+        <h3 class="section-divider">Historia:</h3>
+        <div id="chart-controls">
+            <button class="chart-toggle-btn active" data-chart="members">Członkowie</button>
+            <button class="chart-toggle-btn" data-chart="boosts">Boosty</button>
+            <button class="chart-toggle-btn" data-chart="partnerships">Partnerstwa</button>
+        </div>
+        <div id="serverInfo-chart"></div>
+      </div>
+
+      <h3 class="section-divider">Partnerstwa:</h3>
       <ul id="serverInfo-partnerships-list"></ul>
     </div>
 
-    <!-- Stopka podzielona na lewą i prawą część -->
-    <div id="pageVersion">Wersja strony: v0.18</div>
+    <div id="pageVersion">Wersja strony: v0.22</div>
 
     <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
@@ -177,7 +210,13 @@
 
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <!-- data.js nie jest ładowane bezpośrednio -->
-  <script src="script.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/interactions.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/dataLoader.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
