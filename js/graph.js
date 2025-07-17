@@ -45,7 +45,7 @@ function initializeVisualization(dataSet, versionInfo) {
 
     currentFilteredNodes = [...currentDataSet.nodes];
     currentlyHighlighted = null;
-    blinkingNode = null;
+    blinkingNodes = [];
     hoveredTableRowNodeId = null;
     serverInfoPanel.style("display", "none");
     searchInput.property("value", "");
@@ -98,11 +98,11 @@ function initializeScales() {
 
     ageColorScale = d3.scaleThreshold()
     .domain([oneYearAgo, twoYearsAgo, fourYearsAgo, sixYearsAgo].reverse())
-    .range(['#45015e', '#b003fc', '#306aff', '#45d6ff', '#ffffff']);
+    .range(['#20002c', '#4f0072', '#306aff', '#45d6ff', '#ffffff']);
 
     partnershipColorScale = d3.scaleThreshold()
     .domain([1, 5, 10, 15])
-    .range(['#0b0c10', '#1f2833', '#3277c7', '#66fcf1', '#ffffff']);
+    .range(['#0b0c10', '#1f2833', '#3b8d99', '#66fcf1', '#ffffff']);
 
     const maxInfluence = d3.max(currentDataSet.nodes, d => d.influenceScore || 0);
     influenceColorScale = d3.scaleSequential(d3.interpolateInferno)
@@ -180,7 +180,7 @@ function updateNodeColors() {
     .duration(500)
     .attr("fill", d => getNodeColor(d));
 
-    if (currentlyHighlighted) {
+    if (currentlyHighlighted && !secondServerToCompare) {
         d3.select("#serverInfo-name").style("color", getNodeColor(currentlyHighlighted));
         d3.select("#serverInfo-partnerships-list").selectAll('li').each(function() {
             const li = d3.select(this);
@@ -237,6 +237,7 @@ function setupSVGAndView() {
                 document.body.classList.remove('mobile-info-active');
                 resetHighlight();
                 currentlyHighlighted = null;
+                exitCompareMode();
             }
         }
     });
