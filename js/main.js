@@ -49,6 +49,38 @@ document.addEventListener('DOMContentLoaded', () => {
             resetHighlight();
             currentlyHighlighted = null;
         }
+        exitCompareMode();
+    });
+
+    d3.select("#compare-button").on("click", () => {
+        if(isCompareModeActive) {
+            exitCompareMode();
+            if(currentlyHighlighted) {
+                highlightNodeAndLinks(currentlyHighlighted);
+            }
+        } else {
+            enterCompareMode();
+        }
+    });
+
+    d3.select("#serverInfo").on("click", (event) => {
+        const btn = event.target.closest('.chart-toggle-btn');
+        if (!btn) return;
+
+        const newDataType = btn.dataset.chart;
+        const serverIds = [];
+        let useSpecialColors = false;
+
+        if (secondServerToCompare) {
+            serverIds.push(firstServerToCompare.id, secondServerToCompare.id);
+            useSpecialColors = true;
+        } else if (currentlyHighlighted) {
+            serverIds.push(currentlyHighlighted.id);
+        }
+
+        if (serverIds.length > 0) {
+            drawServerHistoryChart(serverIds, newDataType, useSpecialColors);
+        }
     });
 
     d3.select("#serverInfo-partnerships-list").on("click", (event) => {
