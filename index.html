@@ -179,29 +179,48 @@
 
 </div>
 
-    <div id="serverInfo">
-      <button id="closeServerInfo">X</button>
-      <h3>Serwer:</h3>
-      <h2 id="serverInfo-name"></h2>
-      <div id="serverInfo-members"></div>
-      <p id="serverInfo-boosts"></p>
-      <p id="serverInfo-partnerships-count"></p>
+<div id="serverInfo">
+    <button id="closeServerInfo">X</button>
+    <div id="serverInfo-content">
 
-      <div id="chart-container" class="hidden">
-        <h3 class="section-divider">Historia:</h3>
-        <div id="chart-controls">
-            <button class="chart-toggle-btn active" data-chart="members">Członkowie</button>
-            <button class="chart-toggle-btn" data-chart="boosts">Boosty</button>
-            <button class="chart-toggle-btn" data-chart="partnerships">Partnerstwa</button>
+        <div id="single-server-view">
+            <div class="server-header">
+                <h2 id="serverInfo-name"></h2>
+                <button id="compare-button" title="Porównaj ten serwer z innym">[+] Porównaj</button>
+            </div>
+            <p id="comparison-prompt" class="hidden">Wybierz drugi serwer z mapy lub listy...</p>
+            <div id="serverInfo-stats"></div>
+
+            <div id="chart-container" class="hidden">
+                <h3 class="section-divider">Historia:</h3>
+                <div id="chart-controls">
+                    <button class="chart-toggle-btn active" data-chart="members">Członkowie</button>
+                    <button class="chart-toggle-btn" data-chart="boosts">Boosty</button>
+                    <button class="chart-toggle-btn" data-chart="partnerships">Partnerstwa</button>
+                </div>
+                <div id="serverInfo-chart"></div>
+            </div>
+
+            <h3 class="section-divider">Partnerstwa:</h3>
+            <ul id="serverInfo-partnerships-list"></ul>
         </div>
-        <div id="serverInfo-chart"></div>
-      </div>
 
-      <h3 class="section-divider">Partnerstwa:</h3>
-      <ul id="serverInfo-partnerships-list"></ul>
+        <div id="comparison-view" class="hidden">
+            <div id="comparison-header">
+                <div class="comparison-column" id="compare-col-1"></div>
+                <div class="comparison-column" id="compare-col-2"></div>
+            </div>
+            <div id="comparison-stats">
+                <div class="comparison-column" id="compare-stats-1"></div>
+                <div class="comparison-column" id="compare-stats-2"></div>
+            </div>
+            <div id="comparison-chart-container"></div>
+        </div>
+
     </div>
+</div>
 
-    <div id="pageVersion">Wersja strony: v0.22</div>
+    <div id="pageVersion">Wersja strony: v0.23</div>
 
     <div id="dataDate">
         <div>Liczba serwerów: <span id="serverCount"></span></div>
