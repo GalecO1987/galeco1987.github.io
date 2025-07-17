@@ -1,0 +1,79 @@
+body {
+    font-family: sans-serif;
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.mobile-hidden {
+    display: block;
+}
+
+.desktop-hidden {
+    display: none;
+}
+
+#pageVersion {
+position: fixed;
+bottom: 10px;
+left: 10px;
+color: #aaa;
+font-size: 12px;
+z-index: 5;
+text-shadow: 1px 1px 2px #000;
+}
+
+#dataDate {
+position: fixed;
+bottom: 10px;
+right: 10px;
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+text-align: right;
+color: #aaa;
+font-size: 12px;
+z-index: 5;
+text-shadow: 1px 1px 2px #000;
+}
+
+#leftPanel {
+position: absolute;
+top: 10px;
+left: 10px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+z-index: 10;
+width: 500px;
+max-width: calc(100% - 20px);
+box-sizing: border-box;
+max-height: calc(100vh - 55px);
+}
+
+#serverInfo {
+position: absolute;
+top: 10px;
+right: 10px;
+width: 450px;
+background-color: #1c1c1c;
+border: 1px solid #444;
+border-radius: 8px;
+z-index: 15;
+overflow-y: auto;
+max-height: calc(100vh - 75px);
+display: none;
+color: #e0e0e0;
+padding: 15px;
+padding-top: 45px;
+box-sizing: border-box;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
