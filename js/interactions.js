@@ -153,7 +153,6 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
                         }
                     });
                 } else {
-                    const valueLabel = tooltipLabelMap[dataType];
                     tooltipHtml += `<div class="shared-tooltip-item">
                     <span class="shared-swatch" style="background:${specialColorScale(d.id)};"></span>
                     <span>${d.id}: ${d.value}</span>
@@ -248,8 +247,8 @@ function displaySingleServer(nodeData) {
 function displayComparison(server1, server2) {
     d3.select("#single-server-view").classed("hidden", true);
     d3.select("#comparison-view").classed("hidden", false);
-    resetHighlight();
-    highlightNodeAndLinks(null, [server1.id, server2.id], true);
+
+    highlightNodeAndLinks(null, [server1.id, server2.id], 'spotlight');
     startBlinking([server1, server2]);
 
     const specialColorScale = d3.scaleOrdinal().domain([server1.id, server2.id]).range(["#e41a1c", "#377eb8"]);
@@ -300,7 +299,7 @@ function enterCompareMode() {
     firstServerToCompare = currentlyHighlighted;
     d3.select("#comparison-prompt").classed("hidden", false);
     d3.select("#compare-button").text("Anuluj");
-    highlightNodeAndLinks(firstServerToCompare, [], true);
+    highlightNodeAndLinks(firstServerToCompare, [], 'noDim');
 }
 
 function exitCompareMode() {
@@ -313,6 +312,7 @@ function exitCompareMode() {
     d3.select("#comparison-prompt").classed("hidden", true);
     d3.select("#compare-button").text("[+] Porównaj");
     d3.select("#comparison-chart-container").html("").classed("hidden", true);
+    resetHighlight();
 }
 
 function searchServer(serverId) {
@@ -332,44 +332,75 @@ function highlightTableRow(nodeId, highlight = true) {
     serverTableBody.selectAll('tr').filter(rowData => rowData && rowData.id === nodeId).classed('table-row-highlighted-search', highlight);
 }
 
-function highlightNodeAndLinks(d, additionalIds = [], noDim = false) {
-    if (!d && additionalIds.length === 0) return;
+function highlightNodeAndLinks(d, additionalIds = [], mode = 'default') {
     const mainId = d ? d.id : null;
     const highlightIds = new Set([mainId, ...additionalIds].filter(Boolean));
-    let connectedNodeIds = new Set(highlightIds);
-    if (d) {
-        (d.partnerships || []).forEach(pId => connectedNodeIds.add(pId));
-        currentDataSet.nodes.forEach(n => { if((n.partnerships || []).includes(d.id)) connectedNodeIds.add(n.id); });
+    let connectedNodeIds;
+
+    switch (mode) {
+        case 'spotlight':
+            connectedNodeIds = highlightIds;
+            break;
+        case 'noDim':
+            connectedNodeIds = new Set(currentFilteredNodes.map(n => n.id));
+            break;
+        default:
+            connectedNodeIds = new Set(highlightIds);
+            if (d) {
+                (d.partnerships || []).forEach(pId => connectedNodeIds.add(pId));
+                currentDataSet.nodes.forEach(n => { if((n.partnerships || []).includes(d.id)) connectedNodeIds.add(n.id); });
+            }
+            break;
     }
 
     const visibleNodeIds = new Set(currentFilteredNodes.map(n => n.id));
-    g.selectAll(".node").classed("dimmed", n => !noDim && visibleNodeIds.has(n.id) && !connectedNodeIds.has(n.id))
+    g.selectAll(".node")
+    .classed("dimmed", n => mode !== 'noDim' && visibleNodeIds.has(n.id) && !connectedNodeIds.has(n.id))
     .style("stroke", n => highlightIds.has(n.id) ? "white" : null)
     .style("stroke-width", n => highlightIds.has(n.id) ? 2 : null);
 
-    g.selectAll(".link").classed("hidden", l => {
-        if (noDim) return false;
-        const srcId = l.source?.id||l.source; const tgtId = l.target?.id||l.target;
-        return !visibleNodeIds.has(srcId) || !visibleNodeIds.has(tgtId) || !(connectedNodeIds.has(srcId) && connectedNodeIds.has(tgtId));
-    }).classed("hovered", false);
+    g.selectAll(".link")
+    .classed("hidden", l => {
+        const srcId = l.source?.id || l.source;
+        const tgtId = l.target?.id || l.target;
+        if (mode === 'spotlight') {
+            return !(highlightIds.has(srcId) && highlightIds.has(tgtId));
+        }
+        return mode !== 'noDim' && (!visibleNodeIds.has(srcId) || !visibleNodeIds.has(tgtId) || !(connectedNodeIds.has(srcId) && connectedNodeIds.has(tgtId)));
+    })
+    .classed("hovered", false);
 
-    g.selectAll(".node-label").classed("hidden", lbl => !noDim && !(visibleNodeIds.has(lbl.id) && connectedNodeIds.has(lbl.id)));
+    g.selectAll(".node-label")
+    .classed("hidden", lbl => mode !== 'noDim' && !(visibleNodeIds.has(lbl.id) && connectedNodeIds.has(lbl.id)));
 }
 
 function highlightHovered(d, isHovering) {
     if (!d) return;
+
+    if (secondServerToCompare) {
+        const isOneOfTheCompared = (d.id === firstServerToCompare.id || d.id === secondServerToCompare.id);
+        if (!isOneOfTheCompared) {
+            return;
+        }
+    }
+
     const nodeElement = g.selectAll(".node").filter(node => node && node.id === d.id);
     const connectedLinks = g.selectAll(".link").filter(l => (l.source?.id || l.source) === d.id || (l.target?.id || l.target) === d.id);
 
     if (isHovering) {
         nodeElement.classed("table-hovered", true);
-        connectedLinks.classed("hovered", true);
+        if (!secondServerToCompare) {
+            connectedLinks.classed("hovered", true);
+        }
     } else {
         nodeElement.classed("table-hovered", false);
-        connectedLinks.classed("hovered", false);
+        if (!secondServerToCompare) {
+            connectedLinks.classed("hovered", false);
+        }
+
         if (currentlyHighlighted) {
-            const noDimming = isCompareModeActive || !!secondServerToCompare;
-            highlightNodeAndLinks(currentlyHighlighted, secondServerToCompare ? [secondServerToCompare.id] : [], noDimming);
+            const mode = isCompareModeActive ? 'noDim' : (secondServerToCompare ? 'spotlight' : 'default');
+            highlightNodeAndLinks(currentlyHighlighted, secondServerToCompare ? [secondServerToCompare.id] : [], mode);
         } else {
             resetHighlight();
         }
