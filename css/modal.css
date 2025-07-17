@@ -1,0 +1,135 @@
+#overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.85);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+transition: opacity 0.5s ease;
+padding: 20px;
+box-sizing: border-box;
+}
+
+#overlay.visible {
+opacity: 1;
+}
+
+#disclaimer {
+background-color: #1a1a1a;
+color: #e0e0e0;
+border: 1px solid #444;
+padding: 0;
+border-radius: 12px;
+max-width: 850px;
+width: 100%;
+box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+display: flex;
+flex-direction: column;
+max-height: 90vh;
+}
+
+#disclaimer-header {
+padding: 15px 25px;
+border-bottom: 1px solid #333;
+text-align: center;
+}
+
+#disclaimer-header h2 {
+margin: 0;
+font-size: 22px;
+font-weight: 700;
+color: #fff;
+}
+
+#disclaimer-body {
+padding: 15px 25px;
+font-size: 15px;
+line-height: 1.6;
+overflow-y: auto;
+}
+
+#disclaimer-body p {
+margin-top: 0;
+margin-bottom: 15px;
+}
+
+.disclaimer-section {
+    margin-bottom: 20px;
+}
+
+.disclaimer-section:last-child {
+    margin-bottom: 0;
+}
+
+.disclaimer-section h3 {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    color: #fff;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+.disclaimer-section .icon {
+    margin-right: 12px;
+    font-size: 20px;
+}
+
+.disclaimer-section ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.disclaimer-section li {
+    padding-left: 10px;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.disclaimer-section li::before {
+    content: '•';
+    position: absolute;
+    left: -5px;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+#disclaimer button {
+padding: 14px 25px;
+background-color: #4CAF50;
+color: white;
+border: none;
+cursor: pointer;
+border-radius: 0 0 11px 11px;
+font-size: 16px;
+font-weight: bold;
+transition: background-color 0.3s ease;
+width: 100%;
+margin-top: auto;
+}
+
+#disclaimer button:hover {
+background-color: #3e8e41;
+}
+
+#disclaimer-body::-webkit-scrollbar {
+width: 8px;
+}
+
+#disclaimer-body::-webkit-scrollbar-track {
+background: #222;
+}
+
+#disclaimer-body::-webkit-scrollbar-thumb {
+background-color: #444;
+border-radius: 4px;
+}
+
+#disclaimer-body::-webkit-scrollbar-thumb:hover {
+background-color: #555;
+}

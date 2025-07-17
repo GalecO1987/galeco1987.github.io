@@ -1,0 +1,110 @@
+#serverTableContainer {
+width: 100%;
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+flex-grow: 1;
+min-height: 0;
+}
+
+.table-wrapper {
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #1c1c1c;
+    flex-grow: 1;
+}
+
+#serverTable {
+width: 100%;
+border-collapse: collapse;
+font-size: 13px;
+color: #e0e0e0;
+table-layout: fixed;
+}
+
+#serverTable th,
+#serverTable td {
+padding: 10px 8px;
+text-align: left;
+border-bottom: 1px solid #333;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+vertical-align: middle;
+}
+
+#serverTable th {
+background-color: #367c39;
+font-weight: bold;
+position: sticky;
+top: 0;
+z-index: 1;
+cursor: default;
+}
+
+#serverTable th:first-child {
+border-top-left-radius: 8px;
+}
+
+#serverTable th:last-child {
+border-top-right-radius: 8px;
+}
+
+#serverTable th.sortable {
+cursor: pointer;
+transition: background-color 0.2s;
+}
+
+#serverTable th.sortable:hover {
+background-color: #4CAF50;
+}
+
+#serverTable th.icon-header {
+text-align: center;
+}
+
+#serverTable th.icon-header img {
+height: 16px;
+width: auto;
+vertical-align: middle;
+}
+
+#serverTable tbody tr {
+cursor: pointer;
+transition: background-color: 0.1s ease-in-out;
+}
+
+#serverTable tbody tr:last-child td {
+border-bottom: none;
+}
+
+#serverTable tbody tr:hover td,
+#serverTable tbody tr.table-row-hovered td {
+background-color: rgba(173, 216, 230, 0.1);
+}
+
+tr.table-row-highlighted-search td {
+    background-color: rgba(100, 180, 255, 0.2) !important;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.sort-arrow {
+    display: inline-block;
+    margin-left: 5px;
+    opacity: 0.7;
+    font-size: 10px;
+}
+
+#serverTable th.sorted .sort-arrow {
+opacity: 1;
+}
+
+#serverTable th:nth-child(1), #serverTable td:nth-child(1) { width: 6%; text-align: right; color: #888; }
+#serverTable th:nth-child(2), #serverTable td:nth-child(2) { width: 43%; }
+#serverTable th:nth-child(3), #serverTable td:nth-child(3) { width: 18%; text-align: center; }
+#serverTable th:nth-child(4), #serverTable td:nth-child(4) { width: 12%; text-align: center; }
+#serverTable th:nth-child(5), #serverTable td:nth-child(5) { width: 10%; text-align: center; }
+#serverTable th:nth-child(6), #serverTable td:nth-child(6) { width: 11%; text-align: center; }

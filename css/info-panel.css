@@ -1,0 +1,292 @@
+#closeServerInfo {
+position: absolute;
+top: 15px;
+right: 15px;
+background: #333;
+border: none;
+color: #fff;
+font-size: 16px;
+cursor: pointer;
+z-index: 16;
+border-radius: 50%;
+width: 28px;
+height: 28px;
+line-height: 28px;
+text-align: center;
+transition: background-color 0.2s;
+}
+
+#closeServerInfo:hover {
+background-color: #555;
+}
+
+#serverInfo h3 {
+margin: 10px 0 8px 0;
+font-size: 12px;
+font-weight: normal;
+text-transform: uppercase;
+color: #888;
+}
+
+#serverInfo h3.section-divider {
+margin-top: 25px;
+padding-top: 15px;
+border-top: 1px solid #333;
+}
+
+.server-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+#serverInfo #serverInfo-name {
+margin: 0;
+font-size: 22px;
+font-weight: bold;
+line-height: 1.2;
+}
+
+#compare-button {
+background: #3a3a3a;
+border: 1px solid #555;
+color: #ddd;
+padding: 5px 10px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 12px;
+white-space: nowrap;
+transition: background-color 0.2s;
+}
+
+#compare-button:hover {
+background-color: #4a4a4a;
+}
+
+#comparison-prompt {
+font-size: 13px;
+text-align: center;
+color: #888;
+background-color: rgba(255, 255, 255, 0.05);
+padding: 8px;
+border-radius: 5px;
+margin-bottom: 15px;
+}
+
+#comparison-view {
+border-bottom: 1px solid #333;
+padding-bottom: 15px;
+margin-bottom: 15px;
+}
+
+#comparison-header, #comparison-stats {
+display: flex;
+gap: 15px;
+}
+
+.comparison-column {
+    flex: 1 1 50%;
+    min-width: 0;
+}
+
+.comparison-column h2 {
+    font-size: 18px;
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.comparison-column .server-stat-line {
+    font-size: 13px;
+}
+
+#compare-col-2 {
+position: relative;
+}
+
+#remove-comparison-btn {
+position: absolute;
+top: 0;
+right: 0;
+background: none;
+border: none;
+color: #888;
+font-size: 20px;
+cursor: pointer;
+padding: 0 5px;
+line-height: 1;
+}
+#remove-comparison-btn:hover {
+color: #fff;
+}
+
+
+#serverInfo .server-stat-line {
+display: flex;
+align-items: baseline;
+font-size: 14px;
+margin-bottom: 12px;
+}
+
+#serverInfo .stat-label {
+font-weight: bold;
+margin-right: 5px;
+}
+
+.server-stat-line .stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    margin-right: 8px;
+}
+
+.server-stat-line .stat-icon img {
+    height: 14px;
+    width: auto;
+    transform: translateY(2px);
+}
+
+#serverInfo ul {
+list-style: none;
+padding-left: 0;
+margin: 0;
+}
+
+#serverInfo li {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px;
+margin-bottom: 5px;
+border-radius: 5px;
+background-color: rgba(255, 255, 255, 0.03);
+transition: background-color 0.2s;
+word-wrap: normal;
+overflow: hidden;
+}
+
+#serverInfo li.partner-hovered {
+background-color: rgba(255, 255, 255, 0.1);
+}
+
+#serverInfo li.partner-hovered .partner-name {
+font-weight: 700;
+}
+
+#serverInfo li[data-visible="false"] {
+opacity: 0.6;
+cursor: not-allowed;
+}
+
+.partner-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 15px;
+}
+
+.partner-stats {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 13px;
+    color: #bbb;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.partner-stats span {
+    display: flex;
+    align-items: center;
+}
+
+.partner-stats .partner-icon {
+    height: 1em;
+    width: auto;
+    margin-right: 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+.stat-delta {
+    font-size: 14px;
+    margin-left: 8px;
+    font-weight: 500;
+    vertical-align: baseline;
+}
+
+.stat-delta.positive {
+    color: #4CAF50;
+}
+
+.stat-delta.negative {
+    color: #f44336;
+}
+
+.stat-delta.neutral {
+    color: #888;
+}
+
+#chart-controls, #chart-controls-compare {
+display: flex;
+justify-content: center;
+gap: 10px;
+margin-bottom: 10px;
+}
+
+.chart-toggle-btn {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.chart-toggle-btn.active,
+.chart-toggle-btn:hover {
+    background-color: #4CAF50;
+    color: #fff;
+    border-color: #4CAF50;
+}
+
+#serverInfo-chart, #serverInfo-chart-compare {
+width: 100%;
+height: 150px;
+margin-bottom: 10px;
+overflow-x: auto;
+}
+
+#serverInfo-chart svg, #serverInfo-chart-compare svg {
+display: block;
+}
+
+#serverInfo-chart .axis-line, #serverInfo-chart .tick line,
+#serverInfo-chart-compare .axis-line, #serverInfo-chart-compare .tick line {
+stroke: #444;
+}
+
+#serverInfo-chart .tick text,
+#serverInfo-chart-compare .tick text {
+fill: #aaa;
+font-size: 10px;
+}
+
+#serverInfo-chart .chart-line,
+#serverInfo-chart-compare .chart-line {
+fill: none;
+stroke-width: 2px;
+}
+
+#serverInfo-chart .chart-point,
+#serverInfo-chart-compare .chart-point {
+stroke-width: 1px;
+stroke: #1c1c1c;
+}
