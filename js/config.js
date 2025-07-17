@@ -41,7 +41,7 @@ let simulation;
 let zoom_handler;
 let initialTransform;
 let currentlyHighlighted = null;
-let blinkingNode = null;
+let blinkingNodes = [];
 let hoveredTableRowNodeId = null;
 let freezeTimer;
 let resizeTimer;
@@ -49,10 +49,13 @@ let radiusScale;
 let linkWeightScale;
 let boostColorScale, ageColorScale, partnershipColorScale, influenceColorScale;
 let currentColoringMode = 'boosts';
+let isCompareModeActive = false;
+let firstServerToCompare = null;
+let secondServerToCompare = null;
 
 const availableDataVersions = [
     { date: "2025-07-01", file: "data/data-2025-07-01.js", label: "1 lipca 2025" },
-    { date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
-    { date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
-    { date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
+{ date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
+{ date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
+{ date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
 ];
