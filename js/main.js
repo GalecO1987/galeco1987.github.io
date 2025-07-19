@@ -19,28 +19,49 @@ function handleColorModeChange() {
     colorLegend.select('.legend-' + selectedMode).classed('hidden', false);
 
     updateNodeColors();
+    updateTrendRankings();
+    updateURLWithCurrentState();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const overlay = document.getElementById('overlay');
     const understandButton = document.getElementById('understandButton');
+
+    await loadAllData();
+
+    const initialState = getStateFromURL();
+    const versionToLoad = availableDataVersions.find(v => v.file === initialState.dataVersion) || availableDataVersions[0];
+
+    loadDataVersion(versionToLoad, true);
+    initSummaryPanel();
+
     if (overlay && understandButton) {
         overlay.classList.add('visible');
         understandButton.addEventListener('click', () => {
             overlay.style.opacity = '0';
-            setTimeout(() => overlay.remove(), 500);
+            setTimeout(() => {
+                overlay.remove();
+                applyState(initialState);
+            }, 500);
         }, { once: true });
+    } else {
+        applyState(initialState);
     }
-
-    loadAllData();
 
     serverTableHeaders.on("click", handleSortClick);
     searchInput.on("input", updateTableFilter);
 
     d3.selectAll("#resetButton, #resetButtonMobile").on("click", () => {
         document.body.classList.remove('mobile-info-active');
+        document.body.classList.remove('mobile-summary-active');
         resetMap();
     });
+
+    d3.select("#showSummaryMobile").on("click", () => {
+        document.body.classList.add("mobile-summary-active");
+        drawSummaryChart(currentTrendMetric);
+    });
+    d3.select("#closeSummaryPanelMobile").on("click", () => document.body.classList.remove("mobile-summary-active"));
 
     d3.select("#closeServerInfo").on("click", () => {
         serverInfoPanel.style("display", "none");
@@ -50,6 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
             currentlyHighlighted = null;
         }
         exitCompareMode();
+        if (wasSummaryPanelOpen) {
+            summaryPanel.classed("temporarily-hidden", false);
+            wasSummaryPanelOpen = false;
+        }
+        updateURLWithCurrentState();
     });
 
     d3.select("#compare-button").on("click", () => {
@@ -80,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (serverIds.length > 0) {
             drawServerHistoryChart(serverIds, newDataType, useSpecialColors);
+            updateURLWithCurrentState();
         }
     });
 
