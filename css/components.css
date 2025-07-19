@@ -248,3 +248,18 @@ flex-basis: 100%;
     font-size: 11px;
     color: #aaa;
 }
+
+.legend-trend .legend-circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+    background-color: #333;
+    border: 3px solid #ccc;
+    box-sizing: border-box;
+}
+.legend-trend .fill-growth { background-color: #2e7d32; }
+.legend-trend .fill-decline { background-color: #c62828; }
+.legend-trend .stroke-growth { border-color: #66bb6a; }
+.legend-trend .stroke-decline { border-color: #ef5350; }
