@@ -3,12 +3,11 @@ const visibleServerCountSpan = d3.select("#visibleServerCount");
 const serverTableHeaders = d3.selectAll("#serverTable th.sortable");
 const dataVersionSelector = d3.select("#dataVersionSelector");
 const dataVersionSelectorMobile = d3.select("#dataVersionSelectorMobile");
-const loadedDataDateSpan = d3.select("#loadedDataDate");
-const serverCountSpan = d3.select("#serverCount");
 const searchInput = d3.select("#searchInput");
 const tooltip = d3.select(".tooltip");
 const serverInfoPanel = d3.select("#serverInfo");
 const serverInfoChart = d3.select("#serverInfo-chart");
+const summaryPanel = d3.select("#summaryPanel");
 const svg = d3.select("body").append("svg");
 const g = svg.append("g");
 
@@ -31,6 +30,7 @@ const colorLegend = d3.select("#colorLegend");
 let allData = new Map();
 let currentDataSet = { nodes: [], links: [] };
 let previousDataSet = { nodes: [], links: [] };
+let currentDataDate;
 
 let currentSortKey = 'members';
 let currentSortDirection = 'desc';
@@ -52,6 +52,7 @@ let currentColoringMode = 'boosts';
 let isCompareModeActive = false;
 let firstServerToCompare = null;
 let secondServerToCompare = null;
+let wasSummaryPanelOpen = false;
 
 const availableDataVersions = [
     { date: "2025-07-01", file: "data/data-2025-07-01.js", label: "1 lipca 2025" },
@@ -59,3 +60,20 @@ const availableDataVersions = [
 { date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
 { date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
 ];
+
+const defaultState = {
+    filters: {
+        dateMin: 0, dateMax: Infinity,
+        memberMin: 0, memberMax: Infinity,
+        boostMin: 0, boostMax: Infinity,
+        partnershipMin: 0, partnershipMax: Infinity,
+    },
+    colorMode: 'boosts',
+    dataVersion: availableDataVersions[0].file,
+    selectedServer: null,
+    chartType: 'members',
+    sortKey: 'members',
+    sortDirection: 'desc',
+    searchTerm: '',
+    trendMetric: 'members',
+};
