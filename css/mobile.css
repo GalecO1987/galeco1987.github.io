@@ -7,17 +7,40 @@
     display: none;
     }
 
-    .reset-button-mobile {
-        width: 100%;
-        padding: 8px 10px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 8px;
-        transition: background-color 0.3s ease;
+    .mobile-only-button-container {
+        display: flex;
+        gap: 10px;
         margin-top: 10px;
-        font-weight: bold;
+    }
+
+    #showSummaryMobile, .reset-button-mobile {
+    flex: 1;
+    padding: 8px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    }
+
+    #showSummaryMobile {
+    background-color: #555;
+    }
+
+    #closeSummaryPanelMobile {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    background-color: #555;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin-bottom: 15px;
+    font-weight: bold;
     }
 
     #leftPanel {
@@ -38,6 +61,32 @@
     z-index: 10;
     top: auto;
     padding: 10px;
+    }
+
+    #summaryPanel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    overflow-y: auto;
+    background-color: rgba(10, 10, 10, 0.98);
+    border-top: 1px solid #444;
+    border-radius: 0;
+    padding: 15px;
+    box-sizing: border-box;
+    display: none;
+    z-index: 11;
+    top: auto;
+    }
+
+    body.mobile-summary-active #leftPanel {
+        display: none;
+    }
+
+    body.mobile-summary-active #summaryPanel {
+        display: block;
     }
 
     #filterPanel {
@@ -120,7 +169,8 @@
     top: auto;
     }
 
-    body.mobile-info-active #leftPanel {
+    body.mobile-info-active #leftPanel,
+    body.mobile-info-active #summaryPanel {
         display: none;
     }
 
