@@ -47,6 +47,7 @@ function handleGenericFilterInput(event) {
     valueDisplay.select(".min-value").text(`min: ${minVal}`); valueDisplay.select(".max-value").text(`max: ${maxVal}`);
     updateRangeSliderVisual(minInput, maxInput);
     updateFilters();
+    updateURLWithCurrentState();
 }
 
 function handleDateFilterInput(event) {
@@ -63,6 +64,7 @@ function handleDateFilterInput(event) {
     dateValue.select(".min-value").text(`min: ${formatDate(selectedMinDateObj)}`); dateValue.select(".max-value").text(`max: ${formatDate(selectedMaxDateObj)}`);
     updateRangeSliderVisual(minInput, maxInput);
     updateFilters();
+    updateURLWithCurrentState();
 }
 
 function handleTrackClick(event) {
@@ -138,6 +140,9 @@ function updateFilters() {
         return dateMatch && memberMatch && boostMatch && partnershipMatch;
     });
     currentFilteredNodes = [...filteredForMap];
+    updateSummaryStats(currentFilteredNodes);
+    updateTrendRankings(currentTrendMetric);
+
     const filteredNodeIds = new Set(currentFilteredNodes.map(d => d.id));
     const filteredLinks = currentDataSet.links.filter(l => {
         const sourceId = l.source?.id || l.source; const targetId = l.target?.id || l.target;
@@ -149,6 +154,6 @@ function updateFilters() {
         serverInfoPanel.style("display", "none"); resetHighlight(); currentlyHighlighted = null;
     } else if (currentlyHighlighted) {
         highlightNodeAndLinks(currentlyHighlighted);
-        if(blinkingNode && blinkingNode.id === currentlyHighlighted.id) startBlinking(currentlyHighlighted);
+        if(blinkingNodes.length > 0 && blinkingNodes[0].id === currentlyHighlighted.id) startBlinking([currentlyHighlighted]);
     }
 }
