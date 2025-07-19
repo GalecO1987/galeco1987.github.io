@@ -2,6 +2,7 @@ function updateTableFilter() {
     if (!currentFilteredNodes) return;
     const searchTerm = searchInput.node() ? searchInput.property("value").toLowerCase() : "";
     updateServerTable(currentFilteredNodes, searchTerm);
+    updateURLWithCurrentState();
 }
 
 function calculateRanks(nodes) {
@@ -86,4 +87,5 @@ function handleSortClick(event) {
     if (sortKey === currentSortKey) { currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc'; } else { currentSortKey = sortKey; currentSortDirection = 'desc'; }
     const searchTerm = searchInput.node() ? searchInput.property("value").toLowerCase() : "";
     updateServerTable(currentFilteredNodes, searchTerm);
+    updateURLWithCurrentState();
 }
