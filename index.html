@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/table.css">
   <link rel="stylesheet" href="css/info-panel.css">
+  <link rel="stylesheet" href="css/summary-panel.css">
   <link rel="stylesheet" href="css/graph.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -64,6 +65,7 @@
                 <option value="age">Wieku</option>
                 <option value="partnerships">Partnerstw</option>
                 <option value="influence">Wpływu</option>
+                <option value="trend">Trendu</option>
             </select>
         </div>
         <button id="resetButton">Resetuj Mapę</button>
@@ -81,9 +83,13 @@
                 <option value="age">Wieku</option>
                 <option value="partnerships">Partnerstw</option>
                 <option value="influence">Wpływu</option>
+                <option value="trend">Trendu</option>
             </select>
         </div>
-        <button id="resetButtonMobile" class="reset-button-mobile">Resetuj Mapę</button>
+        <div class="mobile-only-button-container">
+            <button id="showSummaryMobile">Pokaż Podsumowanie</button>
+            <button id="resetButtonMobile" class="reset-button-mobile">Resetuj Mapę</button>
+        </div>
     </div>
 
     <h3>Filtrowanie:</h3>
@@ -153,6 +159,14 @@
         <div class="legend-section legend-age hidden"></div>
         <div class="legend-section legend-partnerships hidden"></div>
         <div class="legend-section legend-influence hidden"></div>
+        <div class="legend-section legend-trend hidden">
+            <div class="legend-title">Legenda Trendu (ostatni miesiąc)</div>
+            <div class="legend-item"><div class="legend-circle fill-growth"></div>Wzrost członków</div>
+            <div class="legend-item"><div class="legend-circle fill-decline"></div>Spadek członków</div>
+            <div class="legend-item"><div class="legend-circle stroke-growth"></div>Wzrost boostów</div>
+            <div class="legend-item"><div class="legend-circle stroke-decline"></div>Spadek boostów</div>
+            <div class="legend-item"><div class="legend-circle fill-growth stroke-decline"></div>Przykład złożony</div>
+        </div>
     </div>
 
     <div id="searchContainer">
@@ -180,6 +194,58 @@
       </div>
     </div>
 
+</div>
+
+<div id="summaryPanel">
+    <button id="closeSummaryPanelMobile" class="desktop-hidden">Powrót do Filtrów</button>
+    <h2>Podsumowanie</h2>
+    <div class="summary-section">
+        <h3>Statystyki dla widocznych serwerów</h3>
+        <div id="summary-stats-container">
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-total-members">0</span>
+                <span class="stat-label">Suma członków</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-avg-members">0</span>
+                <span class="stat-label">Średnio członków</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-total-boosts">0</span>
+                <span class="stat-label">Suma boostów</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-total-partnerships">0</span>
+                <span class="stat-label">Suma partnerstw</span>
+            </div>
+        </div>
+    </div>
+     <div class="summary-section">
+        <h3>Trend globalny (wszystkie serwery)</h3>
+        <div id="summary-chart-container">
+            <div id="summary-chart"></div>
+        </div>
+    </div>
+    <div class="summary-section">
+        <h3>Rankingi zmian (ostatni miesiąc)</h3>
+        <div id="trend-rank-controls">
+            <button class="trend-toggle-btn active" data-trend="members">Członkowie</button>
+            <button class="trend-toggle-btn" data-trend="boosts">Boosty</button>
+            <button class="trend-toggle-btn" data-trend="partnerships">Partnerstwa</button>
+        </div>
+        <div id="trend-rank-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nazwa serwera</th>
+                        <th>Zmiana</th>
+                    </tr>
+                </thead>
+                <tbody id="trend-rank-table-body"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div id="serverInfo">
@@ -223,18 +289,13 @@
     </div>
 </div>
 
-    <div id="pageVersion">Wersja strony: v0.23</div>
-
-    <div id="dataDate">
-        <div>Liczba serwerów: <span id="serverCount"></span></div>
-        <div>Dane z dnia: <span id="loadedDataDate">Ładowanie...</span></div>
-    </div>
-
+    <div id="pageVersion">Wersja strony: v0.27</div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/graph.js"></script>
+  <script src="js/summary.js"></script>
   <script src="js/interactions.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/table.js"></script>
