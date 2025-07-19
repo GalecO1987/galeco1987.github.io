@@ -1,3 +1,9 @@
+function formatDelta(delta) {
+    if (delta > 0) return `<span class="stat-delta positive">(+${delta})</span>`;
+    if (delta < 0) return `<span class="stat-delta negative">(${delta})</span>`;
+    return '';
+};
+
 function resetMap() {
     if (zoom_handler && initialTransform) { svg.transition().duration(750).call(zoom_handler.transform, initialTransform); }
     initializeFilters();
@@ -12,6 +18,7 @@ function resetMap() {
         drawGraph(currentDataSet.nodes, currentDataSet.links, 1, 1000);
     } else { currentFilteredNodes = []; updateServerTable([]); g.selectAll("*").remove(); }
     exitCompareMode();
+    history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
 function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColors = false) {
@@ -40,6 +47,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     const key = dataType === 'partnerships' ? 'partnerships' : dataType;
 
     for (const [date, dataSet] of allData.entries()) {
+        if (dateParser(date) > currentDataDate) continue;
         serverIds.forEach(serverId => {
             const serverData = dataSet.nodes.find(node => node.id === serverId);
             const value = serverData ? (dataType === 'partnerships' ? (serverData.partnerships || []).length : (serverData[key] || 0)) : null;
@@ -50,7 +58,19 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     if (allHistoryData.length === 0) return;
 
     const groupedData = d3.groups(allHistoryData, d => d.id);
-    groupedData.forEach(group => group[1].sort((a, b) => a.date - b.date));
+    groupedData.forEach(([, data]) => {
+        data.sort((a, b) => a.date - b.date);
+        for (let i = 0; i < data.length; i++) {
+            if (i > 0 && data[i].value !== null && data[i-1].value !== null) {
+                const diff = data[i].value - data[i-1].value;
+                data[i].diff = diff;
+                data[i].trend = diff > 0 ? 'growth' : (diff < 0 ? 'decline' : 'stable');
+            } else {
+                data[i].diff = 0;
+                data[i].trend = 'stable';
+            }
+        }
+    });
 
     if (useSpecialColors && groupedData.length === 2) {
         const [series1, series2] = [groupedData[0][1], groupedData[1][1]];
@@ -73,7 +93,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     controls.selectAll('.chart-toggle-btn').classed('active', false);
     controls.select(`.chart-toggle-btn[data-chart="${dataType}"]`).classed('active', true);
 
-    const margin = {top: 5, right: 15, bottom: 25, left: 40};
+    const margin = {top: 10, right: 15, bottom: 25, left: 40};
     const containerWidth = finalChartDiv.node().getBoundingClientRect().width;
     const pointWidth = 60;
     const maxPoints = d3.max(groupedData, ([, data]) => data.length);
@@ -91,6 +111,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     }
 
     const specialColorScale = d3.scaleOrdinal().domain(serverIds).range(["#e41a1c", "#377eb8"]);
+    const trendFillColor = { growth: '#4CAF50', decline: '#f44336' };
 
     const defs = chartSvg.append("defs");
     const gradient = defs.append("linearGradient")
@@ -116,6 +137,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     chartSvg.append("g").call(d3.axisLeft(y).ticks(4));
 
     const tooltipLabelMap = { members: 'Członkowie', boosts: 'Boosty', partnerships: 'Partnerstwa' };
+    const trendSymbol = d3.symbol().type(d3.symbolTriangle).size(25);
 
     groupedData.forEach(([id, data], i) => {
         const serverNode = currentDataSet.nodes.find(n => n.id === id);
@@ -133,7 +155,10 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
         });
 
         chartSvg.append("path").datum(data).attr("class", "chart-line").attr("d", line).style("stroke", serverColor);
-        chartSvg.selectAll(`.chart-point-${id.replace(/\s+/g, '-')}`).data(data.filter(d => d.value !== null)).join("circle").attr("class", `chart-point chart-point-${id.replace(/\s+/g, '-')}`)
+
+        const points = data.filter(d => d.value !== null);
+
+        chartSvg.selectAll(`.chart-point-${id.replace(/\s+/g, '-')}`).data(points).join("circle").attr("class", `chart-point chart-point-${id.replace(/\s+/g, '-')}`)
         .attr("cx", d => x(d.date)).attr("cy", d => y(d.value)).attr("r", 4)
         .attr("fill", d => d.sharedValue ? "url(#dual-color-gradient)" : serverColor)
         .on("mouseover", (event, d) => {
@@ -148,20 +173,20 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
                         if (pointOnThisDate && pointOnThisDate.value !== null) {
                             tooltipHtml += `<div class="shared-tooltip-item">
                             <span class="shared-swatch" style="background:${specialColorScale(serverId)};"></span>
-                            <span>${serverId}: ${pointOnThisDate.value}</span>
+                            <span>${serverId}: ${pointOnThisDate.value}${formatDelta(pointOnThisDate.diff)}</span>
                             </div>`;
                         }
                     });
                 } else {
                     tooltipHtml += `<div class="shared-tooltip-item">
                     <span class="shared-swatch" style="background:${specialColorScale(d.id)};"></span>
-                    <span>${d.id}: ${d.value}</span>
+                    <span>${d.id}: ${d.value}${formatDelta(d.diff)}</span>
                     </div>`;
                 }
             } else {
                 const valueLabel = tooltipLabelMap[dataType];
                 const serverColor = getNodeColor(currentDataSet.nodes.find(n => n.id === d.id));
-                tooltipHtml = `<strong style="color: ${serverColor};">${d.id}</strong><br><strong>${dateLabel}</strong><br>${valueLabel}: ${d.value}`;
+                tooltipHtml = `<strong style="color: ${serverColor};">${d.id}</strong><br><strong>${dateLabel}</strong><br>${valueLabel}: ${d.value}${formatDelta(d.diff)}`;
             }
 
             tooltip.style("display", "block").html(tooltipHtml);
@@ -172,10 +197,17 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
             if (left + tooltipWidth > window.innerWidth) { left = event.pageX - tooltipWidth - 15; }
             tooltip.style("left", left + "px").style("top", (event.pageY - 28) + "px");
         }).on("mouseout", () => { tooltip.style("display", "none"); });
+
+        chartSvg.selectAll(`.trend-indicator-${id.replace(/\s+/g, '-')}`).data(points.filter(d => d.trend && d.trend !== 'stable'))
+        .join("path")
+        .attr("d", trendSymbol)
+        .attr("class", "trend-indicator")
+        .attr("fill", d => trendFillColor[d.trend])
+        .attr("transform", d => `translate(${x(d.date)}, ${y(d.value) - 8}) ${d.trend === 'decline' ? 'rotate(180)' : 'rotate(0)'}`);
     });
 }
 
-function handleNodeClick(event, d) {
+function handleNodeClick(event, d, initialChartType = 'members') {
     const clickedNodeData = currentDataSet.nodes.find(n => n.id === d.id);
     if (!clickedNodeData) return;
 
@@ -193,41 +225,69 @@ function handleNodeClick(event, d) {
         document.body.classList.remove('mobile-info-active');
         resetHighlight();
         currentlyHighlighted = null;
+        updateURLWithCurrentState();
         return;
     }
 
     resetHighlight();
     exitCompareMode();
 
+    wasSummaryPanelOpen = !summaryPanel.classed("temporarily-hidden");
+    summaryPanel.classed("temporarily-hidden", true);
+
     currentlyHighlighted = clickedNodeData;
-    displaySingleServer(clickedNodeData);
+    displaySingleServer(clickedNodeData, initialChartType);
 
     const scale = 0.6; const targetX = d.x || window.innerWidth / 2; const targetY = d.y || window.innerHeight / 2;
     const transform = d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(scale).translate(-targetX, -targetY);
     svg.transition().duration(750).call(zoom_handler.transform, transform);
     startBlinking([clickedNodeData]);
+    updateURLWithCurrentState();
 }
 
-function displaySingleServer(nodeData) {
+function displaySingleServer(nodeData, chartType = 'members') {
     serverInfoPanel.style("display", "block");
     document.body.classList.add('mobile-info-active');
     d3.select("#single-server-view").classed("hidden", false);
     d3.select("#comparison-view").classed("hidden", true);
     d3.select("#comparison-prompt").classed("hidden", true);
 
+    const serverInfoName = d3.select("#serverInfo-name");
+    serverInfoName.text(nodeData.id);
+
+    if (currentColoringMode === 'trend') {
+        const strokeColors = { growth: '#66bb6a', decline: '#ef5350', stable: 'transparent' };
+        const strokeColor = strokeColors[nodeData.boostTrend];
+        serverInfoName
+        .style("color", getNodeColor(nodeData, 'trend'))
+        .style("-webkit-text-stroke", `0.3px ${strokeColor}`)
+        .style("text-stroke", `0.3px ${strokeColor}`);
+    } else {
+        serverInfoName
+        .style("color", getNodeColor(nodeData))
+        .style("-webkit-text-stroke", null)
+        .style("text-stroke", null);
+    }
+
     const partnershipsData = (nodeData.partnerships || []).map(pId => currentDataSet.nodes.find(n => n.id === pId)).filter(p => p).sort((a, b) => (b.members || 0) - (a.members || 0));
-    d3.select("#serverInfo-name").style("color", getNodeColor(nodeData)).text(nodeData.id);
     d3.select("#serverInfo-stats").html(generateServerStatsHTML(nodeData));
 
     let partnershipsHtml = "";
     if (partnershipsData.length > 0) {
         partnershipsData.forEach(p => {
             const pCol = getNodeColor(p);
-            const isVis = currentFilteredNodes.some(n => n.id === p.id);
+            let styleString = `color: ${currentFilteredNodes.some(n => n.id === p.id) ? pCol : '#888'};`;
+
+            if (currentColoringMode === 'trend' && currentFilteredNodes.some(n => n.id === p.id)) {
+                const strokeColors = { growth: '#66bb6a', decline: '#ef5350', stable: 'transparent' };
+                const strokeColor = strokeColors[p.boostTrend];
+                styleString += `-webkit-text-stroke: 0.3px ${strokeColor}; text-stroke: 0.3px ${strokeColor};`;
+            }
+
             partnershipsHtml += `
-            <li data-partner-id="${p.id}" data-visible="${isVis}">
-            <span class="partner-name" style="color: ${isVis ? pCol : '#888'};">
-            ${p.id} ${!isVis ? '<span style="font-size: 0.8em; color: #777;">[ukryty]</span>' : ''}
+            <li data-partner-id="${p.id}" data-visible="${currentFilteredNodes.some(n => n.id === p.id)}">
+            <span class="partner-name" style="${styleString}">
+            ${p.id} ${!currentFilteredNodes.some(n => n.id === p.id) ? '<span style="font-size: 0.8em; color: #777;">[ukryty]</span>' : ''}
             </span>
             <span class="partner-stats">
             <span><span class="partner-icon">👥</span> ${p.members || 0}</span>
@@ -240,7 +300,7 @@ function displaySingleServer(nodeData) {
     }
     d3.select("#serverInfo-partnerships-list").html(partnershipsHtml);
 
-    drawServerHistoryChart([nodeData.id], 'members', false);
+    drawServerHistoryChart([nodeData.id], chartType, false);
     highlightNodeAndLinks(nodeData);
 }
 
@@ -272,13 +332,8 @@ function displayComparison(server1, server2) {
 
 function generateServerStatsHTML(nodeData) {
     const previousNodeData = previousDataSet.nodes.find(n => n.id === nodeData.id);
-    const formatDelta = (delta) => {
-        if (delta > 0) return `<span class="stat-delta positive">(+${delta})</span>`;
-        if (delta < 0) return `<span class="stat-delta negative">(${delta})</span>`;
-        return '';
-    };
-
     let membersDeltaHtml = '', boostsDeltaHtml = '', partnershipsDeltaHtml = '';
+
     if (previousNodeData) {
         membersDeltaHtml = formatDelta((nodeData.members || 0) - (previousNodeData.members || 0));
         boostsDeltaHtml = formatDelta((nodeData.boosts || 0) - (previousNodeData.boosts || 0));
@@ -466,13 +521,21 @@ function handleNodeMouseOver(event, d) {
     const tooltip = d3.select(".tooltip");
     const fullDataNode = currentDataSet.nodes.find(n => n.id === d.id);
     if (fullDataNode) {
+        let titleStyle = `color: ${getNodeColor(fullDataNode)};`;
+        if (currentColoringMode === 'trend') {
+            const strokeColors = { growth: '#66bb6a', decline: '#ef5350', stable: 'transparent' };
+            const strokeColor = strokeColors[fullDataNode.boostTrend];
+            titleStyle += `-webkit-text-stroke: 0.3px ${strokeColor}; text-stroke: 0.3px ${strokeColor};`;
+        }
+
         tooltip.html(`
-        <div class="tooltip-title" style="color: ${getNodeColor(fullDataNode)};">${fullDataNode.id}</div>
+        <div class="tooltip-title" style="${titleStyle}">${fullDataNode.id}</div>
         <div class="tooltip-stat"><span class="tooltip-icon">🗓️</span><span class="tooltip-label">Data założenia:</span> ${formatDate(parseDateString(fullDataNode.creationDate))}</div>
         <div class="tooltip-stat"><span class="tooltip-icon">👥</span><span class="tooltip-label">Członkowie:</span> ${fullDataNode.members || 0}</div>
         <div class="tooltip-stat"><span class="tooltip-icon"><img src="images/boost-icon.png" alt="Boosty"></span><span class="tooltip-label">Boosty:</span> ${fullDataNode.boosts || 0}</div>
         <div class="tooltip-stat"><span class="tooltip-icon">🤝</span><span class="tooltip-label">Partnerstwa:</span> ${(fullDataNode.partnerships || []).length}</div>
         `).style("display", "block");
+
         const tooltipNode = tooltip.node();
         let left = event.pageX + 15, top = event.pageY + 15;
         if (left + tooltipNode.offsetWidth > window.innerWidth) { left = event.pageX - tooltipNode.offsetWidth - 15; }
