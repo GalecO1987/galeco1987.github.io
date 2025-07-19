@@ -24,28 +24,20 @@ const loadScript = (file) => {
 
 async function loadAllData() {
     const promises = availableDataVersions.map(version => loadScript(version.file));
-
-    try {
-        const datasets = await Promise.all(promises);
-        availableDataVersions.forEach((version, index) => {
-            allData.set(version.date, datasets[index]);
-        });
-
-        const latestVersion = availableDataVersions[0];
-        loadDataVersion(latestVersion, true);
-
-    } catch (error) {
-        loadedDataDateSpan.text("Błąd ładowania danych!");
-    }
+    const datasets = await Promise.all(promises);
+    availableDataVersions.forEach((version, index) => {
+        allData.set(version.date, datasets[index]);
+    });
 }
 
 
-function loadDataVersion(versionInfo, isInitialLoad = false) {
+function loadDataVersion(versionInfo, isInitialLoad = false, onLoadCallback = null) {
     if (simulation) simulation.stop();
     g.selectAll("*").remove();
 
     const dataKey = versionInfo.date;
     currentDataSet = allData.get(dataKey);
+    currentDataDate = new Date(dataKey);
 
     const currentIndex = availableDataVersions.findIndex(v => v.file === versionInfo.file);
     const previousIndex = currentIndex + 1;
@@ -57,10 +49,17 @@ function loadDataVersion(versionInfo, isInitialLoad = false) {
     }
 
     initializeVisualization(currentDataSet, versionInfo);
+    updateSummaryStats(currentDataSet.nodes);
+    drawSummaryChart(currentTrendMetric);
+    updateTrendRankings();
 
     if (!isInitialLoad) {
         dataVersionSelector.property('value', versionInfo.file);
         dataVersionSelectorMobile.property('value', versionInfo.file);
+    }
+
+    if (onLoadCallback) {
+        onLoadCallback();
     }
 }
 
@@ -83,5 +82,6 @@ function handleDataVersionChange() {
             dataVersionSelector.property('value', selectedFile);
         }
         loadDataVersion(selectedVersion);
+        updateURLWithCurrentState();
     }
 }
