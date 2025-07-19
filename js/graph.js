@@ -5,11 +5,26 @@ function initializeVisualization(dataSet, versionInfo) {
     if (!currentDataSet.links) currentDataSet.links = [];
     currentDataSet.links = [];
 
+    const previousNodesById = new Map((previousDataSet.nodes || []).map(node => [node.id, node]));
+
     currentDataSet.nodes.forEach(node => {
         if (node.creationDate) { node.creationDate = convertDateFormat(node.creationDate); }
         else { node.creationDate = "??-??-????"; }
         node.members = Number(node.members) || 0;
         node.boosts = Number(node.boosts) || 0;
+
+        const prevNode = previousNodesById.get(node.id);
+        if(prevNode) {
+            const membersDiff = node.members - (prevNode.members || 0);
+            const boostsDiff = node.boosts - (prevNode.boosts || 0);
+
+            node.memberTrend = membersDiff > 0 ? 'growth' : (membersDiff < 0 ? 'decline' : 'stable');
+            node.boostTrend = boostsDiff > 0 ? 'growth' : (boostsDiff < 0 ? 'decline' : 'stable');
+        } else {
+            node.memberTrend = 'stable';
+            node.boostTrend = 'stable';
+        }
+
         if (!node.partnerships || !Array.isArray(node.partnerships)) { node.partnerships = []; }
         node.partnerships.forEach(partnerId => {
             const partner = currentDataSet.nodes.find(n => n.id === partnerId);
@@ -53,8 +68,6 @@ function initializeVisualization(dataSet, versionInfo) {
     currentSortDirection = 'desc';
 
     updateServerTable(currentFilteredNodes);
-    loadedDataDateSpan.text(versionInfo.label);
-    serverCountSpan.text(currentDataSet.nodes.length);
 
     setupSVGAndView();
     setupSimulation();
@@ -175,10 +188,34 @@ function updateColorLegend() {
 }
 
 function updateNodeColors() {
-    g.selectAll(".node")
-    .transition()
-    .duration(500)
-    .attr("fill", d => getNodeColor(d));
+    const nodes = g.selectAll(".node");
+    const labels = g.selectAll(".node-label");
+
+    if (currentColoringMode === 'trend') {
+        const fillColors = { growth: '#2e7d32', decline: '#c62828', stable: '#333' };
+        const strokeColors = { growth: '#66bb6a', decline: '#ef5350', stable: '#ccc' };
+
+        nodes.transition().duration(500)
+        .attr("fill", d => fillColors[d.memberTrend])
+        .attr("stroke", d => strokeColors[d.boostTrend])
+        .attr("stroke-width", d => d.boostTrend === 'stable' ? 1 : 3);
+
+        labels.transition().duration(500)
+        .attr("fill", d => fillColors[d.memberTrend])
+        .attr("stroke", d => strokeColors[d.boostTrend])
+        .attr("stroke-width", d => d.boostTrend === 'stable' ? 0.5 : 1);
+
+    } else {
+        nodes.transition().duration(500)
+        .attr("fill", d => getNodeColor(d))
+        .attr("stroke", null)
+        .attr("stroke-width", null);
+
+        labels.transition().duration(500)
+        .attr("fill", "#fff")
+        .attr("stroke", "#000")
+        .attr("stroke-width", 0.5);
+    }
 
     if (currentlyHighlighted && !secondServerToCompare) {
         d3.select("#serverInfo-name").style("color", getNodeColor(currentlyHighlighted));
@@ -238,6 +275,11 @@ function setupSVGAndView() {
                 resetHighlight();
                 currentlyHighlighted = null;
                 exitCompareMode();
+                if (wasSummaryPanelOpen) {
+                    summaryPanel.classed("temporarily-hidden", false);
+                    wasSummaryPanelOpen = false;
+                }
+                updateURLWithCurrentState();
             }
         }
     });
@@ -272,9 +314,7 @@ function setupSimulation() {
 function drawGraph(nodesToDraw, linksToDraw, initialAlpha = 1, stopDelay = 1000) {
     g.selectAll("*").remove();
     if (!simulation || !nodesToDraw || nodesToDraw.length === 0) return;
-    if (!radiusScale) {
-        return;
-    }
+    if (!radiusScale) { return; }
 
     const filteredNodeIds = new Set(nodesToDraw.map(n => n.id));
     const validLinks = currentDataSet.links.filter(l => {
@@ -283,10 +323,7 @@ function drawGraph(nodesToDraw, linksToDraw, initialAlpha = 1, stopDelay = 1000)
         return filteredNodeIds.has(sourceId) && filteredNodeIds.has(targetId);
     });
 
-    nodesToDraw.forEach(node => {
-        node.fx = null;
-        node.fy = null;
-    });
+    nodesToDraw.forEach(node => { node.fx = null; node.fy = null; });
 
     simulation.nodes(nodesToDraw);
     if (simulation.force("link")) {
@@ -302,8 +339,11 @@ function drawGraph(nodesToDraw, linksToDraw, initialAlpha = 1, stopDelay = 1000)
     const node = g.append("g").attr("class", "nodes").selectAll("circle")
     .data(nodesToDraw, d => d.id)
     .join("circle").attr("class", "node").attr("r", d => radiusScale(d.members || 0))
-    .attr("fill", d => getNodeColor(d)).on("click", handleNodeClick)
+    .on("click", handleNodeClick)
     .on("mouseover", handleNodeMouseOver).on("mouseout", handleNodeMouseOut);
+
+    updateNodeColors();
+
     const label = g.append("g").attr("class", "labels").selectAll("text")
     .data(nodesToDraw, d => d.id)
     .join("text").attr("class", "node-label").text(d => d.id);
