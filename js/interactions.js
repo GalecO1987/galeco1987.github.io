@@ -24,7 +24,7 @@ function resetMap() {
 function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColors = false) {
     const chartContainer = secondServerToCompare ? d3.select("#comparison-chart-container") : d3.select("#chart-container");
     const chartDiv = secondServerToCompare ? chartContainer : serverInfoChart;
-
+    
     chartDiv.html("");
     chartContainer.classed("hidden", true);
 
@@ -32,9 +32,9 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
 
     if (secondServerToCompare) {
         chartContainer.html(`
-        <h3 class="section-divider">Historia:</h3>
-        <div id="chart-controls-compare"></div>
-        <div id="serverInfo-chart-compare"></div>
+            <h3 class="section-divider">Historia:</h3>
+            <div id="chart-controls-compare"></div>
+            <div id="serverInfo-chart-compare"></div>
         `);
         d3.select("#chart-controls").clone(true).each(function() {
             d3.select("#chart-controls-compare").node().appendChild(this);
@@ -54,7 +54,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
             allHistoryData.push({ id: serverId, date: dateParser(date), value: value });
         });
     }
-
+    
     if (allHistoryData.length === 0) return;
 
     const groupedData = d3.groups(allHistoryData, d => d.id);
@@ -75,7 +75,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     if (useSpecialColors && groupedData.length === 2) {
         const [series1, series2] = [groupedData[0][1], groupedData[1][1]];
         const series2ValuesByDate = new Map(series2.map(d => [d.date.getTime(), d.value]));
-
+        
         series1.forEach(d1 => {
             const d2Value = series2ValuesByDate.get(d1.date.getTime());
             if (d1.value !== null && d1.value === d2Value) {
@@ -92,7 +92,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     const controls = secondServerToCompare ? d3.select("#chart-controls-compare") : d3.select("#chart-controls");
     controls.selectAll('.chart-toggle-btn').classed('active', false);
     controls.select(`.chart-toggle-btn[data-chart="${dataType}"]`).classed('active', true);
-
+    
     const margin = {top: 10, right: 15, bottom: 25, left: 40};
     const containerWidth = finalChartDiv.node().getBoundingClientRect().width;
     const pointWidth = 60;
@@ -101,11 +101,11 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     const height = finalChartDiv.node().getBoundingClientRect().height - margin.top - margin.bottom;
 
     const chartSvg = finalChartDiv.append("svg")
-    .attr("width", dynamicWidth + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
+        .attr("width", dynamicWidth + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+    
     if (finalChartDiv.node().scrollWidth > containerWidth) {
         finalChartDiv.node().scrollLeft = finalChartDiv.node().scrollWidth - containerWidth;
     }
@@ -115,9 +115,9 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
 
     const defs = chartSvg.append("defs");
     const gradient = defs.append("linearGradient")
-    .attr("id", "dual-color-gradient")
-    .attr("x1", "0%").attr("y1", "0%")
-    .attr("x2", "100%").attr("y2", "0%");
+        .attr("id", "dual-color-gradient")
+        .attr("x1", "0%").attr("y1", "0%")
+        .attr("x2", "100%").attr("y2", "0%");
     gradient.append("stop").attr("offset", "50%").attr("stop-color", specialColorScale.range()[0]);
     gradient.append("stop").attr("offset", "50%").attr("stop-color", specialColorScale.range()[1]);
 
@@ -133,77 +133,77 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     const yPadding = (yMax - yMin) * 0.15 || 1;
     const y = d3.scaleLinear().domain([Math.max(0, yMin - yPadding), yMax + yPadding]).range([height, 0]);
 
-    chartSvg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b '%y")));
-    chartSvg.append("g").call(d3.axisLeft(y).ticks(4));
-
+    chartSvg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(4).tickFormat(d3.timeFormat("%b '%y")));
+    chartSvg.append("g").call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
+        
     const tooltipLabelMap = { members: 'Członkowie', boosts: 'Boosty', partnerships: 'Partnerstwa' };
     const trendSymbol = d3.symbol().type(d3.symbolTriangle).size(25);
 
     groupedData.forEach(([id, data], i) => {
         const serverNode = currentDataSet.nodes.find(n => n.id === id);
         const serverColor = useSpecialColors ? specialColorScale(id) : (serverNode ? getNodeColor(serverNode) : '#ccc');
-
+        
         const line = d3.line()
-        .defined(d => d.value !== null && !isNaN(d.value))
-        .x(d => x(d.date))
-        .y(d => {
-            const base_y = y(d.value);
-            if (d.sharedValue) {
-                return i === 0 ? base_y - 2 : base_y + 2;
-            }
-            return base_y;
-        });
+            .defined(d => d.value !== null && !isNaN(d.value))
+            .x(d => x(d.date))
+            .y(d => {
+                const base_y = y(d.value);
+                if (d.sharedValue) {
+                    return i === 0 ? base_y - 2 : base_y + 2;
+                }
+                return base_y;
+            });
 
         chartSvg.append("path").datum(data).attr("class", "chart-line").attr("d", line).style("stroke", serverColor);
-
+        
         const points = data.filter(d => d.value !== null);
-
+        
         chartSvg.selectAll(`.chart-point-${id.replace(/\s+/g, '-')}`).data(points).join("circle").attr("class", `chart-point chart-point-${id.replace(/\s+/g, '-')}`)
-        .attr("cx", d => x(d.date)).attr("cy", d => y(d.value)).attr("r", 4)
-        .attr("fill", d => d.sharedValue ? "url(#dual-color-gradient)" : serverColor)
-        .on("mouseover", (event, d) => {
-            const dateLabel = d3.timeFormat("%d %B %Y")(d.date);
-            let tooltipHtml = "";
+            .attr("cx", d => x(d.date)).attr("cy", d => y(d.value)).attr("r", 4)
+            .attr("fill", d => d.sharedValue ? "url(#dual-color-gradient)" : serverColor)
+            .on("mouseover", (event, d) => {
+                const dateLabel = d3.timeFormat("%d %B %Y")(d.date);
+                let tooltipHtml = "";
 
-            if (useSpecialColors) {
-                tooltipHtml = `<strong>${dateLabel}</strong>`;
-                if (d.sharedValue) {
-                    groupedData.forEach(([serverId, seriesData]) => {
-                        const pointOnThisDate = seriesData.find(p => p.date.getTime() === d.date.getTime());
-                        if (pointOnThisDate && pointOnThisDate.value !== null) {
-                            tooltipHtml += `<div class="shared-tooltip-item">
-                            <span class="shared-swatch" style="background:${specialColorScale(serverId)};"></span>
-                            <span>${serverId}: ${pointOnThisDate.value}${formatDelta(pointOnThisDate.diff)}</span>
-                            </div>`;
-                        }
-                    });
+                if (useSpecialColors) {
+                    tooltipHtml = `<strong>${dateLabel}</strong>`;
+                    if (d.sharedValue) {
+                        groupedData.forEach(([serverId, seriesData]) => {
+                            const pointOnThisDate = seriesData.find(p => p.date.getTime() === d.date.getTime());
+                            if (pointOnThisDate && pointOnThisDate.value !== null) {
+                                tooltipHtml += `<div class="shared-tooltip-item">
+                                    <span class="shared-swatch" style="background:${specialColorScale(serverId)};"></span>
+                                    <span>${serverId}: ${pointOnThisDate.value}${formatDelta(pointOnThisDate.diff)}</span>
+                                </div>`;
+                            }
+                        });
+                    } else {
+                        tooltipHtml += `<div class="shared-tooltip-item">
+                            <span class="shared-swatch" style="background:${specialColorScale(d.id)};"></span>
+                            <span>${d.id}: ${d.value}${formatDelta(d.diff)}</span>
+                        </div>`;
+                    }
                 } else {
-                    tooltipHtml += `<div class="shared-tooltip-item">
-                    <span class="shared-swatch" style="background:${specialColorScale(d.id)};"></span>
-                    <span>${d.id}: ${d.value}${formatDelta(d.diff)}</span>
-                    </div>`;
+                     const valueLabel = tooltipLabelMap[dataType];
+                     const serverColor = getNodeColor(currentDataSet.nodes.find(n => n.id === d.id));
+                     tooltipHtml = `<strong style="color: ${serverColor};">${d.id}</strong><br><strong>${dateLabel}</strong><br>${valueLabel}: ${d.value}${formatDelta(d.diff)}`;
                 }
-            } else {
-                const valueLabel = tooltipLabelMap[dataType];
-                const serverColor = getNodeColor(currentDataSet.nodes.find(n => n.id === d.id));
-                tooltipHtml = `<strong style="color: ${serverColor};">${d.id}</strong><br><strong>${dateLabel}</strong><br>${valueLabel}: ${d.value}${formatDelta(d.diff)}`;
-            }
 
-            tooltip.style("display", "block").html(tooltipHtml);
-        }).on("mousemove", (event) => {
-            const tooltipNode = tooltip.node();
-            const tooltipWidth = tooltipNode.offsetWidth;
-            let left = event.pageX + 15;
-            if (left + tooltipWidth > window.innerWidth) { left = event.pageX - tooltipWidth - 15; }
-            tooltip.style("left", left + "px").style("top", (event.pageY - 28) + "px");
-        }).on("mouseout", () => { tooltip.style("display", "none"); });
+                tooltip.style("display", "block").html(tooltipHtml);
+            }).on("mousemove", (event) => {
+                const tooltipNode = tooltip.node();
+                const tooltipWidth = tooltipNode.offsetWidth;
+                let left = event.pageX + 15;
+                if (left + tooltipWidth > window.innerWidth) { left = event.pageX - tooltipWidth - 15; }
+                tooltip.style("left", left + "px").style("top", (event.pageY - 28) + "px");
+            }).on("mouseout", () => { tooltip.style("display", "none"); });
 
         chartSvg.selectAll(`.trend-indicator-${id.replace(/\s+/g, '-')}`).data(points.filter(d => d.trend && d.trend !== 'stable'))
-        .join("path")
-        .attr("d", trendSymbol)
-        .attr("class", "trend-indicator")
-        .attr("fill", d => trendFillColor[d.trend])
-        .attr("transform", d => `translate(${x(d.date)}, ${y(d.value) - 8}) ${d.trend === 'decline' ? 'rotate(180)' : 'rotate(0)'}`);
+            .join("path")
+            .attr("d", trendSymbol)
+            .attr("class", "trend-indicator")
+            .attr("fill", d => trendFillColor[d.trend])
+            .attr("transform", d => `translate(${x(d.date)}, ${y(d.value) - 8}) ${d.trend === 'decline' ? 'rotate(180)' : 'rotate(0)'}`);
     });
 }
 
@@ -219,7 +219,7 @@ function handleNodeClick(event, d, initialChartType = 'members') {
         }
         return;
     }
-
+    
     if (currentlyHighlighted === clickedNodeData) {
         serverInfoPanel.style("display", "none");
         document.body.classList.remove('mobile-info-active');
@@ -228,16 +228,18 @@ function handleNodeClick(event, d, initialChartType = 'members') {
         updateURLWithCurrentState();
         return;
     }
-
+    
+    if (!currentlyHighlighted) {
+        wasSummaryPanelOpen = !summaryPanel.classed("temporarily-hidden");
+    }
+    
     resetHighlight();
     exitCompareMode();
-
-    wasSummaryPanelOpen = !summaryPanel.classed("temporarily-hidden");
     summaryPanel.classed("temporarily-hidden", true);
 
     currentlyHighlighted = clickedNodeData;
     displaySingleServer(clickedNodeData, initialChartType);
-
+    
     const scale = 0.6; const targetX = d.x || window.innerWidth / 2; const targetY = d.y || window.innerHeight / 2;
     const transform = d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(scale).translate(-targetX, -targetY);
     svg.transition().duration(750).call(zoom_handler.transform, transform);
@@ -259,14 +261,14 @@ function displaySingleServer(nodeData, chartType = 'members') {
         const strokeColors = { growth: '#66bb6a', decline: '#ef5350', stable: 'transparent' };
         const strokeColor = strokeColors[nodeData.boostTrend];
         serverInfoName
-        .style("color", getNodeColor(nodeData, 'trend'))
-        .style("-webkit-text-stroke", `0.3px ${strokeColor}`)
-        .style("text-stroke", `0.3px ${strokeColor}`);
+            .style("color", getNodeColor(nodeData, 'trend'))
+            .style("-webkit-text-stroke", `0.3px ${strokeColor}`)
+            .style("text-stroke", `0.3px ${strokeColor}`);
     } else {
         serverInfoName
-        .style("color", getNodeColor(nodeData))
-        .style("-webkit-text-stroke", null)
-        .style("text-stroke", null);
+            .style("color", getNodeColor(nodeData))
+            .style("-webkit-text-stroke", null)
+            .style("text-stroke", null);
     }
 
     const partnershipsData = (nodeData.partnerships || []).map(pId => currentDataSet.nodes.find(n => n.id === pId)).filter(p => p).sort((a, b) => (b.members || 0) - (a.members || 0));
@@ -307,7 +309,7 @@ function displaySingleServer(nodeData, chartType = 'members') {
 function displayComparison(server1, server2) {
     d3.select("#single-server-view").classed("hidden", true);
     d3.select("#comparison-view").classed("hidden", false);
-
+    
     highlightNodeAndLinks(null, [server1.id, server2.id], 'spotlight');
     startBlinking([server1, server2]);
 
@@ -315,7 +317,7 @@ function displayComparison(server1, server2) {
 
     d3.select("#compare-col-1").html(`<h2 style="color:${specialColorScale(server1.id)};">${server1.id}</h2>`);
     d3.select("#compare-col-2").html(`<h2 style="color:${specialColorScale(server2.id)};">${server2.id}</h2> <button id="remove-comparison-btn" title="Zakończ porównanie">×</button>`);
-
+    
     d3.select("#remove-comparison-btn").on("click", () => {
         const primaryServer = currentlyHighlighted;
         exitCompareMode();
@@ -342,10 +344,10 @@ function generateServerStatsHTML(nodeData) {
     const creationDateObj = parseDateString(nodeData.creationDate);
 
     return `
-    <div class="server-stat-line"><span class="stat-icon">🗓️</span><span class="stat-label">Założono:</span> ${formatDate(creationDateObj)}</div>
-    <div class="server-stat-line"><span class="stat-icon">👥</span><span class="stat-label">Członkowie:</span> ${nodeData.members || 0} ${membersDeltaHtml}</div>
-    <div class="server-stat-line"><span class="stat-icon"><img src="images/boost-icon.png" alt="Boosty"></span><span class="stat-label">Boosty:</span> ${nodeData.boosts || 0} ${boostsDeltaHtml}</div>
-    <div class="server-stat-line"><span class="stat-icon">🤝</span><span class="stat-label">Partnerstwa:</span> ${(nodeData.partnerships || []).length} ${partnershipsDeltaHtml}</div>
+        <div class="server-stat-line"><span class="stat-icon">🗓️</span><span class="stat-label">Założono:</span> ${formatDate(creationDateObj)}</div>
+        <div class="server-stat-line"><span class="stat-icon">👥</span><span class="stat-label">Członkowie:</span> ${nodeData.members || 0} ${membersDeltaHtml}</div>
+        <div class="server-stat-line"><span class="stat-icon"><img src="images/boost-icon.png" alt="Boosty"></span><span class="stat-label">Boosty:</span> ${nodeData.boosts || 0} ${boostsDeltaHtml}</div>
+        <div class="server-stat-line"><span class="stat-icon">🤝</span><span class="stat-label">Partnerstwa:</span> ${(nodeData.partnerships || []).length} ${partnershipsDeltaHtml}</div>
     `;
 }
 
@@ -410,23 +412,23 @@ function highlightNodeAndLinks(d, additionalIds = [], mode = 'default') {
 
     const visibleNodeIds = new Set(currentFilteredNodes.map(n => n.id));
     g.selectAll(".node")
-    .classed("dimmed", n => mode !== 'noDim' && visibleNodeIds.has(n.id) && !connectedNodeIds.has(n.id))
-    .style("stroke", n => highlightIds.has(n.id) ? "white" : null)
-    .style("stroke-width", n => highlightIds.has(n.id) ? 2 : null);
+        .classed("dimmed", n => mode !== 'noDim' && visibleNodeIds.has(n.id) && !connectedNodeIds.has(n.id))
+        .style("stroke", n => highlightIds.has(n.id) ? "white" : null)
+        .style("stroke-width", n => highlightIds.has(n.id) ? 2 : null);
 
     g.selectAll(".link")
-    .classed("hidden", l => {
-        const srcId = l.source?.id || l.source;
-        const tgtId = l.target?.id || l.target;
-        if (mode === 'spotlight') {
-            return !(highlightIds.has(srcId) && highlightIds.has(tgtId));
-        }
-        return mode !== 'noDim' && (!visibleNodeIds.has(srcId) || !visibleNodeIds.has(tgtId) || !(connectedNodeIds.has(srcId) && connectedNodeIds.has(tgtId)));
-    })
-    .classed("hovered", false);
+        .classed("hidden", l => {
+            const srcId = l.source?.id || l.source;
+            const tgtId = l.target?.id || l.target;
+            if (mode === 'spotlight') {
+                return !(highlightIds.has(srcId) && highlightIds.has(tgtId));
+            }
+            return mode !== 'noDim' && (!visibleNodeIds.has(srcId) || !visibleNodeIds.has(tgtId) || !(connectedNodeIds.has(srcId) && connectedNodeIds.has(tgtId)));
+        })
+        .classed("hovered", false);
 
     g.selectAll(".node-label")
-    .classed("hidden", lbl => mode !== 'noDim' && !(visibleNodeIds.has(lbl.id) && connectedNodeIds.has(lbl.id)));
+        .classed("hidden", lbl => mode !== 'noDim' && !(visibleNodeIds.has(lbl.id) && connectedNodeIds.has(lbl.id)));
 }
 
 function highlightHovered(d, isHovering) {
@@ -435,7 +437,7 @@ function highlightHovered(d, isHovering) {
     if (secondServerToCompare) {
         const isOneOfTheCompared = (d.id === firstServerToCompare.id || d.id === secondServerToCompare.id);
         if (!isOneOfTheCompared) {
-            return;
+            return; 
         }
     }
 
@@ -452,7 +454,7 @@ function highlightHovered(d, isHovering) {
         if (!secondServerToCompare) {
             connectedLinks.classed("hovered", false);
         }
-
+        
         if (currentlyHighlighted) {
             const mode = isCompareModeActive ? 'noDim' : (secondServerToCompare ? 'spotlight' : 'default');
             highlightNodeAndLinks(currentlyHighlighted, secondServerToCompare ? [secondServerToCompare.id] : [], mode);
@@ -482,7 +484,7 @@ function startBlinking(nodesToBlink) {
 
     function blink() {
         if (blinkingNodes.length === 0 || !radiusScale) return;
-
+        
         const transitions = [];
         blinkingNodes.forEach(nodeData => {
             const node = g.selectAll(".node").filter(d => d.id === nodeData.id);
@@ -527,15 +529,15 @@ function handleNodeMouseOver(event, d) {
             const strokeColor = strokeColors[fullDataNode.boostTrend];
             titleStyle += `-webkit-text-stroke: 0.3px ${strokeColor}; text-stroke: 0.3px ${strokeColor};`;
         }
-
+        
         tooltip.html(`
-        <div class="tooltip-title" style="${titleStyle}">${fullDataNode.id}</div>
-        <div class="tooltip-stat"><span class="tooltip-icon">🗓️</span><span class="tooltip-label">Data założenia:</span> ${formatDate(parseDateString(fullDataNode.creationDate))}</div>
-        <div class="tooltip-stat"><span class="tooltip-icon">👥</span><span class="tooltip-label">Członkowie:</span> ${fullDataNode.members || 0}</div>
-        <div class="tooltip-stat"><span class="tooltip-icon"><img src="images/boost-icon.png" alt="Boosty"></span><span class="tooltip-label">Boosty:</span> ${fullDataNode.boosts || 0}</div>
-        <div class="tooltip-stat"><span class="tooltip-icon">🤝</span><span class="tooltip-label">Partnerstwa:</span> ${(fullDataNode.partnerships || []).length}</div>
+            <div class="tooltip-title" style="${titleStyle}">${fullDataNode.id}</div>
+            <div class="tooltip-stat"><span class="tooltip-icon">🗓️</span><span class="tooltip-label">Data założenia:</span> ${formatDate(parseDateString(fullDataNode.creationDate))}</div>
+            <div class="tooltip-stat"><span class="tooltip-icon">👥</span><span class="tooltip-label">Członkowie:</span> ${fullDataNode.members || 0}</div>
+            <div class="tooltip-stat"><span class="tooltip-icon"><img src="images/boost-icon.png" alt="Boosty"></span><span class="tooltip-label">Boosty:</span> ${fullDataNode.boosts || 0}</div>
+            <div class="tooltip-stat"><span class="tooltip-icon">🤝</span><span class="tooltip-label">Partnerstwa:</span> ${(fullDataNode.partnerships || []).length}</div>
         `).style("display", "block");
-
+        
         const tooltipNode = tooltip.node();
         let left = event.pageX + 15, top = event.pageY + 15;
         if (left + tooltipNode.offsetWidth > window.innerWidth) { left = event.pageX - tooltipNode.offsetWidth - 15; }
