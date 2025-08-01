@@ -24,6 +24,9 @@ function handleColorModeChange() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const polishLocale = { "dateTime": "%A, %e %B %Y, %X", "date": "%d.%m.%Y", "time": "%H:%M:%S", "periods": ["AM", "PM"], "days": ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"], "shortDays": ["N", "Pn", "Wt", "Śr", "Cz", "Pt", "So"], "months": ["styczeń", "luty", "marzec", "kwiecień", "maj", "czerwiec", "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień"], "shortMonths": ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"] };
+    d3.timeFormatDefaultLocale(polishLocale);
+
     const overlay = document.getElementById('overlay');
     const understandButton = document.getElementById('understandButton');
 
