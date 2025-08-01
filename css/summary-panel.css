@@ -30,6 +30,10 @@ font-size: 22px;
     margin-bottom: 25px;
 }
 
+#summaryPanel .summary-section:last-child {
+margin-bottom: 0;
+}
+
 .summary-section h3 {
     margin: 0 0 10px 0;
     font-size: 16px;
