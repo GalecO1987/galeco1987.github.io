@@ -55,10 +55,11 @@ let secondServerToCompare = null;
 let wasSummaryPanelOpen = false;
 
 const availableDataVersions = [
+    { date: "2025-08-01", file: "data/data-2025-08-01.js", label: "1 sierpnia 2025" },
     { date: "2025-07-01", file: "data/data-2025-07-01.js", label: "1 lipca 2025" },
-{ date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
-{ date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
-{ date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
+    { date: "2025-06-01", file: "data/data-2025-06-01.js", label: "1 czerwca 2025" },
+    { date: "2025-05-01", file: "data/data-2025-05-01.js", label: "1 maja 2025" },
+    { date: "2025-04-01", file: "data/data-2025-04-01.js", label: "1 kwietnia 2025" }
 ];
 
 const defaultState = {
