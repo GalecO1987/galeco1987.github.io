@@ -10,7 +10,6 @@ function initSummaryPanel() {
         updateURLWithCurrentState();
     });
 
-    // Rysuj wykres tylko na starcie, jeśli nie jesteśmy w widoku mobilnym
     if (window.innerWidth > 768) {
         drawSummaryChart(currentTrendMetric);
     }
@@ -79,7 +78,27 @@ function drawSummaryChart(metric) {
     const yPadding = (yMax - yMin) * 0.15 || 1;
     const y = d3.scaleLinear().domain([Math.max(0, yMin - yPadding), yMax + yPadding]).range([height, 0]);
 
-    chartSvg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(4).tickFormat(d3.timeFormat("%b '%y")));
+    const xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%b '%y"));
+    if (historyData.length > 1 && historyData.length <= 5) {
+        xAxis.tickValues(historyData.map(d => d.date));
+    } else {
+        xAxis.ticks(4);
+    }
+
+    const xAxisGroup = chartSvg.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(xAxis);
+
+    const ticks = xAxisGroup.selectAll(".tick");
+    ticks.each(function(_, i) {
+        if (i === 0) {
+            d3.select(this).select("text").style("text-anchor", "start");
+        }
+        if (i === ticks.size() - 1) {
+            d3.select(this).select("text").style("text-anchor", "end");
+        }
+    });
+
     chartSvg.append("g").call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
 
     const line = d3.line().x(d => x(d.date)).y(d => y(d.value));
