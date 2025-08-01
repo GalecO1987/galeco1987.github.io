@@ -103,15 +103,15 @@ function initializeScales() {
         boostColorScale = () => '#f0f0f0';
     }
 
-    const now = new Date();
-    const oneYearAgo = new Date(new Date().setFullYear(now.getFullYear() - 1)).getTime();
-    const twoYearsAgo = new Date(new Date().setFullYear(now.getFullYear() - 2)).getTime();
-    const fourYearsAgo = new Date(new Date().setFullYear(now.getFullYear() - 4)).getTime();
-    const sixYearsAgo = new Date(new Date().setFullYear(now.getFullYear() - 6)).getTime();
+    const now = currentDataDate;
+    const oneYearAgo = new Date(new Date(now).setFullYear(now.getFullYear() - 1)).getTime();
+    const twoYearsAgo = new Date(new Date(now).setFullYear(now.getFullYear() - 2)).getTime();
+    const fourYearsAgo = new Date(new Date(now).setFullYear(now.getFullYear() - 4)).getTime();
+    const sixYearsAgo = new Date(new Date(now).setFullYear(now.getFullYear() - 6)).getTime();
 
     ageColorScale = d3.scaleThreshold()
     .domain([oneYearAgo, twoYearsAgo, fourYearsAgo, sixYearsAgo].reverse())
-    .range(['#20002c', '#4f0072', '#306aff', '#45d6ff', '#ffffff']);
+    .range(['#410159', '#ad00fc', '#306aff', '#45d6ff', '#ffffff']);
 
     partnershipColorScale = d3.scaleThreshold()
     .domain([1, 5, 10, 15])
