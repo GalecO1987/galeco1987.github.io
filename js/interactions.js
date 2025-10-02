@@ -34,7 +34,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
         chartContainer.html(`
         <h3 class="section-divider">Historia:</h3>
         <div id="chart-controls-compare"></div>
-        <div id="serverInfo-chart-compare"></div>
+        <div id="serverInfo-chart-compare" class="chart-container-wrapper"></div>
         `);
         d3.select("#chart-controls").clone(true).each(function() {
             d3.select("#chart-controls-compare").node().appendChild(this);
@@ -93,27 +93,34 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     controls.selectAll('.chart-toggle-btn').classed('active', false);
     controls.select(`.chart-toggle-btn[data-chart="${dataType}"]`).classed('active', true);
 
-    const margin = {top: 10, right: 15, bottom: 25, left: 40};
+    const margin = {top: 10, right: 15, bottom: 25, left: 50};
+    const axisPadding = 25;
     const containerWidth = finalChartDiv.node().getBoundingClientRect().width;
     const pointWidth = 60;
     const maxPoints = d3.max(groupedData, ([, data]) => data.length);
-    const dynamicWidth = Math.max(containerWidth - margin.left - margin.right, maxPoints * pointWidth);
+    const dynamicWidth = Math.max(containerWidth - margin.left, maxPoints * pointWidth);
     const height = finalChartDiv.node().getBoundingClientRect().height - margin.top - margin.bottom;
 
-    const chartSvg = finalChartDiv.append("svg")
-    .attr("width", dynamicWidth + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+    finalChartDiv.html(`
+    <div class="chart-wrapper">
+    <svg class="y-axis-svg"></svg>
+    <div class="scroll-container">
+    <svg class="main-chart-svg"></svg>
+    </div>
+    </div>
+    `);
 
-    if (finalChartDiv.node().scrollWidth > containerWidth) {
-        finalChartDiv.node().scrollLeft = finalChartDiv.node().scrollWidth - containerWidth;
-    }
+    const yAxisSvg = finalChartDiv.select(".y-axis-svg").attr("width", margin.left).attr("height", height + margin.top + margin.bottom);
+    const scrollContainer = finalChartDiv.select(".scroll-container");
+    const mainChartSvg = scrollContainer.select(".main-chart-svg").attr("width", dynamicWidth + axisPadding * 2).attr("height", height + margin.top + margin.bottom);
+
+    const gY = yAxisSvg.append("g").attr("transform", `translate(${margin.left - 1},${margin.top})`);
+    const gMain = mainChartSvg.append("g").attr("transform", `translate(${axisPadding},${margin.top})`);
 
     const specialColorScale = d3.scaleOrdinal().domain(serverIds).range(["#e41a1c", "#377eb8"]);
     const trendFillColor = { growth: '#4CAF50', decline: '#f44336' };
 
-    const defs = chartSvg.append("defs");
+    const defs = mainChartSvg.append("defs");
     const gradient = defs.append("linearGradient")
     .attr("id", "dual-color-gradient")
     .attr("x1", "0%").attr("y1", "0%")
@@ -129,8 +136,8 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     const yPadding = (yMax - yMin) * 0.15 || 1;
     const y = d3.scaleLinear().domain([Math.max(0, yMin - yPadding), yMax + yPadding]).range([height, 0]);
 
-    chartSvg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(4).tickFormat(d3.timeFormat("%b '%y")));
-    chartSvg.append("g").call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
+    gMain.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(Math.min(maxPoints, 10)).tickFormat(d3.timeFormat("%b '%y")));
+    gY.call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
 
     const tooltipLabelMap = { members: 'Członkowie', boosts: 'Boosty', partnerships: 'Partnerstwa' };
     const trendSymbol = d3.symbol().type(d3.symbolTriangle).size(25);
@@ -138,6 +145,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     groupedData.forEach(([id, data], i) => {
         const serverNode = currentDataSet.nodes.find(n => n.id === id);
         const serverColor = useSpecialColors ? specialColorScale(id) : (serverNode ? getNodeColor(serverNode) : '#ccc');
+        const sanitizedId = sanitizeForClass(id);
 
         const line = d3.line()
         .defined(d => d.value !== null && !isNaN(d.value))
@@ -150,11 +158,11 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
             return base_y;
         });
 
-        chartSvg.append("path").datum(data).attr("class", "chart-line").attr("d", line).style("stroke", serverColor);
+        gMain.append("path").datum(data).attr("class", "chart-line").attr("d", line).style("stroke", serverColor);
 
         const points = data.filter(d => d.value !== null);
 
-        chartSvg.selectAll(`.chart-point-${id.replace(/\s+/g, '-')}`).data(points).join("circle").attr("class", `chart-point chart-point-${id.replace(/\s+/g, '-')}`)
+        gMain.selectAll(`.chart-point-${sanitizedId}`).data(points).join("circle").attr("class", `chart-point chart-point-${sanitizedId}`)
         .attr("cx", d => x(d.date)).attr("cy", d => y(d.value)).attr("r", 4)
         .attr("fill", d => d.sharedValue ? "url(#dual-color-gradient)" : serverColor)
         .on("mouseover", (event, d) => {
@@ -194,13 +202,18 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
             tooltip.style("left", left + "px").style("top", (event.pageY - 28) + "px");
         }).on("mouseout", () => { tooltip.style("display", "none"); });
 
-        chartSvg.selectAll(`.trend-indicator-${id.replace(/\s+/g, '-')}`).data(points.filter(d => d.trend && d.trend !== 'stable'))
+        gMain.selectAll(`.trend-indicator-${sanitizedId}`).data(points.filter(d => d.trend && d.trend !== 'stable'))
         .join("path")
         .attr("d", trendSymbol)
         .attr("class", "trend-indicator")
         .attr("fill", d => trendFillColor[d.trend])
         .attr("transform", d => `translate(${x(d.date)}, ${y(d.value) - 8}) ${d.trend === 'decline' ? 'rotate(180)' : 'rotate(0)'}`);
     });
+
+    const scrollNode = scrollContainer.node();
+    if (scrollNode) {
+        scrollNode.scrollLeft = scrollNode.scrollWidth - scrollNode.clientWidth;
+    }
 }
 
 function handleNodeClick(event, d, initialChartType = 'members') {
