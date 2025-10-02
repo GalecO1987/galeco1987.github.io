@@ -64,16 +64,29 @@ function drawSummaryChart(metric) {
     if (historyData.length < 2) return;
 
     const margin = {top: 10, right: 15, bottom: 25, left: 50};
-    const width = chartDiv.node().getBoundingClientRect().width - margin.left - margin.right;
+    const axisPadding = 25;
+    const pointWidth = 60;
+    const containerWidth = chartDiv.node().getBoundingClientRect().width;
+    const dynamicWidth = Math.max(containerWidth - margin.left - margin.right, historyData.length * pointWidth);
     const height = chartDiv.node().getBoundingClientRect().height - margin.top - margin.bottom;
 
-    const chartSvg = chartDiv.append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+    chartDiv.html(`
+    <div class="chart-wrapper">
+    <svg class="y-axis-svg"></svg>
+    <div class="scroll-container">
+    <svg class="main-chart-svg"></svg>
+    </div>
+    </div>
+    `);
 
-    const x = d3.scaleTime().domain(d3.extent(historyData, d => d.date)).range([0, width]);
+    const yAxisSvg = chartDiv.select(".y-axis-svg").attr("width", margin.left).attr("height", height + margin.top + margin.bottom);
+    const scrollContainer = chartDiv.select(".scroll-container");
+    const mainChartSvg = scrollContainer.select(".main-chart-svg").attr("width", dynamicWidth + axisPadding * 2).attr("height", height + margin.top + margin.bottom);
+
+    const gY = yAxisSvg.append("g").attr("transform", `translate(${margin.left - 1},${margin.top})`);
+    const gMain = mainChartSvg.append("g").attr("transform", `translate(${axisPadding},${margin.top})`);
+
+    const x = d3.scaleTime().domain(d3.extent(historyData, d => d.date)).range([0, dynamicWidth]);
     const [yMin, yMax] = d3.extent(historyData, d => d.value);
     const yPadding = (yMax - yMin) * 0.15 || 1;
     const y = d3.scaleLinear().domain([Math.max(0, yMin - yPadding), yMax + yPadding]).range([height, 0]);
@@ -82,32 +95,22 @@ function drawSummaryChart(metric) {
     if (historyData.length > 1 && historyData.length <= 5) {
         xAxis.tickValues(historyData.map(d => d.date));
     } else {
-        xAxis.ticks(4);
+        xAxis.ticks(Math.min(historyData.length, 10));
     }
 
-    const xAxisGroup = chartSvg.append("g")
+    gMain.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(xAxis);
 
-    const ticks = xAxisGroup.selectAll(".tick");
-    ticks.each(function(_, i) {
-        if (i === 0) {
-            d3.select(this).select("text").style("text-anchor", "start");
-        }
-        if (i === ticks.size() - 1) {
-            d3.select(this).select("text").style("text-anchor", "end");
-        }
-    });
-
-    chartSvg.append("g").call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
+    gY.call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
 
     const line = d3.line().x(d => x(d.date)).y(d => y(d.value));
 
-    chartSvg.append("path").datum(historyData).attr("class", "chart-line").attr("d", line);
+    gMain.append("path").datum(historyData).attr("class", "chart-line").attr("d", line);
 
     const tooltipLabelMap = { members: 'Suma członków', boosts: 'Suma boostów', partnerships: 'Suma partnerstw' };
 
-    chartSvg.selectAll(".chart-point").data(historyData).join("circle").attr("class", "chart-point")
+    gMain.selectAll(".chart-point").data(historyData).join("circle").attr("class", "chart-point")
     .attr("cx", d => x(d.date)).attr("cy", d => y(d.value)).attr("r", 4)
     .on("mouseover", (event, d) => {
         const dateLabel = d3.timeFormat("%d %B %Y")(d.date);
@@ -129,10 +132,15 @@ function drawSummaryChart(metric) {
     const trendSymbol = d3.symbol().type(d3.symbolTriangle).size(25);
     const trendFillColor = { growth: '#4CAF50', decline: '#f44336' };
 
-    chartSvg.selectAll(".trend-indicator").data(historyData.filter(d => d.trend && d.trend !== 'stable'))
+    gMain.selectAll(".trend-indicator").data(historyData.filter(d => d.trend && d.trend !== 'stable'))
     .join("path").attr("d", trendSymbol).attr("class", "trend-indicator")
     .attr("fill", d => trendFillColor[d.trend])
     .attr("transform", d => `translate(${x(d.date)}, ${y(d.value) - 8}) ${d.trend === 'decline' ? 'rotate(180)' : 'rotate(0)'}`);
+
+    const scrollNode = scrollContainer.node();
+    if (scrollNode) {
+        scrollNode.scrollLeft = scrollNode.scrollWidth - scrollNode.clientWidth;
+    }
 }
 
 
