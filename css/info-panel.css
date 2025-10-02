@@ -257,36 +257,48 @@ margin-bottom: 10px;
     border-color: #4CAF50;
 }
 
-#serverInfo-chart, #serverInfo-chart-compare {
+#serverInfo-chart, #comparison-chart-container .chart-container-wrapper {
 width: 100%;
 height: 150px;
 margin-bottom: 10px;
-overflow-x: auto;
 }
 
-#serverInfo-chart svg, #serverInfo-chart-compare svg {
-display: block;
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-#serverInfo-chart .axis-line, #serverInfo-chart .tick line,
-#serverInfo-chart-compare .axis-line, #serverInfo-chart-compare .tick line {
-stroke: #444;
+.y-axis-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    pointer-events: none;
 }
 
-#serverInfo-chart .tick text,
-#serverInfo-chart-compare .tick text {
-fill: #aaa;
-font-size: 10px;
+.scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 100%;
+    margin-left: 50px;
 }
 
-#serverInfo-chart .chart-line,
-#serverInfo-chart-compare .chart-line {
-fill: none;
-stroke-width: 2px;
+.tick line {
+    stroke: #444;
 }
 
-#serverInfo-chart .chart-point,
-#serverInfo-chart-compare .chart-point {
-stroke-width: 1px;
-stroke: #1c1c1c;
+.tick text {
+    fill: #aaa;
+    font-size: 10px;
+}
+
+.chart-line {
+    fill: none;
+    stroke-width: 2px;
+}
+
+.chart-point {
+    stroke-width: 1px;
+    stroke: #1c1c1c;
 }
