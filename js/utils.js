@@ -66,6 +66,10 @@ function parseDateString(dateStr_DDMMYYYY) {
     return !isNaN(dateObj.getTime()) ? dateObj : null;
 }
 
+function sanitizeForClass(id) {
+    if (typeof id !== 'string') return '';
+    return id.replace(/[^a-zA-Z0-9-]/g, '_');
+}
 
 function getStateFromURL() {
     const hash = window.location.hash.substring(1);
