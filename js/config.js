@@ -55,6 +55,7 @@ let secondServerToCompare = null;
 let wasSummaryPanelOpen = false;
 
 const availableDataVersions = [
+    { date: "2025-10-01", file: "data/data-2025-10-01.js", label: "1 października 2025" },
     { date: "2025-09-01", file: "data/data-2025-09-01.js", label: "1 września 2025" },
     { date: "2025-08-01", file: "data/data-2025-08-01.js", label: "1 sierpnia 2025" },
     { date: "2025-07-01", file: "data/data-2025-07-01.js", label: "1 lipca 2025" },
