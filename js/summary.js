@@ -61,14 +61,14 @@ function drawSummaryChart(metric) {
         }
     }
 
-    if (historyData.length < 2) return;
+    if (historyData.length === 0) return;
 
     const margin = {top: 10, right: 15, bottom: 25, left: 50};
     const axisPadding = 25;
     const pointWidth = 60;
-    const containerWidth = chartDiv.node().getBoundingClientRect().width;
-    const dynamicWidth = Math.max(containerWidth - margin.left - margin.right, historyData.length * pointWidth);
     const height = chartDiv.node().getBoundingClientRect().height - margin.top - margin.bottom;
+
+    const dynamicWidth = historyData.length > 1 ? (historyData.length - 1) * pointWidth : pointWidth;
 
     chartDiv.html(`
     <div class="chart-wrapper">
@@ -91,12 +91,7 @@ function drawSummaryChart(metric) {
     const yPadding = (yMax - yMin) * 0.15 || 1;
     const y = d3.scaleLinear().domain([Math.max(0, yMin - yPadding), yMax + yPadding]).range([height, 0]);
 
-    const xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%b '%y"));
-    if (historyData.length > 1 && historyData.length <= 5) {
-        xAxis.tickValues(historyData.map(d => d.date));
-    } else {
-        xAxis.ticks(Math.min(historyData.length, 10));
-    }
+    const xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%b '%y")).tickValues(historyData.map(d => d.date));
 
     gMain.append("g")
     .attr("transform", `translate(0,${height})`)
@@ -142,7 +137,6 @@ function drawSummaryChart(metric) {
         scrollNode.scrollLeft = scrollNode.scrollWidth - scrollNode.clientWidth;
     }
 }
-
 
 function updateTrendRankings(metric = currentTrendMetric) {
     const tableBody = d3.select("#trend-rank-table-body");
