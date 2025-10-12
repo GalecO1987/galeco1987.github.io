@@ -86,7 +86,7 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
         });
     }
 
-    if (groupedData.every(group => group[1].length < 2)) return;
+    if (groupedData.every(group => group[1].length < 1)) return;
 
     chartContainer.classed("hidden", false);
     const controls = secondServerToCompare ? d3.select("#chart-controls-compare") : d3.select("#chart-controls");
@@ -95,11 +95,11 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
 
     const margin = {top: 10, right: 15, bottom: 25, left: 50};
     const axisPadding = 25;
-    const containerWidth = finalChartDiv.node().getBoundingClientRect().width;
     const pointWidth = 60;
     const maxPoints = d3.max(groupedData, ([, data]) => data.length);
-    const dynamicWidth = Math.max(containerWidth - margin.left, maxPoints * pointWidth);
     const height = finalChartDiv.node().getBoundingClientRect().height - margin.top - margin.bottom;
+
+    const dynamicWidth = maxPoints > 1 ? (maxPoints - 1) * pointWidth : pointWidth;
 
     finalChartDiv.html(`
     <div class="chart-wrapper">
@@ -136,7 +136,11 @@ function drawServerHistoryChart(serverIds, dataType = 'members', useSpecialColor
     const yPadding = (yMax - yMin) * 0.15 || 1;
     const y = d3.scaleLinear().domain([Math.max(0, yMin - yPadding), yMax + yPadding]).range([height, 0]);
 
-    gMain.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(Math.min(maxPoints, 10)).tickFormat(d3.timeFormat("%b '%y")));
+    const uniqueDates = allHistoryData.map(d => d.date)
+    .filter((v, i, a) => a.findIndex(t => t.getTime() === v.getTime()) === i)
+    .sort((a,b) => a - b);
+
+    gMain.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).tickValues(uniqueDates).tickFormat(d3.timeFormat("%b '%y")));
     gY.call(d3.axisLeft(y).ticks(3).tickFormat(d3.format("~s")));
 
     const tooltipLabelMap = { members: 'Członkowie', boosts: 'Boosty', partnerships: 'Partnerstwa' };
