@@ -35,6 +35,11 @@ function loadDataVersion(versionInfo, isInitialLoad = false, onLoadCallback = nu
     if (simulation) simulation.stop();
     g.selectAll("*").remove();
 
+    summaryPanel.classed('temporarily-hidden', false);
+    wasSummaryPanelOpen = false;
+    document.body.classList.remove('mobile-info-active');
+    document.body.classList.remove('mobile-summary-active');
+
     const dataKey = versionInfo.date;
     currentDataSet = allData.get(dataKey);
     currentDataDate = new Date(dataKey);
