@@ -1,6 +1,6 @@
 window.loadedDataSet = {
     nodes: [
-        { id: "Puszysta Oaza", creationDate: "21 czerwca 2024", members: 361, boosts: 24, partnerships: [] },
+        { id: "Puszysta Oaza", creationDate: "21 czerwca 2024", members: 361, boosts: 25, partnerships: [] },
     //  { id: "New Arctic Furries", creationDate: "12 grudnia 2024", members: 32, boosts: 0, partnerships: [] },
         { id: "Kącik Przyjaciół", creationDate: "13 września 2023", members: 17, boosts: 0, partnerships: [] },
         { id: "Futrzasta Piwnica Przyjaźni", creationDate: "19 listopada 2023", members: 85, boosts: 0, partnerships: [] },
